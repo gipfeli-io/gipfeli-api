@@ -18,6 +18,7 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_email: ${{ secrets.GCP_EMAIL }}
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          export_default_credentials: true  # Set to true to authenticate the Cloud Run action
 
       - name: Configure Docker
         run: gcloud auth configure-docker --quiet
