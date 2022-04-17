@@ -9,7 +9,7 @@ jobs:
     name: Build and deploy project
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+      IMAGE_NAME: ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACTS_REPOSITORY }}/${{ secrets.GCP_APP_NAME }}
     permissions:
       contents: read
       id-token: write
@@ -34,6 +34,6 @@ jobs:
         run: docker push $IMAGE_NAME
 
       - name: Deploy docker image to cloud run
-        run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region europe-west1 --project ${{ secrets.GCP_PROJECT_ID }}
+        run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }}
 
 
