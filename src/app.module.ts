@@ -3,20 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { User } from './user/entities/user';
+import { ConfigModule } from '@nestjs/config';
+import DatabaseConfig from './config/database-config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'gipfeli-io-db-dev',
-      entities: [User],
-      synchronize: false,
+    ConfigModule.forRoot({
+      envFilePath: `${process.cwd()}/config/env/.${process.env.NODE_ENV}.env`,
+      cache: true,
     }),
+    TypeOrmModule.forRoot(DatabaseConfig),
     UserModule,
   ],
   controllers: [AppController],
