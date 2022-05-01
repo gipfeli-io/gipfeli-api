@@ -2,10 +2,9 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-const env = process.env.NODE_ENV || 'development';
-console.log('set env: ', process.env.NODE_ENV);
-const dotenv_path = path.resolve(process.cwd(), `config/env/.${env}.env`);
+const dotenv_path = path.resolve(process.cwd(), `.env`);
 dotenv.config({ path: dotenv_path });
+console.log('set env: ', process.env.TYPEORM_USERNAME);
 
 export const DatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
