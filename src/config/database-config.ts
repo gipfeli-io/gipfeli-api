@@ -14,7 +14,7 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   password: process.env.TYPEORM_PASSWORD,
   host: process.env.TYPEORM_HOST,
   synchronize: false,
-  entities: ['dist/**/*.entity{.ts,.js}'],
+  autoLoadEntities: true,
 };
 
 export default DatabaseConfig;
