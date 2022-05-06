@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
 
 const dotenv_path = path.resolve(process.cwd(), `.env`);
 dotenv.config({ path: dotenv_path });
@@ -15,15 +14,16 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   password: process.env.TYPEORM_PASSWORD,
   host: process.env.TYPEORM_HOST,
   synchronize: false,
-  entities: [User],
+  entities: ['dist/**/*.entity{.ts,.js}'],
+  autoLoadEntities: true,
 };
 
 export const OrmConfig = {
   ...DatabaseConfig,
   migrationsTableName: 'migrations',
-  migrations: ['src/migrations/*.ts'],
+  migrations: ['dist/migrations/*{.ts, .js}'],
   cli: {
-    migrationsDir: 'src/migrations',
+    migrationsDir: 'dist/migrations',
   },
 };
 
