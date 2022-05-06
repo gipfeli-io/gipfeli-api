@@ -38,7 +38,13 @@ jobs:
           build-args: TYPEORM_HOST=${{ secrets.TYPEORM_HOST }},TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }},TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }},TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }},TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
 
       - name: Deploy docker image to cloud run
-        run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }}
+        run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }} \
+          --add-cloudsql-instances=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars INSTANCE_CONNECTION_NAME=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars INSTANCE_UNIX_SOCKET=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars DB_USER=${{ secrets.TYPEORM_USERNAME }} \
+          --set-env-vars DB_PASS=${{ secrets.TYPEORM_PASSWORD }} \
+          --set-env-vars DB_NAME=${{ secrets.TYPEORM_DATABASE }} \
 
 
 
