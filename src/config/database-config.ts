@@ -15,7 +15,7 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   password: process.env.TYPEORM_PASSWORD,
   host: process.env.TYPEORM_HOST,
   extra: {
-    socketPath: '/cloudsql/gipfeli-io-website:europe-west1:gipfeli-io-data',
+    socketPath: process.env.TYPEORM_HOST,
   },
   synchronize: false,
   entities: [rootDir + '/**/*.entity{.ts,.js}'],
