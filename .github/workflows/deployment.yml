@@ -34,6 +34,7 @@ jobs:
         with:
           context: .
           tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}:${{ github.sha }}
+          push: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}:${{ github.sha }}
           build-args: TYPEORM_HOST=${{ secrets.TYPEORM_HOST }},TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }},TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }},TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }},TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
 
       - name: Deploy docker image to cloud run
