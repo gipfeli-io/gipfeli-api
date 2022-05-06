@@ -31,7 +31,7 @@ jobs:
 
       - name: Build container
         run: docker build . \
-        -t $IMAGE_NAME
+        -t $IMAGE_NAME \
         --build-arg TYPEORM_HOST=${{ secrets.TYPEORM_HOST }} \
         --build-arg TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }} \
         --build-arg TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }} \
