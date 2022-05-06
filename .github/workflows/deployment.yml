@@ -39,12 +39,12 @@ jobs:
 
       - name: Deploy docker image to cloud run
         run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }} \
-          --add-cloudsql-instances=${{ TYPEORM_HOST }} \
-          --set-env-vars INSTANCE_CONNECTION_NAME=${{ TYPEORM_HOST }} \
-          --set-env-vars INSTANCE_UNIX_SOCKET=${{ TYPEORM_HOST }} \
-          --set-env-vars DB_USER=${{ TYPEORM_USERNAME }} \
-          --set-env-vars DB_PASS=${{ TYPEORM_PASSWORD }} \
-          --set-env-vars DB_NAME=${{ TYPEORM_DATABASE }} \
+          --add-cloudsql-instances=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars INSTANCE_CONNECTION_NAME=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars INSTANCE_UNIX_SOCKET=${{ secrets.TYPEORM_HOST }} \
+          --set-env-vars DB_USER=${{ secrets.TYPEORM_USERNAME }} \
+          --set-env-vars DB_PASS=${{ secrets.TYPEORM_PASSWORD }} \
+          --set-env-vars DB_NAME=${{ secrets.TYPEORM_DATABASE }} \
 
 
 
