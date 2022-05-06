@@ -29,17 +29,13 @@ jobs:
       - name: Configure Docker
         run: gcloud auth configure-docker $Container_BASE_URL
 
-      - name: Build container
-        run: docker build . \
-        -t $IMAGE_NAME \
-        --build-arg TYPEORM_HOST=${{ secrets.TYPEORM_HOST }} \
-        --build-arg TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }} \
-        --build-arg TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }} \
-        --build-arg TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }} \
-        --build-arg TYPEORM_PORT=${{ secrets.TYPEORM_PORT }} \
-
-      - name: Push docker image
-        run: docker push $IMAGE_NAME
+      - name: Build and push image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: $IMAGE_NAME
+          push: $IMAGE_NAME
+          build-args: TYPEORM_HOST=${{ secrets.TYPEORM_HOST }},TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }},TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }},TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }},TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
 
       - name: Deploy docker image to cloud run
         run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }}
