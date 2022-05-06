@@ -19,7 +19,7 @@ COPY package.json .
 
 RUN npm install
 
-# RUN npm i -g typeorm ts-node #check if this is really needed
+RUN npm i -g typeorm ts-node #check if this is really needed
 
 COPY . .
 
