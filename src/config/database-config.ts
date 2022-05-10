@@ -12,6 +12,7 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   database: process.env.TYPEORM_DATABASE,
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
+  host: process.env.TYPEORM_HOST,
   extra: {
     socketPath: process.env.TYPEORM_HOST,
   },
