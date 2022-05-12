@@ -14,5 +14,4 @@ RUN npm run build
 
 EXPOSE $PORT
 
-CMD [ "npm", "run", "typeorm-migration" ]
-CMD [ "npm", "run", "start:prod" ]
+CMD npm run typeorm-migration && npm run start:prod
