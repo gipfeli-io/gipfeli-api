@@ -5,8 +5,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 const dotenv_path = path.resolve(process.cwd(), `.env`);
 dotenv.config({ path: dotenv_path });
 const rootDir = process.env.NODE_ENV ? 'dist' : 'src';
-console.log('rootDir', rootDir);
-console.log('env', process.env.NODE_ENV);
+
 export const DatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
   database: process.env.TYPEORM_DATABASE,
