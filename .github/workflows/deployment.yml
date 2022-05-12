@@ -2,7 +2,7 @@ name: Deploy to staging environment
 
 on:
   push:
-    branches: [ stage, feature/integrate-typeorm-and-add-user-table ]
+    branches: [ stage ]
 
 jobs:
   deploy:
