@@ -6,10 +6,12 @@ COPY package.json .
 
 RUN npm install
 
+RUN npm i -g typeorm ts-node #check if this is really needed
+
 COPY . .
 
 RUN npm run build
 
 EXPOSE $PORT
 
-CMD [ "npm", "run", "start:prod" ]
+CMD npm run typeorm-migration && npm run start:prod
