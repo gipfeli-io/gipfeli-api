@@ -6,9 +6,11 @@ import { AppService } from './services/app.service';
 import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
+import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 
 @Module({
   imports: [
+    InfrastructureModule,
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: jwtConstants.secret,
