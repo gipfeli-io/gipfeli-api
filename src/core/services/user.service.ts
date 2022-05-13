@@ -8,7 +8,7 @@ import { UserDto } from '../dtos/userDto';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async findAll(): Promise<UserDto[]> {
