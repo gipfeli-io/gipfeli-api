@@ -21,9 +21,9 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
 export const OrmConfig = {
   ...DatabaseConfig,
   migrationsTableName: 'migrations',
-  migrations: [rootDir + '/migrations/*{.ts, .js}'],
+  migrations: [rootDir + '/infrastructure/migrations/*{.ts, .js}'],
   cli: {
-    migrationsDir: rootDir + '/migrations',
+    migrationsDir: rootDir + '/infrastructure/migrations',
   },
 };
 
