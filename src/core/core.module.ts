@@ -7,6 +7,7 @@ import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
+import { TourService } from './services/tour.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
       signOptions: { expiresIn: '3600s' },
     }),
   ],
-  providers: [UserService, AppService, AuthService],
-  exports: [UserService, AppService, AuthService],
+  providers: [UserService, AppService, AuthService, TourService],
+  exports: [UserService, AppService, AuthService, TourService],
 })
 export class CoreModule {}
