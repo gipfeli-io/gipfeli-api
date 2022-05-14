@@ -40,10 +40,10 @@ export class Tour {
   description: string;
 
   @CreateDateColumn()
-  CreatedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  UpdatedAt: Date;
+  updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.tours)
   user: User;

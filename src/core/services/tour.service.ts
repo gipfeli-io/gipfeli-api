@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTourDto } from '../dtos/create-tour.dto';
-import { UpdateTourDto } from '../dtos/update-tour.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository } from 'typeorm';
+import { Tour } from '../../infrastructure/entities/tour.entity';
+import { CreateTourDto, TourDto, UpdateTourDto } from '../dtos/tour';
 
 @Injectable()
 export class TourService {
-  create(createTourDto: CreateTourDto) {
-    return 'This action adds a new tour';
+  constructor(
+    @InjectRepository(Tour)
+    private readonly tourRepository: Repository<Tour>,
+  ) {}
+
+  async create(createTourDto: CreateTourDto): Promise<Tour> {
+    let tour = this.tourRepository.create(createTourDto);
+    tour = await this.tourRepository.save(tour);
+
+    return tour;
   }
 
-  findAll() {
-    return `This action returns all tours`;
+  findAll(): Promise<TourDto[]> {
+    // todo: async not required?
+    return this.tourRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tour`;
+  findOne(id: string): Promise<TourDto> {
+    return this.tourRepository.findOne({ where: [{ id: id }] });
   }
 
   update(id: number, updateTourDto: UpdateTourDto) {
     return `This action updates a #${id} tour`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tour`;
+  remove(id: string): Promise<DeleteResult> {
+    return this.tourRepository.delete({ id: id });
   }
 }

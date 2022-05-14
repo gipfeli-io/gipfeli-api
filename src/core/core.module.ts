@@ -8,11 +8,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { TourService } from './services/tour.service';
+import { Tour } from '../infrastructure/entities/tour.entity';
 
 @Module({
   imports: [
     InfrastructureModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Tour]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '3600s' },

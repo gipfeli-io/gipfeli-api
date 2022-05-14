@@ -9,9 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TourService } from '../../core/services/tour.service';
-import { CreateTourDto } from '../../core/dtos/create-tour.dto';
-import { UpdateTourDto } from '../../core/dtos/update-tour.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateTourDto, TourDto, UpdateTourDto } from '../../core/dtos/tour';
+import { DeleteResult } from 'typeorm';
 
 @Controller('tours')
 @UseGuards(JwtAuthGuard)
@@ -19,18 +19,19 @@ export class TourController {
   constructor(private readonly tourService: TourService) {}
 
   @Post()
-  create(@Body() createTourDto: CreateTourDto) {
-    return this.tourService.create(createTourDto);
+  async create(@Body() createTourDto: CreateTourDto): Promise<TourDto> {
+    return await this.tourService.create(createTourDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<TourDto[]> {
+    // Todo: async not required -> do we use it?
     return this.tourService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tourService.findOne(+id);
+  findOne(@Param('id') id: string): Promise<TourDto> {
+    return this.tourService.findOne(id);
   }
 
   @Patch(':id')
@@ -39,7 +40,7 @@ export class TourController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tourService.remove(+id);
+  remove(@Param('id') id: string): Promise<DeleteResult> {
+    return this.tourService.remove(id);
   }
 }
