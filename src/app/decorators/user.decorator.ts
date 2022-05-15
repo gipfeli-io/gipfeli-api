@@ -1,8 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**
- * This decorator extracts the user from a validated request and can be used to inject the user into any controller
- * handler.
+ * Extract the user from a validated request.
  */
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
