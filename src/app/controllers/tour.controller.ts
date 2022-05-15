@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -30,17 +31,20 @@ export class TourController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<TourDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<TourDto> {
     return this.tourService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTourDto: UpdateTourDto) {
-    return this.tourService.update(+id, updateTourDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTourDto: UpdateTourDto,
+  ): Promise<TourDto> {
+    return this.tourService.update(id, updateTourDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<DeleteResult> {
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<DeleteResult> {
     return this.tourService.remove(id);
   }
 }

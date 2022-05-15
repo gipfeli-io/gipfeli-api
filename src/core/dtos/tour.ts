@@ -1,6 +1,6 @@
 import { Point } from 'geojson';
-import { User } from '../../infrastructure/entities/user.entity';
-import { PartialType, PickType } from '@nestjs/mapped-types';
+import { PickType } from '@nestjs/mapped-types';
+import { UserDto } from './user';
 
 export class TourDto {
   id: string;
@@ -10,14 +10,20 @@ export class TourDto {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  user: User;
+  user: UserDto;
 }
 
-export class CreateTourDto extends PickType(TourDto, [
+export class UpdateTourDto extends PickType(TourDto, [
+  'id',
   'name',
   'startLocation',
   'endLocation',
   'description',
 ] as const) {}
 
-export class UpdateTourDto extends PartialType(CreateTourDto) {}
+export class CreateTourDto extends PickType(UpdateTourDto, [
+  'name',
+  'startLocation',
+  'endLocation',
+  'description',
+] as const) {}

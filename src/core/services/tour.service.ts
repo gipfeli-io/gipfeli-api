@@ -12,26 +12,28 @@ export class TourService {
   ) {}
 
   async create(createTourDto: CreateTourDto): Promise<Tour> {
-    let tour = this.tourRepository.create(createTourDto);
-    tour = await this.tourRepository.save(tour);
+    const newTour = this.tourRepository.create(createTourDto);
 
-    return tour;
+    return await this.tourRepository.save(newTour);
   }
 
   findAll(): Promise<TourDto[]> {
     // todo: async not required?
-    return this.tourRepository.find();
+    return this.tourRepository.find({ relations: ['user'] });
   }
 
   findOne(id: string): Promise<TourDto> {
-    return this.tourRepository.findOne({ where: [{ id: id }] });
+    return this.tourRepository.findOne(id, { relations: ['user'] });
   }
 
-  update(id: number, updateTourDto: UpdateTourDto) {
-    return `This action updates a #${id} tour`;
+  async update(id: string, updateTourDto: UpdateTourDto): Promise<Tour> {
+    // Todo: this is not atomic, but there are no better ways I know of
+    await this.tourRepository.update(id, updateTourDto);
+
+    return await this.tourRepository.findOne(id, { relations: ['user'] });
   }
 
   remove(id: string): Promise<DeleteResult> {
-    return this.tourRepository.delete({ id: id });
+    return this.tourRepository.delete(id);
   }
 }
