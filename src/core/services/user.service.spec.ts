@@ -13,6 +13,15 @@ const user: User = {
   tours: [],
 };
 
+const userDto: UserDto = {
+  id: '8a6e0804-2bd0-4672-b79d-d97027f9071a',
+  firstname: 'Peter',
+  lastname: 'Meier',
+  username: 'peter@gipfeli.io',
+  password: '1234',
+  tours: [],
+};
+
 const userRepositoryMock = {
   findOne: jest.fn(() => Promise.resolve(user)),
   find: jest.fn(() => Promise.resolve([user])),
@@ -36,30 +45,10 @@ describe('UserService', () => {
   });
 
   it('findOne: should return a user', async () => {
-    const username = 'peter@gipfeli.io';
-
-    const userDto: UserDto = {
-      id: '8a6e0804-2bd0-4672-b79d-d97027f9071a',
-      firstname: 'Peter',
-      lastname: 'Meier',
-      username: 'peter@gipfeli.io',
-      password: '1234',
-      tours: [],
-    };
-
-    expect(await service.findOne(username)).toEqual(userDto);
+    expect(await service.findOne('peter@gipfeli.io')).toEqual(userDto);
   });
 
   it('findAll: should return a list of users', async () => {
-    const userDto: UserDto = {
-      id: '8a6e0804-2bd0-4672-b79d-d97027f9071a',
-      firstname: 'Peter',
-      lastname: 'Meier',
-      username: 'peter@gipfeli.io',
-      password: '1234',
-      tours: [],
-    };
-
     expect(await service.findAll()).toEqual([userDto]);
   });
 });
