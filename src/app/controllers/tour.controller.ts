@@ -13,6 +13,8 @@ import { TourService } from '../../core/services/tour.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateTourDto, TourDto, UpdateTourDto } from '../../core/dtos/tour';
 import { DeleteResult } from 'typeorm';
+import { UserDto } from '../../core/dtos/user';
+import { User } from '../decorators/user.decorator';
 
 @Controller('tours')
 @UseGuards(JwtAuthGuard)
@@ -20,31 +22,41 @@ export class TourController {
   constructor(private readonly tourService: TourService) {}
 
   @Post()
-  async create(@Body() createTourDto: CreateTourDto): Promise<TourDto> {
-    return await this.tourService.create(createTourDto);
+  async create(
+    @Body() createTourDto: CreateTourDto,
+    @User() user: UserDto,
+  ): Promise<TourDto> {
+    return await this.tourService.create(createTourDto, user);
   }
 
   @Get()
-  findAll(): Promise<TourDto[]> {
+  findAll(@User() user: UserDto): Promise<TourDto[]> {
     // Todo: async not required -> do we use it?
-    return this.tourService.findAll();
+    return this.tourService.findAll(user);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<TourDto> {
-    return this.tourService.findOne(id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @User() user: UserDto,
+  ): Promise<TourDto> {
+    return this.tourService.findOne(id, user);
   }
 
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTourDto: UpdateTourDto,
+    @User() user: UserDto,
   ): Promise<TourDto> {
-    return this.tourService.update(id, updateTourDto);
+    return this.tourService.update(id, updateTourDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string): Promise<DeleteResult> {
-    return this.tourService.remove(id);
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @User() user: UserDto,
+  ): Promise<void> {
+    return this.tourService.remove(id, user);
   }
 }
