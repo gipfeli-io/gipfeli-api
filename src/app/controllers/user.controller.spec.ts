@@ -3,7 +3,7 @@ import { UserService } from '../../core/services/user.service';
 import { UserController } from './user.controller';
 import { UserDto } from '../../core/dtos/userDto';
 
-describe('UserController', () => {
+xdescribe('UserController', () => {
   let userService: UserService;
   let userController: UserController;
 
