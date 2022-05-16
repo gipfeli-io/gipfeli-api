@@ -45,10 +45,15 @@ describe('UserService', () => {
   });
 
   it('findOne: should return a user', async () => {
-    expect(await service.findOne('peter@gipfeli.io')).toEqual(userDto);
+    const userServiceSpy = jest.spyOn(service, 'findOne');
+    const username = 'peter@gipfeli.io';
+    expect(await service.findOne(username)).toEqual(userDto);
+    expect(userServiceSpy).toHaveBeenCalledWith(username);
   });
 
   it('findAll: should return a list of users', async () => {
+    const userServiceSpy = jest.spyOn(service, 'findAll');
     expect(await service.findAll()).toEqual([userDto]);
+    expect(userServiceSpy).toHaveBeenCalledTimes(1);
   });
 });

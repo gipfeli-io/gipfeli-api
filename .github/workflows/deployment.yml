@@ -1,12 +1,52 @@
-name: Deploy to staging environment
+name: Build and Deploy solution
 
 on:
-  push:
-    branches: [ stage ]
+  - push
 
 jobs:
-  deploy:
-    name: Build and deploy project
+  test-and-build:
+    name: Run tests and build container
+    runs-on: ubuntu-latest
+    env:
+      Container_BASE_URL: gcr.io
+      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}:${{ github.sha }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Run tests
+        run: |
+          npm ci
+          npm test
+
+      - name: Build container
+        run: docker build . -t $IMAGE_NAME
+
+      - id: auth
+        if: github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/main'
+        name: Authenticate to Gcloud Account
+        uses: google-github-actions/auth@v0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT}}
+
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/main'
+        run: gcloud auth configure-docker $Container_BASE_URL
+
+      - name: Push docker image
+        run: docker push $IMAGE_NAME
+        if: github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/main'
+
+  deploy-stage:
+    name: Build and Deploy project to stage
+    needs: test-and-build
+    if: github.ref == 'refs/heads/stage'
     runs-on: ubuntu-latest
     env:
       Container_BASE_URL: gcr.io
@@ -24,16 +64,6 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT}}
-
-      - name: Configure Docker
-        run: gcloud auth configure-docker $Container_BASE_URL
-
-      - name: Build and push image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}:${{ github.sha }}
-          push: true
 
       - name: Deploy docker image to cloud run
         run: gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} --image $IMAGE_NAME --quiet --platform managed --region ${{secrets.GCP_REGION}} --project ${{ secrets.GCP_PROJECT_ID }}
