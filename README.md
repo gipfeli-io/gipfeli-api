@@ -42,6 +42,5 @@ $ npm run test
 
 ## Database
 
-:::info You will need a postgres database to run the api. Please check out the documentation for more details:
+You will need a postgres database to run the api. Please check out the documentation for more details:
 [Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
-:::
