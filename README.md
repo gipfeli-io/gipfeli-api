@@ -9,7 +9,7 @@ below description on how to install and run the gipfeli.io backend.
 
 Before you can run the TypeORM migrations you will need to setup a postgres database and install the PostGIS extension.
 Please check out the documentation for more details on how to do
-this:[Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
+this: [Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
 
 ## Installation
 
