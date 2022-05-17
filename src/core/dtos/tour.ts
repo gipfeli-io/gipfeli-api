@@ -8,6 +8,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+import {IsPoint} from '../../app/decorators/validators/is-point.decorator'
 
 export class TourDto {
   @IsUUID()
@@ -18,10 +19,12 @@ export class TourDto {
   @IsNotEmpty()
   name: string;
 
-  // TOdo: custom validator
+  @IsPoint()
+  @IsNotEmpty()
   startLocation: Point;
 
-  // TOdo: custom validator
+  @IsPoint()
+  @IsNotEmpty()
   endLocation: Point;
 
   @IsString()
@@ -37,7 +40,7 @@ export class TourDto {
   updatedAt: Date;
 
   @IsInstance(UserDto)
-  @IsNotEmpty() // Todo: Handle how we assign the user
+  @IsNotEmpty()
   user: UserDto;
 }
 

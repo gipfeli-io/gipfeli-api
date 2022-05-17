@@ -38,7 +38,6 @@ export class TourService {
     updateTourDto: UpdateTourDto,
     user: UserDto,
   ): Promise<Tour> {
-    // Todo: this is not atomic, but there are no better ways I know of
     const updateResult = await this.tourRepository.update(
       { id, user },
       updateTourDto,
