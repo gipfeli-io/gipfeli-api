@@ -1,6 +1,6 @@
 import { Tour } from '../../infrastructure/entities/tour.entity';
 
-export interface UserDto {
+export class UserDto {
   id: string;
   firstname: string;
   lastname: string;
