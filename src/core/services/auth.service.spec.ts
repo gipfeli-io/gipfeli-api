@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { User } from '../../infrastructure/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserDto } from '../dtos/userDto';
+import { UserDto } from '../dtos/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../common/constants';
