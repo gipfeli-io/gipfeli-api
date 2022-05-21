@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Request, Res, UseGuards } from '@nestjs/common';
 import { AppService } from '../../core/services/app.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LocalAuthGuard } from '../auth/guards/local-auth.guard';
+import { Response } from 'express';
 
 @Controller()
 export class AppController {
@@ -13,6 +14,12 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('robots.txt')
+  getRobotsTxt(@Res() res: Response): void {
+    res.type('text/plain');
+    res.send('User-agent: *\nDisallow: /');
   }
 
   @UseGuards(LocalAuthGuard)
