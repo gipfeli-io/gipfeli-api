@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { UserDto } from './dto/user';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -12,7 +13,6 @@ export class UserController {
     return await this.userService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
