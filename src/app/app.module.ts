@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
-import { CoreModule } from '../core/core.module';
-import { UserController } from './controllers/user.controller';
-import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './auth/strategies/local.strategy';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
-import { TourController } from './controllers/tour.controller';
+import { AppController } from './app.controller';
+import { DatabaseConfig } from '../config/database-config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppService } from './app.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [CoreModule, PassportModule],
-  providers: [LocalStrategy, JwtStrategy],
-  controllers: [AppController, UserController, TourController],
+  imports: [TypeOrmModule.forRoot(DatabaseConfig), AuthModule],
+  providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}
