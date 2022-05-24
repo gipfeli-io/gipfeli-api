@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 const dotenv_path = path.resolve(process.cwd(), `.env`);
 dotenv.config({ path: dotenv_path });
-const rootDir = process.env.NODE_ENV ? 'dist' : 'src';
+const rootDir = process.env.NODE_ENV ? 'dist/' : './';
 
 export const DatabaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -14,16 +14,16 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   password: process.env.TYPEORM_PASSWORD,
   host: process.env.TYPEORM_HOST,
   synchronize: false,
-  entities: [rootDir + '/**/*.entity{.ts,.js}'],
+  entities: [rootDir + '**/*.entity{.ts,.js}'],
   autoLoadEntities: true,
 };
 
 export const OrmConfig = {
   ...DatabaseConfig,
   migrationsTableName: 'migrations',
-  migrations: [rootDir + '../migrations/*{.ts, .js}'],
+  migrations: [rootDir + 'migrations/*{.ts, .js}'],
   cli: {
-    migrationsDir: rootDir + '../migrations',
+    migrationsDir: rootDir + 'migrations',
   },
 };
 
