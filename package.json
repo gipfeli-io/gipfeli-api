@@ -12,7 +12,7 @@
     "start": "nest build && cross-env NODE_ENV=prod nest start",
     "start:dev": "nest build && cross-env NODE_ENV=dev nest start --watch",
     "start:debug": "nest build && cross-env NODE_ENV=dev nest start --debug --watch",
-    "start:prod": "cross-env NODE_ENV=prod node dist/main",
+    "start:prod": "cross-env NODE_ENV=prod node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
