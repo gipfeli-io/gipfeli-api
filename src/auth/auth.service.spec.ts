@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../core/common/constants';
+import { jwtConstants } from './common/constants';
 
 let result: UserDto = {
   id: '2bd0b79d-071a-4672-0804-027d97f98a6e',

@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserDto } from '../../user/dto/user';
+import { UserDto } from '../user/dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TourController } from './tour.controller';
-import { TourService } from '../../core/services/tour.service';
-import { Tour } from '../../infrastructure/entities/tour.entity';
+import { TourService } from './tour.service';
+import { Tour } from './entities/tour.entity';
 import {
   tourDataMockForFranz,
   tourDataMockForPaul,
-} from '../../infrastructure/mocks/tour.data.mock';
-import { tourRepositoryMock } from '../../infrastructure/mocks/tour.repository.mock';
+} from './mocks/tour.data.mock';
+import { tourRepositoryMock } from './mocks/tour.repository.mock';
 import { BadRequestException } from '@nestjs/common';
-import { TourDto } from '../../core/dtos/tour';
+import { TourDto } from './dto/tour';
 
 const resultsForFranz = tourDataMockForFranz;
 const resultsForPaul = tourDataMockForPaul;

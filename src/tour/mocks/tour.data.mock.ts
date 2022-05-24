@@ -1,4 +1,4 @@
-import { TourDto } from '../../core/dtos/tour';
+import { TourDto } from '../dto/tour';
 
 export const tourDataMockForPaul: TourDto[] = [
   {

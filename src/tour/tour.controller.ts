@@ -9,11 +9,11 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { TourService } from '../../core/services/tour.service';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { CreateTourDto, TourDto, UpdateTourDto } from '../../core/dtos/tour';
-import { UserDto } from '../../user/dto/user';
-import { User } from '../decorators/user.decorator';
+import { TourService } from './tour.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
+import { UserDto } from '../user/dto/user';
+import { User } from '../app/decorators/user.decorator';
 
 @Controller('tours')
 @UseGuards(JwtAuthGuard)

@@ -1,4 +1,4 @@
-import { Tour } from '../../infrastructure/entities/tour.entity';
+import { Tour } from '../../tour/entities/tour.entity';
 
 export class UserDto {
   id: string;

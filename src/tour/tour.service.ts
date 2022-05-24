@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Tour } from '../../infrastructure/entities/tour.entity';
-import { CreateTourDto, TourDto, UpdateTourDto } from '../dtos/tour';
-import { UserDto } from '../../user/dto/user';
+import { Tour } from './entities/tour.entity';
+import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
+import { UserDto } from '../user/dto/user';
 
 @Injectable()
 export class TourService {

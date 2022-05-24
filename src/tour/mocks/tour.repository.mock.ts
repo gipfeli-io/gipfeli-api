@@ -1,5 +1,5 @@
 import { UserDto } from '../../user/dto/user';
-import { CreateTourDto, TourDto } from '../../core/dtos/tour';
+import { CreateTourDto, TourDto } from '../dto/tour';
 import { Tour } from '../entities/tour.entity';
 import {
   DeleteResult,
