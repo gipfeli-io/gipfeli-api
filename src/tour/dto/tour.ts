@@ -8,7 +8,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { IsPoint } from '../../app/decorators/validators/is-point.decorator';
+import { IsPoint } from './validators/is-point.decorator';
 
 export class TourDto {
   @IsUUID()
