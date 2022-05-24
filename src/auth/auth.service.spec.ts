@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
-import { User } from '../../infrastructure/entities/user.entity';
+import { UserService } from '../core/services/user.service';
+import { User } from '../infrastructure/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserDto } from '../dtos/user';
+import { UserDto } from '../core/dtos/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../common/constants';
+import { jwtConstants } from '../core/common/constants';
 
 let result: UserDto = {
   id: '2bd0b79d-071a-4672-0804-027d97f98a6e',

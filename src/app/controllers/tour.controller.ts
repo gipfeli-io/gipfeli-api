@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TourService } from '../../core/services/tour.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CreateTourDto, TourDto, UpdateTourDto } from '../../core/dtos/tour';
 import { UserDto } from '../../core/dtos/user';
 import { User } from '../decorators/user.decorator';
