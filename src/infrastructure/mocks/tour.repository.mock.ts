@@ -1,4 +1,4 @@
-import { UserDto } from '../../core/dtos/user';
+import { UserDto } from '../../user/dto/user';
 import { CreateTourDto, TourDto } from '../../core/dtos/tour';
 import { Tour } from '../entities/tour.entity';
 import {
@@ -8,7 +8,7 @@ import {
   FindOneOptions,
   UpdateResult,
 } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { tourDataMock } from './tour.data.mock';
 

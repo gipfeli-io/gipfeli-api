@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserDto } from '../dtos/user';
+import { UserDto } from '../../user/dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TourService } from './tour.service';
 import { Tour } from '../../infrastructure/entities/tour.entity';

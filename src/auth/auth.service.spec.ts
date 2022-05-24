@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../core/services/user.service';
-import { User } from '../infrastructure/entities/user.entity';
+import { UserService } from '../user/user.service';
+import { User } from '../user/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserDto } from '../core/dtos/user';
+import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../core/common/constants';

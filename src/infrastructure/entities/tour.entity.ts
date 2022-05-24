@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Point } from 'geojson';
-import { User } from './user.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Tour {

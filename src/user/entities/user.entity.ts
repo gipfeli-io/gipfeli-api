@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Tour } from './tour.entity';
+import { Tour } from '../../infrastructure/entities/tour.entity';
 
 @Entity()
 export class User {

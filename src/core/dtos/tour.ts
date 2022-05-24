@@ -1,6 +1,6 @@
 import { Point } from 'geojson';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { UserDto } from './user';
+import { UserDto } from '../../user/dto/user';
 import {
   IsDate,
   IsInstance,

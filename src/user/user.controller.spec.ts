@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../../core/services/user.service';
+import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { UserDto } from '../../core/dtos/user';
+import { UserDto } from './dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../infrastructure/entities/user.entity';
+import { User } from './entities/user.entity';
 
 const results: UserDto[] = [
   {
