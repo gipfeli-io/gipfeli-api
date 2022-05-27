@@ -8,10 +8,12 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
     UserModule,
+    SharedModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,

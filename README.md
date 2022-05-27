@@ -25,6 +25,9 @@ $ npm i
 
 # execute typeorm migrations to initialize database
 $ npm run typeorm-migration
+
+# create a user interactively
+$ npm run create-user
 ```
 
 ## Running the app

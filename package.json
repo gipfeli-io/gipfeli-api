@@ -22,7 +22,8 @@
     "typeorm": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/database-config.ts -n",
     "typeorm:create": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/database-config.ts migration:create -n",
     "typeorm:revert": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/database-config.ts migration:revert",
-    "typeorm-migration": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/database-config.ts migration:run"
+    "typeorm-migration": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/database-config.ts migration:run",
+    "create-user": "npx ts-node ./scripts/user.ts create"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
