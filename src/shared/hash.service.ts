@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class HashService {
-  private readonly hashRounds = 10;
+  private readonly hashRounds: number = parseInt(process.env.NO_OF_ROUNDS);
 
   /**
    * Hashes the password with an automatically generated salt and returns the
