@@ -6,22 +6,31 @@ import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
+import { HashService } from '../shared/hash.service';
+import * as bcrypt from 'bcrypt';
 
-let result: UserDto = {
-  id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
-  firstname: 'Sara',
-  lastname: 'Müller',
+let result: UserDto;
+const userConfig = {
   username: 'sara@gipfeli.io',
-  password: '5678',
-  tours: [],
+  unhashedPassword: 'this-is-my-secure-password',
 };
-
 const userRepositoryMock = {
   findOne: jest.fn(() => Promise.resolve(result)),
 };
 
 describe('AuthService', () => {
   let service: AuthService;
+
+  beforeAll(() => {
+    result = {
+      id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
+      firstname: 'Sara',
+      lastname: 'Müller',
+      username: userConfig.username,
+      password: bcrypt.hashSync(userConfig.unhashedPassword, 10),
+      tours: [],
+    };
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +43,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UserService,
+        HashService,
         {
           provide: getRepositoryToken(User),
           useValue: userRepositoryMock,
@@ -52,24 +62,31 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  it('validateUser: should return a user matching the parameters username and password', async () => {
-    const authServiceSpy = jest.spyOn(service, 'validateUser');
-    const username = 'sara@gipfeli.io';
-    const { password, ...user } = result;
-    expect(await service.validateUser(username, password)).toEqual(user);
-    expect(authServiceSpy).toHaveBeenCalledWith(username, password);
-  });
+  describe('validateUser', () => {
+    it('should return a user matching the parameters username and password', async () => {
+      const authServiceSpy = jest.spyOn(service, 'validateUser');
+      const { unhashedPassword, username } = userConfig;
+      const { password, ...user } = result;
 
-  it('validateUser: should return null when password does not match', async () => {
-    const username = 'sara@gipfeli.io';
-    const password = '1234';
-    expect(await service.validateUser(username, password)).toEqual(null);
-  });
+      expect(await service.validateUser(username, unhashedPassword)).toEqual(
+        user,
+      );
+      expect(authServiceSpy).toHaveBeenCalledWith(username, unhashedPassword);
+    });
 
-  it('validateUser: should return null when username does not match', async () => {
-    result = null; // reset result to null so that user service mock returns null
-    const username = 'peter@gipfeli.io';
-    const password = '5678';
-    expect(await service.validateUser(username, password)).toEqual(null);
+    it('should return null when password does not match', async () => {
+      const { username } = userConfig;
+      const password = 'this-is-a-wrong-password';
+
+      expect(await service.validateUser(username, password)).toEqual(null);
+    });
+
+    it('should return null when username does not match', async () => {
+      result = null; // reset result to null so that user service mock returns null
+      const username = 'peter@gipfeli.io';
+      const password = '5678';
+
+      expect(await service.validateUser(username, password)).toEqual(null);
+    });
   });
 });
