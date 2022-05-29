@@ -1,5 +1,7 @@
 # Gipfeli.io API
 
+![CI](https://github.com/gipfeli-io/gipfeli-api/actions/workflows/deployment.yml/badge.svg?branch=stage)
+
 ## Description
 
 This repository contains the backend for gipfeli.io and is implemented using [Nest](https://github.com/nestjs/nest). See
