@@ -1,4 +1,4 @@
-import { HashService } from '../shared/hash.service';
+import { HashService } from './/hash.service';
 import * as bcrypt from 'bcrypt';
 
 describe('Hashservice', () => {

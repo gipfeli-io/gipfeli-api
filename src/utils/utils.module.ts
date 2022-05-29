@@ -5,4 +5,4 @@ import { HashService } from './hash.service';
   providers: [HashService],
   exports: [HashService],
 })
-export class SharedModule {}
+export class UtilsModule {}

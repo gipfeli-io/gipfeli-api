@@ -6,7 +6,7 @@ import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
-import { HashService } from '../shared/hash.service';
+import { HashService } from '../utils/hash.service';
 import * as bcrypt from 'bcrypt';
 
 let result: UserDto;
