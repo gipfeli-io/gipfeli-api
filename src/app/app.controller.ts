@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Request, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+  Request,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from '../auth/auth.service';
 import { Response } from 'express';
@@ -14,6 +23,26 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('test-sentry')
+  testSentry(): void {
+    throw Error('Something went very wrong!');
+  }
+
+  @Get('test-forbidden')
+  testForbidden(): void {
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  }
+
+  @Get('test-unauthorized')
+  testUnauthorized(): void {
+    throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+  }
+
+  @Get('test-not-found')
+  testNotFound(): void {
+    throw new HttpException('Not found', HttpStatus.NOT_FOUND);
   }
 
   @Get('robots.txt')
