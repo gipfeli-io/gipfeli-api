@@ -16,11 +16,6 @@ export class UserService {
   }
 
   async findOne(username: string): Promise<UserDto> {
-    const result = await this.userRepository.findOne({ where: [{ username: username }] });
-    if (!result) {
-      throw new Error('bla')
-    }
-
-    return result
+    return this.userRepository.findOne({ where: [{ username: username }] });
   }
 }
