@@ -9,7 +9,7 @@ import {
   tourDataMockForPaul,
 } from './mocks/tour.data.mock';
 import { tourRepositoryMock } from './mocks/tour.repository.mock';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { TourDto } from './dto/tour';
 
 const resultsForFranz = tourDataMockForFranz;
@@ -68,13 +68,14 @@ describe('TourController', () => {
       expect(controllerSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('does not return a tour that belongs to another user', async () => {
+    it('does not return a tour that belongs to another user and throws a NotFoundException', async () => {
       const controllerSpy = jest.spyOn(tourController, 'findOne');
-      const result = await tourController.findOne(resultsForFranz[0].id, {
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+      const result = async () =>
+        await tourController.findOne(resultsForFranz[0].id, {
+          id: resultsForPaul[0].user.id,
+        } as UserDto);
 
-      expect(result).not.toBeDefined();
+      await expect(result).rejects.toThrow(NotFoundException);
       expect(controllerSpy).toHaveBeenCalledTimes(1);
     });
   });
@@ -95,18 +96,18 @@ describe('TourController', () => {
       expect(controllerSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('raises an exception if trying to update non existing tour', async () => {
+    it('raises NotFoundException if trying to update non existing tour', async () => {
       const controllerSpy = jest.spyOn(tourController, 'update');
       const result = async () =>
         await tourController.update('does-not-exist', { name: 'updated' }, {
           id: resultsForPaul[0].user.id,
         } as UserDto);
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
       expect(controllerSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('raises an exception if trying to update a tour of another user', async () => {
+    it('raises NotFoundException if trying to update a tour of another user', async () => {
       const controllerSpy = jest.spyOn(tourController, 'update');
       const result = async () =>
         await tourController.update(
@@ -117,7 +118,7 @@ describe('TourController', () => {
           } as UserDto,
         );
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
       expect(controllerSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -134,25 +135,25 @@ describe('TourController', () => {
         expect(controllerSpy).toHaveBeenCalledTimes(1);
       });
 
-      it('raises an exception if trying to update non existing tour', async () => {
+      it('raises NotFoundException if trying to update non existing tour', async () => {
         const controllerSpy = jest.spyOn(tourController, 'remove');
         const result = async () =>
           await tourController.remove(resultsForFranz[0].id, {
             id: 'does-not-exist',
           } as UserDto);
 
-        await expect(result).rejects.toThrow(BadRequestException);
+        await expect(result).rejects.toThrow(NotFoundException);
         expect(controllerSpy).toHaveBeenCalledTimes(1);
       });
 
-      it('raises an exception if trying to update a tour of another user', async () => {
+      it('raises NotFoundException if trying to update a tour of another user', async () => {
         const controllerSpy = jest.spyOn(tourController, 'remove');
         const result = async () =>
           await tourController.remove(resultsForFranz[0].id, {
             id: resultsForPaul[0].user.id,
           } as UserDto);
 
-        await expect(result).rejects.toThrow(BadRequestException);
+        await expect(result).rejects.toThrow(NotFoundException);
         expect(controllerSpy).toHaveBeenCalledTimes(1);
       });
     });
