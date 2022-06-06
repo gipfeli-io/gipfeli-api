@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { TourService } from './tour.service';
 import { Tour } from './entities/tour.entity';
 import { TourDto } from './dto/tour';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { tourRepositoryMock } from './mocks/tour.repository.mock';
 import {
   tourDataMockForFranz,
@@ -51,12 +51,13 @@ describe('TourService', () => {
       expect(result.id).toEqual(resultsForPaul[0].id);
     });
 
-    it('does not return a tour that belongs to another user', async () => {
-      const result = await service.findOne(resultsForFranz[0].id, {
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+    it('does not return a tour that belongs to another user and throws NotFoundException', async () => {
+      const call = async () =>
+        await service.findOne(resultsForFranz[0].id, {
+          id: resultsForPaul[0].user.id,
+        } as UserDto);
 
-      expect(result).not.toBeDefined();
+      await expect(call).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -74,22 +75,22 @@ describe('TourService', () => {
       expect(result.id).toEqual(resultsForPaul[0].id);
     });
 
-    it('raises an exception if trying to update non existing tour', async () => {
+    it('raises NotFoundException if trying to update non existing tour', async () => {
       const result = async () =>
         await service.update('does-not-exist', { name: 'updated' }, {
           id: resultsForPaul[0].user.id,
         } as UserDto);
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
 
-    it('raises an exception if trying to update a tour of another user', async () => {
+    it('raises NotFoundException if trying to update a tour of another user', async () => {
       const result = async () =>
         await service.update(resultsForFranz[0].id, { name: 'updated' }, {
           id: resultsForPaul[0].user.id,
         } as UserDto);
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -104,22 +105,22 @@ describe('TourService', () => {
       await expect(result).resolves.not.toThrow();
     });
 
-    it('raises an exception if trying to update non existing tour', async () => {
+    it('raises NotFoundException if trying to update non existing tour', async () => {
       const result = async () =>
         await service.remove(resultsForFranz[0].id, {
           id: 'does-not-exist',
         } as UserDto);
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
 
-    it('raises an exception if trying to update a tour of another user', async () => {
+    it('raises NotFoundException if trying to update a tour of another user', async () => {
       const result = async () =>
         await service.remove(resultsForFranz[0].id, {
           id: resultsForPaul[0].user.id,
         } as UserDto);
 
-      await expect(result).rejects.toThrow(BadRequestException);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 

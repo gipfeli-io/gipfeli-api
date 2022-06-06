@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import { HashService } from '../utils/hash.service';
 import * as bcrypt from 'bcrypt';
+import { NotFoundException } from '@nestjs/common';
 
 let result: UserDto;
 const userConfig = {
@@ -81,12 +82,14 @@ describe('AuthService', () => {
       expect(await service.validateUser(username, password)).toEqual(null);
     });
 
-    it('should return null when username does not match', async () => {
+    it('throws NotFoundException if user and password do not match or do not exist', async () => {
       result = null; // reset result to null so that user service mock returns null
       const username = 'peter@gipfeli.io';
       const password = '5678';
 
-      expect(await service.validateUser(username, password)).toEqual(null);
+      const call = async () => await service.validateUser(username, password);
+
+      await expect(call).rejects.toThrow(NotFoundException);
     });
   });
 });

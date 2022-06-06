@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
@@ -19,18 +23,23 @@ export class TourService {
   }
 
   findAll(user: UserDto): Promise<TourDto[]> {
-    // todo: async not required?
     return this.tourRepository.find({
       where: { user },
       relations: ['user'],
     });
   }
 
-  findOne(id: string, user: UserDto): Promise<TourDto> {
-    return this.tourRepository.findOne(id, {
+  async findOne(id: string, user: UserDto): Promise<TourDto> {
+    const result = await this.tourRepository.findOne(id, {
       where: { user },
       relations: ['user'],
     });
+
+    if (!result) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 
   async update(
@@ -44,9 +53,7 @@ export class TourService {
     );
 
     if (updateResult.affected === 0) {
-      throw new BadRequestException(
-        'Todo: handle this and all other errors :)',
-      );
+      throw new NotFoundException();
     }
 
     return await this.tourRepository.findOne(id, { relations: ['user'] });
@@ -56,9 +63,7 @@ export class TourService {
     const deleteResult = await this.tourRepository.delete({ id, user });
 
     if (deleteResult.affected === 0) {
-      throw new BadRequestException(
-        'Todo: handle this and all other errors :)',
-      );
+      throw new NotFoundException();
     }
   }
 }
