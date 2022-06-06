@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package.json .
 
+COPY package-lock.json .
+
 RUN npm install
 
 RUN npm i -g typeorm ts-node #check if this is really needed
