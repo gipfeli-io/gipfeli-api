@@ -6,7 +6,7 @@ import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
-import { HashService } from '../utils/hash.service';
+import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
 
@@ -44,7 +44,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UserService,
-        HashService,
+        CryptoService,
         {
           provide: getRepositoryToken(User),
           useValue: userRepositoryMock,

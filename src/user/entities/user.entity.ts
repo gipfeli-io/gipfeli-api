@@ -1,5 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Tour } from '../../tour/entities/tour.entity';
+import { UserToken } from './user-token.entity';
 
 export const UNIQUE_USER_EMAIL_CONSTRAINT = 'unique_user_email_constraint';
 
@@ -21,6 +30,18 @@ export class User {
   @Column()
   password: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({ default: false })
+  isActive: boolean;
+
   @OneToMany(() => Tour, (tour) => tour.user)
   tours: Tour[];
+
+  @OneToMany(() => UserToken, (userToken) => userToken.user)
+  tokens: UserToken[];
 }

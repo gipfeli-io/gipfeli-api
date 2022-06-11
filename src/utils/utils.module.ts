@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { HashService } from './hash.service';
+import { CryptoService } from './crypto.service';
 
 @Module({
-  providers: [HashService],
-  exports: [HashService],
+  providers: [CryptoService],
+  exports: [CryptoService],
 })
 export class UtilsModule {}
