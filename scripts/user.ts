@@ -30,7 +30,7 @@ const createUser = async () => {
   const answers = await inquirer.prompt([
     {
       message: 'Email?',
-      name: 'username',
+      name: 'email',
       type: 'string',
     },
     {
@@ -54,9 +54,9 @@ const createUser = async () => {
   const manager = getManager();
 
   const newUser = new User();
-  newUser.username = answers.username;
-  newUser.firstname = answers.firstname;
-  newUser.lastname = answers.lastname;
+  newUser.email = answers.email;
+  newUser.firstName = answers.firstname;
+  newUser.lastName = answers.lastname;
   newUser.password = bcrypt.hashSync(answers.password, 10);
 
   await manager.save(newUser)

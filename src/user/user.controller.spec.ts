@@ -8,17 +8,17 @@ import { User } from './entities/user.entity';
 const results: UserDto[] = [
   {
     id: '8a6e0804-2bd0-4672-b79d-d97027f9071a',
-    firstname: 'Peter',
-    lastname: 'Meier',
-    username: 'peter@gipfeli.io',
+    firstName: 'Peter',
+    lastName: 'Meier',
+    email: 'peter@gipfeli.io',
     password: '1234',
     tours: [],
   },
   {
     id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
-    firstname: 'Sara',
-    lastname: 'Müller',
-    username: 'sara@gipfeli.io',
+    firstName: 'Sara',
+    lastName: 'Müller',
+    email: 'sara@gipfeli.io',
     password: '5678',
     tours: [],
   },

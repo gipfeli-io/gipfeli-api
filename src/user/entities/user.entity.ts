@@ -7,13 +7,13 @@ export class User {
   id: string;
 
   @Column()
-  firstname: string;
+  firstName: string;
 
   @Column()
-  lastname: string;
+  lastName: string;
 
   @Column()
-  username: string;
+  email: string;
 
   @Column()
   password: string;

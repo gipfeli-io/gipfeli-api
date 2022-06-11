@@ -12,7 +12,7 @@ import { NotFoundException } from '@nestjs/common';
 
 let result: UserDto;
 const userConfig = {
-  username: 'sara@gipfeli.io',
+  email: 'sara@gipfeli.io',
   unhashedPassword: 'this-is-my-secure-password',
 };
 const userRepositoryMock = {
@@ -25,9 +25,9 @@ describe('AuthService', () => {
   beforeAll(() => {
     result = {
       id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
-      firstname: 'Sara',
-      lastname: 'Müller',
-      username: userConfig.username,
+      firstName: 'Sara',
+      lastName: 'Müller',
+      email: userConfig.email,
       password: bcrypt.hashSync(userConfig.unhashedPassword, 10),
       tours: [],
     };
@@ -64,30 +64,30 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('should return a user matching the parameters username and password', async () => {
+    it('should return a user matching the parameters email and password', async () => {
       const authServiceSpy = jest.spyOn(service, 'validateUser');
-      const { unhashedPassword, username } = userConfig;
+      const { unhashedPassword, email } = userConfig;
       const { password, ...user } = result;
 
-      expect(await service.validateUser(username, unhashedPassword)).toEqual(
+      expect(await service.validateUser(email, unhashedPassword)).toEqual(
         user,
       );
-      expect(authServiceSpy).toHaveBeenCalledWith(username, unhashedPassword);
+      expect(authServiceSpy).toHaveBeenCalledWith(email, unhashedPassword);
     });
 
     it('should return null when password does not match', async () => {
-      const { username } = userConfig;
+      const { email } = userConfig;
       const password = 'this-is-a-wrong-password';
 
-      expect(await service.validateUser(username, password)).toEqual(null);
+      expect(await service.validateUser(email, password)).toEqual(null);
     });
 
     it('throws NotFoundException if user and password do not match or do not exist', async () => {
       result = null; // reset result to null so that user service mock returns null
-      const username = 'peter@gipfeli.io';
+      const email = 'peter@gipfeli.io';
       const password = '5678';
 
-      const call = async () => await service.validateUser(username, password);
+      const call = async () => await service.validateUser(email, password);
 
       await expect(call).rejects.toThrow(NotFoundException);
     });
