@@ -1,8 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
-import { CreateUserDto, UserDto } from './dto/user';
+import { ActivateUserDto, CreateUserDto, UserDto } from './dto/user';
 import { UserAlreadyExists, UserNotActivated } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
@@ -14,7 +18,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserToken)
     private readonly tokenRepository: Repository<UserToken>,
-    private readonly hashService: CryptoService,
+    private readonly cryptoService: CryptoService,
   ) {}
 
   async findAll(): Promise<UserDto[]> {
@@ -51,9 +55,9 @@ export class UserService {
    */
   async create(createUserDto: CreateUserDto): Promise<void> {
     const { password, ...user } = createUserDto;
-    const hashedPassword = await this.hashService.hash(password);
+    const hashedPassword = await this.cryptoService.hash(password);
     const { token, tokenHash } =
-      await this.hashService.getRandomTokenWithHash();
+      await this.cryptoService.getRandomTokenWithHash();
 
     const newUser = this.userRepository.create({
       password: hashedPassword,
@@ -81,5 +85,57 @@ export class UserService {
     }
 
     // Todo: Dispatch email
+    console.log(token);
+    console.log(newUser.id);
+  }
+
+  /**
+   * Tries to activate a user by retrieving a token for the user.
+   * @param activateUserDto
+   */
+  async activateUser(activateUserDto: ActivateUserDto): Promise<void> {
+    const { userId, token } = activateUserDto;
+
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.tokens', 'tokens', '"tokenType" = :tokenType', {
+        tokenType: UserTokenType.ACCOUNT_ACTIVATION,
+      })
+      .where({ id: userId, isActive: false })
+      .getOneOrFail();
+
+    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+
+    if (hasValidToken) {
+      await this.tokenRepository.delete({
+        userId,
+        tokenType: UserTokenType.ACCOUNT_ACTIVATION,
+      });
+
+      user.isActive = true;
+      await this.userRepository.save(user);
+
+      return Promise.resolve(undefined);
+    }
+
+    // The tokens do not match
+    throw new BadRequestException();
+  }
+
+  /**
+   * Checks whether a given token matches a token in a list of hashed tokens.
+   * @param tokens
+   * @param token
+   * @private
+   */
+  private async checkForValidToken(tokens: UserToken[], token: string) {
+    let hasValidToken = false;
+    for (let i = 0; i < tokens.length; i++) {
+      const check = await this.cryptoService.compare(token, tokens[i].token);
+      if (check) {
+        hasValidToken = true;
+      }
+    }
+    return hasValidToken;
   }
 }

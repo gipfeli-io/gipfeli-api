@@ -30,3 +30,13 @@ export class CreateUserDto extends OmitType(UserDto, [
   'id',
   'tours',
 ] as const) {}
+
+export class ActivateUserDto {
+  @IsUUID()
+  @IsNotEmpty()
+  userId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}
