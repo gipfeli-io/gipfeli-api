@@ -1,14 +1,27 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { UserService } from '../user/user.service';
+import {
+  NotificationService,
+  NotificationServiceInterface,
+} from '../notification/types/notification-service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    @Inject(NotificationServiceInterface)
+    private notificationService: NotificationService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -19,7 +32,8 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    const { token, user } = await this.userService.create(createUserDto);
+    this.notificationService.sendSignUpMessage(token, user);
   }
 
   @Post('activate')

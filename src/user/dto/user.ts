@@ -26,6 +26,11 @@ export class UserDto {
 
 export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
 
+export class UserCreatedDto {
+  user: UserDto;
+  token: string;
+}
+
 export class ActivateUserDto {
   @IsUUID()
   @IsNotEmpty()

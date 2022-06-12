@@ -10,6 +10,8 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UtilsModule } from '../utils/utils.module';
 import { AuthController } from './auth.controller';
+import { NotificationServiceInterface } from '../notification/types/notification-service';
+import { ConsoleNotificationService } from '../notification/providers/console-notification/console-notification.service';
 
 @Module({
   imports: [
@@ -27,6 +29,10 @@ import { AuthController } from './auth.controller';
     JwtStrategy,
     LocalAuthGuard,
     JwtAuthGuard,
+    {
+      provide: NotificationServiceInterface,
+      useClass: ConsoleNotificationService, // todo: toggle
+    },
   ],
   controllers: [AuthController],
   exports: [AuthService],

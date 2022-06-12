@@ -6,7 +6,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
-import { ActivateUserDto, CreateUserDto, UserDto } from './dto/user';
+import {
+  ActivateUserDto,
+  CreateUserDto,
+  UserCreatedDto,
+  UserDto,
+} from './dto/user';
 import { UserAlreadyExists, UserNotActivated } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
@@ -54,7 +59,7 @@ export class UserService {
    * Creates a new user and assigns it an activation token.
    * @param createUserDto
    */
-  async create(createUserDto: CreateUserDto): Promise<void> {
+  async create(createUserDto: CreateUserDto): Promise<UserCreatedDto> {
     const { password, ...user } = createUserDto;
     const hashedPassword = await this.cryptoService.hash(password);
     const { token, tokenHash } =
@@ -74,6 +79,11 @@ export class UserService {
       const savedUser = await this.userRepository.save(newUser);
       newUserToken.user = savedUser;
       await this.tokenRepository.save(newUserToken);
+
+      return {
+        user: savedUser,
+        token: token,
+      };
     } catch (e) {
       if (
         e instanceof QueryFailedError &&
@@ -84,10 +94,6 @@ export class UserService {
         throw e;
       }
     }
-
-    // Todo: Dispatch email
-    console.log(token);
-    console.log(newUser.id);
   }
 
   /**
