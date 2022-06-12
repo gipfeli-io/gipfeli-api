@@ -4,23 +4,25 @@ import { UserController } from './user.controller';
 import { UserDto } from './dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import repositoryMockFactory, { RepositoryMockType } from '../utils/mock-utils/repository-mock.factory';
+import { UserToken } from './entities/user-token.entity';
+import { CryptoService } from '../utils/crypto.service';
+import { Repository } from 'typeorm';
 
 const results: UserDto[] = [
   {
     id: '8a6e0804-2bd0-4672-b79d-d97027f9071a',
-    firstname: 'Peter',
-    lastname: 'Meier',
-    username: 'peter@gipfeli.io',
+    firstName: 'Peter',
+    lastName: 'Meier',
+    email: 'peter@gipfeli.io',
     password: '1234',
-    tours: [],
   },
   {
     id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
-    firstname: 'Sara',
-    lastname: 'Müller',
-    username: 'sara@gipfeli.io',
+    firstName: 'Sara',
+    lastName: 'Müller',
+    email: 'sara@gipfeli.io',
     password: '5678',
-    tours: [],
   },
 ];
 
@@ -30,15 +32,21 @@ const userRepositoryMock = {
 
 describe('UserController', () => {
   let userController: UserController;
+  let userRepositoryMock: RepositoryMockType<Repository<User>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
         UserService,
+        CryptoService,
         {
           provide: getRepositoryToken(User),
-          useValue: userRepositoryMock,
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(UserToken),
+          useFactory: repositoryMockFactory,
         },
       ],
     })
@@ -52,10 +60,13 @@ describe('UserController', () => {
       .compile();
 
     userController = module.get<UserController>(UserController);
+    userRepositoryMock = module.get(getRepositoryToken(User));
   });
 
   it('getUsers: should return a list of users', async () => {
     const controllerSpy = jest.spyOn(userController, 'getUsers');
+    userRepositoryMock.find.mockReturnValue(results);
+
     expect(await userController.getUsers()).toEqual(results);
     expect(controllerSpy).toHaveBeenCalledTimes(1);
   });

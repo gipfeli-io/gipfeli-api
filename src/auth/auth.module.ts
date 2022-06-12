@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UtilsModule } from '../utils/utils.module';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UtilsModule } from '../utils/utils.module';
     LocalAuthGuard,
     JwtAuthGuard,
   ],
+  controllers: [AuthController],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -11,11 +11,10 @@ export const tourDataMockForPaul: TourDto[] = [
     updatedAt: new Date(),
     user: {
       id: 'test-id',
-      firstname: 'Paul',
-      lastname: 'Test',
-      username: 'paul@gipfeli.io',
+      firstName: 'Paul',
+      lastName: 'Test',
+      email: 'paul@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
   {
@@ -28,11 +27,10 @@ export const tourDataMockForPaul: TourDto[] = [
     updatedAt: new Date(),
     user: {
       id: 'test-id',
-      firstname: 'Paul',
-      lastname: 'Test',
-      username: 'paul@gipfeli.io',
+      firstName: 'Paul',
+      lastName: 'Test',
+      email: 'paul@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
 ];
@@ -47,11 +45,10 @@ export const tourDataMockForFranz: TourDto[] = [
     updatedAt: new Date(),
     user: {
       id: '141ff2c7-e1c5-4f95-9569-4bae086e8e62',
-      firstname: 'Franz',
-      lastname: 'Mayer',
-      username: 'franz@gipfeli.io',
+      firstName: 'Franz',
+      lastName: 'Mayer',
+      email: 'franz@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
 ];
