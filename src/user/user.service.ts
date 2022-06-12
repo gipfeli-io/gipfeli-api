@@ -90,7 +90,12 @@ export class UserService {
   }
 
   /**
-   * Tries to activate a user by retrieving a token for the user.
+   * Tries to activate a user by retrieving a token for the user. Since a user
+   * might have (in theory) several activation tokens (e.g. by requesting new
+   * tokens), they all need to be checked for validity.
+   *
+   * Todo: Add token validity period with createdAt
+   *
    * @param activateUserDto
    */
   async activateUser(activateUserDto: ActivateUserDto): Promise<void> {
@@ -117,7 +122,6 @@ export class UserService {
 
       return Promise.resolve(undefined);
     }
-
     // The tokens do not match
     throw new BadRequestException();
   }
