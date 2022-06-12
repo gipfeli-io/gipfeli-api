@@ -1,9 +1,13 @@
 import { SendGridMessageInterface } from './send-grid-message.interface';
 
-const debugMessage: SendGridMessageInterface = {
-  subject: 'Debug Message sent from gipfeli.io',
-  text: 'This is a debug message sent from gipfeli.io',
-  html: '<strong>This debug message is in bold.</strong>',
-};
+class DebugMessage {
+  public static getMessage(message: string): SendGridMessageInterface {
+    return {
+      subject: 'Debug Message sent from gipfeli.io',
+      text: message,
+      html: `<strong>${message}</strong>`,
+    };
+  }
+}
 
-export default debugMessage;
+export default DebugMessage;

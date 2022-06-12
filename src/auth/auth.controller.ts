@@ -33,7 +33,7 @@ export class AuthController {
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {
     const { token, user } = await this.userService.create(createUserDto);
-    this.notificationService.sendSignUpMessage(token, user);
+    await this.notificationService.sendSignUpMessage(token, user);
   }
 
   @Post('activate')

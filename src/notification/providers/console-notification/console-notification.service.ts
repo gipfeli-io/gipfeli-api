@@ -7,22 +7,25 @@ import { UserDto } from '../../../user/dto/user';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
-  sendDebugMessage(message: string, recipient: NotificationRecipient): boolean {
+  async sendDebugMessage(
+    message: string,
+    recipient: NotificationRecipient,
+  ): Promise<boolean> {
     console.log('sendDebugMessage:');
     this.printRecipient(recipient);
     console.log(`=> Message: ${message}`);
 
-    return true;
+    return Promise.resolve(true);
   }
 
-  sendSignUpMessage(token: string, recipient: UserDto): boolean {
+  async sendSignUpMessage(token: string, recipient: UserDto): Promise<boolean> {
     const { id } = recipient;
     console.log('sendSignUpMessage:');
     this.printRecipient(this.extractRecipientFromUser(recipient));
     console.log(`=> userId: ${id}`);
     console.log(`=> token: ${token}`);
 
-    return true;
+    return Promise.resolve(true);
   }
 
   private printRecipient(recipient: NotificationRecipient) {

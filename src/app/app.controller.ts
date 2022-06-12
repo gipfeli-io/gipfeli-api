@@ -27,9 +27,9 @@ export class AppController {
   }
 
   @Get('debug-msg')
-  debugMsg(): void {
+  async debugMsg(): Promise<void> {
     const recipient = { name: 'Mister Debug', email: 'debug@gipfeli.io' };
     const message = 'This is a test message.';
-    this.notificationService.sendDebugMessage(message, recipient);
+    await this.notificationService.sendDebugMessage(message, recipient);
   }
 }

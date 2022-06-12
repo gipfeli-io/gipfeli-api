@@ -14,7 +14,7 @@ export interface NotificationService {
   sendDebugMessage: (
     message: string,
     recipient: NotificationRecipient,
-  ) => boolean;
+  ) => Promise<boolean>;
 
   /**
    * Send signup notification to a User that contains introductory text as well
@@ -22,7 +22,7 @@ export interface NotificationService {
    * @param token
    * @param recipient
    */
-  sendSignUpMessage: (token: string, recipient: UserDto) => boolean;
+  sendSignUpMessage: (token: string, recipient: UserDto) => Promise<boolean>;
 }
 
 /**

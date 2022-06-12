@@ -2,17 +2,18 @@ import { ConsoleNotificationService } from './console-notification.service';
 
 describe('ConsoleNotificationService', () => {
   let service: ConsoleNotificationService;
+  let logSpy;
   beforeEach(() => {
     service = new ConsoleNotificationService();
+    logSpy = jest.spyOn(console, 'log');
   });
 
   describe('sendDebugMessage', () => {
     it('prints a debug message', async () => {
-      const logSpy = jest.spyOn(console, 'log');
       const message = 'test-message';
       const recipient = { name: 'debug', email: 'a@a.com' };
 
-      service.sendDebugMessage(message, recipient);
+      await service.sendDebugMessage(message, recipient);
 
       expect(logSpy).toHaveBeenCalledTimes(3);
       expect(logSpy.mock.calls[1][0]).toContain(recipient.email);
@@ -23,7 +24,6 @@ describe('ConsoleNotificationService', () => {
 
   describe('sendSignUpMessage', () => {
     it('prints a signup message', async () => {
-      const logSpy = jest.spyOn(console, 'log');
       const token = 'xyz';
       const userDto = {
         id: 'x-x-x',
@@ -33,7 +33,7 @@ describe('ConsoleNotificationService', () => {
         email: 'a@a.com',
       };
 
-      service.sendSignUpMessage(token, userDto);
+      await service.sendSignUpMessage(token, userDto);
 
       expect(logSpy).toHaveBeenCalledTimes(4);
       expect(logSpy.mock.calls[1][0]).toContain(userDto.email);

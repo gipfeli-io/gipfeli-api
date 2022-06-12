@@ -12,6 +12,9 @@ import { UtilsModule } from '../utils/utils.module';
 import { AuthController } from './auth.controller';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { ConsoleNotificationService } from '../notification/providers/console-notification/console-notification.service';
+import {
+  SendGridNotificationService
+} from '../notification/providers/sendgrid-notification/send-grid-notification.service';
 
 @Module({
   imports: [
@@ -31,7 +34,7 @@ import { ConsoleNotificationService } from '../notification/providers/console-no
     JwtAuthGuard,
     {
       provide: NotificationServiceInterface,
-      useClass: ConsoleNotificationService, // todo: toggle
+      useClass: SendGridNotificationService, // todo: toggle
     },
   ],
   controllers: [AuthController],
