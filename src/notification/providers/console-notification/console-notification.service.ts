@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationRecipient, NotificationService, } from '../../types/notification-service';
+import {
+  NotificationRecipient,
+  NotificationService,
+} from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
 
 @Injectable()

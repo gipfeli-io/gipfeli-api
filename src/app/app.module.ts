@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { TourModule } from '../tour/tour.module';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
-import { ConsoleNotificationService } from '../notification/providers/console-notification/console-notification.service';
+import { SendGridNotificationService } from '../notification/providers/sendgrid-notification/send-grid-notification.service';
 
 @Module({
   imports: [TypeOrmModule.forRoot(DatabaseConfig), AuthModule, TourModule],
@@ -13,7 +13,7 @@ import { ConsoleNotificationService } from '../notification/providers/console-no
   providers: [
     {
       provide: NotificationServiceInterface,
-      useClass: ConsoleNotificationService, // todo: toggle
+      useClass: SendGridNotificationService, // todo: toggle
     },
   ],
 })
