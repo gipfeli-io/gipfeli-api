@@ -15,7 +15,6 @@ export const tourDataMockForPaul: TourDto[] = [
       lastName: 'Test',
       email: 'paul@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
   {
@@ -32,7 +31,6 @@ export const tourDataMockForPaul: TourDto[] = [
       lastName: 'Test',
       email: 'paul@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
 ];
@@ -51,7 +49,6 @@ export const tourDataMockForFranz: TourDto[] = [
       lastName: 'Mayer',
       email: 'franz@gipfeli.io',
       password: 'redacted',
-      tours: [],
     },
   },
 ];

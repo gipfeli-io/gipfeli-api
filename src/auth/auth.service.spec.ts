@@ -9,29 +9,44 @@ import { jwtConstants } from './common/constants';
 import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
+import { UserToken } from '../user/entities/user-token.entity';
+import repositoryMockFactory, {
+  RepositoryMockType,
+} from '../utils/mock-utils/repository-mock.factory';
+import { Repository } from 'typeorm';
 
-let result: UserDto;
+let userDto: UserDto;
+let user: User;
+
 const userConfig = {
   email: 'sara@gipfeli.io',
   unhashedPassword: 'this-is-my-secure-password',
 };
-const userRepositoryMock = {
-  findOne: jest.fn(() => Promise.resolve(result)),
+
+const getUserDtoAndUserObject: (isActive: boolean) => [UserDto, User] = (
+  isActive: boolean,
+) => {
+  const id = '2bd0b79d-071a-4672-0804-027d97f98a6e';
+  const firstName = 'Sara';
+  const lastName = 'Müller';
+  const email = userConfig.email;
+  const password = userConfig.unhashedPassword;
+  return [
+    { id, firstName, lastName, email, password },
+    {
+      id,
+      firstName,
+      lastName,
+      email,
+      password: bcrypt.hashSync(userConfig.unhashedPassword, 10),
+      isActive: isActive,
+    } as User,
+  ];
 };
 
 describe('AuthService', () => {
   let service: AuthService;
-
-  beforeAll(() => {
-    result = {
-      id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
-      firstName: 'Sara',
-      lastName: 'Müller',
-      email: userConfig.email,
-      password: bcrypt.hashSync(userConfig.unhashedPassword, 10),
-      tours: [],
-    };
-  });
+  let userRepositoryMock: RepositoryMockType<Repository<User>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,45 +62,44 @@ describe('AuthService', () => {
         CryptoService,
         {
           provide: getRepositoryToken(User),
-          useValue: userRepositoryMock,
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(UserToken),
+          useFactory: repositoryMockFactory,
         },
       ],
-    })
-      .useMocker((token) => {
-        if (token === UserService) {
-          return {
-            findOne: jest.fn().mockResolvedValue(result),
-          };
-        }
-      })
-      .compile();
+    }).compile();
 
     service = module.get<AuthService>(AuthService);
+    userRepositoryMock = module.get(getRepositoryToken(User));
   });
 
   describe('validateUser', () => {
     it('should return a user matching the parameters email and password', async () => {
-      const authServiceSpy = jest.spyOn(service, 'validateUser');
       const { unhashedPassword, email } = userConfig;
-      const { password, ...user } = result;
+      const [_, user] = getUserDtoAndUserObject(true);
+      userRepositoryMock.findOne.mockReturnValue(user);
 
+      const { password, ...result } = user;
       expect(await service.validateUser(email, unhashedPassword)).toEqual(
-        user,
+        result,
       );
-      expect(authServiceSpy).toHaveBeenCalledWith(email, unhashedPassword);
     });
 
     it('should return null when password does not match', async () => {
       const { email } = userConfig;
       const password = 'this-is-a-wrong-password';
+      const [_, user] = getUserDtoAndUserObject(true);
+      userRepositoryMock.findOne.mockReturnValue(user);
 
       expect(await service.validateUser(email, password)).toEqual(null);
     });
 
     it('throws NotFoundException if user and password do not match or do not exist', async () => {
-      result = null; // reset result to null so that user service mock returns null
       const email = 'peter@gipfeli.io';
       const password = '5678';
+      userRepositoryMock.findOne.mockReturnValue(null);
 
       const call = async () => await service.validateUser(email, password);
 

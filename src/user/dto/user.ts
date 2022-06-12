@@ -22,14 +22,9 @@ export class UserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
-
-  tours: Tour[];
 }
 
-export class CreateUserDto extends OmitType(UserDto, [
-  'id',
-  'tours',
-] as const) {}
+export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
 
 export class ActivateUserDto {
   @IsUUID()

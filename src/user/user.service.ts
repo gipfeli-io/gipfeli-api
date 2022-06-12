@@ -22,6 +22,7 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<UserDto[]> {
+    //Todo: do we need this route? Filter active/inactive?
     return this.userRepository.find();
   }
 
