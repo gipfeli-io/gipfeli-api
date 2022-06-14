@@ -25,7 +25,7 @@ async function bootstrap() {
   // Initialize sentry if DSN is set
   const sentryDsn = process.env.SENTRY_DSN;
   if (sentryDsn !== '') {
-    const sentryEnvironment = process.env.SENTRY_ENVIRONMENT
+    const environment = process.env.ENVIRONMENT
     Sentry.init({
       integrations: [
         // Setup tracing integration to measure performance
@@ -34,9 +34,9 @@ async function bootstrap() {
         }),
       ],
       dsn: sentryDsn,
-      environment: sentryEnvironment ?? 'localhost',
+      environment: environment ?? 'localhost',
       // set trace samplerate to low on production to not impact performance
-      tracesSampleRate: sentryEnvironment === 'production' ? 0.01 : 0.2,
+      tracesSampleRate: environment === 'production' ? 0.01 : 0.2,
     });
 
     app.use(Sentry.Handlers.tracingHandler());

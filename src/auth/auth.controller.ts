@@ -14,6 +14,7 @@ import {
   NotificationService,
   NotificationServiceInterface,
 } from '../notification/types/notification-service';
+import { LoginDto } from './dto/auth';
 
 @Controller('auth')
 export class AuthController {
@@ -26,18 +27,18 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
+  async login(@Request() req): Promise<LoginDto> {
     return this.authService.login(req.user);
   }
 
   @Post('signup')
-  async signUp(@Body() createUserDto: CreateUserDto) {
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<void> {
     const { token, user } = await this.userService.create(createUserDto);
     await this.notificationService.sendSignUpMessage(token, user);
   }
 
   @Post('activate')
-  async activateUser(@Body() activateUserDto: ActivateUserDto) {
+  async activateUser(@Body() activateUserDto: ActivateUserDto): Promise<void> {
     return this.userService.activateUser(activateUserDto);
   }
 }

@@ -51,6 +51,7 @@
     "typeorm": "^0.2.45"
   },
   "devDependencies": {
+    "node-mocks-http": "^1.11.0",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
