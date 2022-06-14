@@ -29,7 +29,6 @@ const notificationServiceMock = {
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
-  let userRepositoryMock: RepositoryMockType<Repository<User>>;
   let userService: UserService;
 
   beforeEach(async () => {
@@ -63,7 +62,6 @@ describe('AuthController', () => {
     authController = module.get<AuthController>(AuthController);
     userService = module.get<UserService>(UserService);
     authService = module.get<AuthService>(AuthService);
-    userRepositoryMock = module.get(getRepositoryToken(User));
   });
 
   describe('login', () => {
