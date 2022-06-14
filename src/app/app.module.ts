@@ -13,7 +13,7 @@ import { SendGridNotificationService } from '../notification/providers/sendgrid-
   providers: [
     {
       provide: NotificationServiceInterface,
-      useClass: SendGridNotificationService, // todo: toggle
+      useClass: SendGridNotificationService,
     },
   ],
 })
