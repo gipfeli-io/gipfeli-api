@@ -1,4 +1,3 @@
-import { Tour } from '../../tour/entities/tour.entity';
 import { OmitType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
@@ -24,7 +23,8 @@ export class UserDto {
   password: string;
 }
 
-export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
+export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {
+}
 
 export class UserCreatedDto {
   user: UserDto;

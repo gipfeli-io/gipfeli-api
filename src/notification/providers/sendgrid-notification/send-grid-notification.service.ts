@@ -6,7 +6,7 @@ import {
 import { UserDto } from '../../../user/dto/user';
 import * as SendGrid from '@sendgrid/mail';
 import debugMessage from './messages/debug.message';
-import { EmailNotSent } from './send-grid-notification.exceptions';
+import { EmailNotSent } from '../../notification.exceptions';
 import DebugMessage from './messages/debug.message';
 import SignUpMessage from './messages/sign-up.message';
 
@@ -45,17 +45,10 @@ export class SendGridNotificationService implements NotificationService {
 
   private async dispatchEmail(emailBody: SendGrid.MailDataRequired) {
     try {
-      const result = await SendGrid.send(emailBody);
+      await SendGrid.send(emailBody);
       return true;
     } catch (error) {
       throw new EmailNotSent();
     }
-  }
-
-  private extractRecipientFromUser(user: UserDto): NotificationRecipient {
-    return {
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-    };
   }
 }
