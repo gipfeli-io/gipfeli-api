@@ -10,12 +10,14 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UtilsModule } from '../utils/utils.module';
 import { AuthController } from './auth.controller';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
     UserModule,
     UtilsModule,
     PassportModule,
+    NotificationModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '3600s' },

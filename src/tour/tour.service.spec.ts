@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { TourService } from './tour.service';
 import { Tour } from './entities/tour.entity';
 import { TourDto } from './dto/tour';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { tourRepositoryMock } from './mocks/tour.repository.mock';
 import {
   tourDataMockForFranz,
