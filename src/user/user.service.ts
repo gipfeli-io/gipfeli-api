@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
+import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm';
 import {
   ActivateUserDto,
   CreateUserDto,
@@ -108,13 +108,28 @@ export class UserService {
   async activateUser(activateUserDto: ActivateUserDto): Promise<void> {
     const { userId, token } = activateUserDto;
 
-    const user = await this.userRepository
-      .createQueryBuilder('user')
-      .innerJoinAndSelect('user.tokens', 'tokens', '"tokenType" = :tokenType', {
-        tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-      })
-      .where({ id: userId, isActive: false })
-      .getOneOrFail();
+    let user;
+    try {
+      user = await this.userRepository
+        .createQueryBuilder('user')
+        .innerJoinAndSelect(
+          'user.tokens',
+          'tokens',
+          '"tokenType" = :tokenType',
+          {
+            tokenType: UserTokenType.ACCOUNT_ACTIVATION,
+          },
+        )
+        .where({ id: userId, isActive: false })
+        .getOneOrFail();
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new BadRequestException();
+      }
+
+      // At this point, something bad happened, so we raise the actual error
+      throw e;
+    }
 
     const hasValidToken = await this.checkForValidToken(user.tokens, token);
 
@@ -127,7 +142,7 @@ export class UserService {
       user.isActive = true;
       await this.userRepository.save(user);
 
-      return Promise.resolve(undefined);
+      return Promise.resolve();
     }
     // The tokens do not match
     throw new BadRequestException();
