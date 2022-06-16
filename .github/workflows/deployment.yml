@@ -1,15 +1,7 @@
 name: Build and Deploy solution
 
 on:
-  # Trigger only on either a push OR on a pull request
-  push:
-    branches:
-      - master
-      - stage
-  pull_request:
-    branches:
-      - master
-      - stage
+  - push
 
 jobs:
   test-and-build:
