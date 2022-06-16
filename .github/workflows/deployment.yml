@@ -1,7 +1,14 @@
 name: Build and Deploy solution
 
 on:
-  - push
+  push:
+    branches:
+      - master
+      - stage
+  pull_request:
+    branches:
+      - master
+      - stage
 
 jobs:
   test-and-build:
