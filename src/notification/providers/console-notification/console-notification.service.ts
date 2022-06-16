@@ -4,6 +4,7 @@ import {
   NotificationService,
 } from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
+import { getUserActivationUrl } from '../utils/message.helpers';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
@@ -24,6 +25,7 @@ export class ConsoleNotificationService implements NotificationService {
     this.printRecipient(this.extractRecipientFromUser(recipient));
     console.log(`=> userId: ${id}`);
     console.log(`=> token: ${token}`);
+    console.log(`=> SignUpLink: ${getUserActivationUrl(token, id)}`);
 
     return Promise.resolve(true);
   }

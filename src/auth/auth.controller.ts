@@ -10,11 +10,11 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { UserService } from '../user/user.service';
+import { LoginDto } from './dto/auth';
 import {
   NotificationService,
   NotificationServiceInterface,
 } from '../notification/types/notification-service';
-import { LoginDto } from './dto/auth';
 
 @Controller('auth')
 export class AuthController {

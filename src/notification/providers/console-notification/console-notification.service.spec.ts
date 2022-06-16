@@ -1,4 +1,5 @@
 import { ConsoleNotificationService } from './console-notification.service';
+import { getUserActivationUrl } from '../utils/message.helpers';
 
 describe('ConsoleNotificationService', () => {
   let service: ConsoleNotificationService;
@@ -32,12 +33,15 @@ describe('ConsoleNotificationService', () => {
 
     await service.sendSignUpMessage(token, userDto);
 
-    expect(logSpy).toHaveBeenCalledTimes(4);
+    expect(logSpy).toHaveBeenCalledTimes(5);
     expect(logSpy.mock.calls[1][0]).toContain(userDto.email);
     expect(logSpy.mock.calls[1][0]).toContain(userDto.firstName);
     expect(logSpy.mock.calls[1][0]).toContain(userDto.lastName);
     expect(logSpy.mock.calls[2][0]).toContain(userDto.id);
     expect(logSpy.mock.calls[3][0]).toContain(token);
+    expect(logSpy.mock.calls[4][0]).toContain(
+      getUserActivationUrl(token, userDto.id),
+    );
   });
 
   afterEach(() => {
