@@ -14,7 +14,7 @@ import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
-import { RefreshedToken, UserIdentifier } from './types/auth';
+import { UserIdentifier } from './types/auth';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -26,6 +26,8 @@ describe('AuthController', () => {
   let userService: UserService;
 
   beforeEach(async () => {
+    process.env.AUTH_TOKEN_VALIDITY = '10';
+    process.env.REFRESH_TOKEN_VALIDITY = '10';
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       imports: [
@@ -83,7 +85,7 @@ describe('AuthController', () => {
       expect(spy).toHaveBeenCalledWith(mockUser.sub);
     });
 
-    it('calls authService.createTokenResponse() with the correct params', async () => {
+    it('calls authService.login() with the correct params', async () => {
       const mockReturn = Promise.resolve({} as TokenDto);
       const mockUser: UserIdentifier = {
         sub: 'test',
@@ -126,33 +128,6 @@ describe('AuthController', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(mockUser);
-    });
-  });
-
-  describe('refreshToken', () => {
-    it('calls authService.createTokenResponse() with the correct params', async () => {
-      const mockReturn = Promise.resolve({} as TokenDto);
-      const mockUser: RefreshedToken = {
-        sub: 'test',
-        email: 'test@gipfeli.io',
-        sessionId: 'x-x-x',
-      };
-      const mockRequest = httpMocks.createRequest({
-        user: mockUser,
-      });
-
-      const spy = jest
-        .spyOn(authService, 'createTokenResponse')
-        .mockReturnValue(mockReturn);
-
-      await authController.refreshToken(mockRequest);
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(
-        mockUser.sub,
-        mockUser.email,
-        mockUser.sessionId,
-      );
     });
   });
 
