@@ -1,3 +1,4 @@
-export class LoginDto {
-  access_token: string;
+export class TokenDto {
+  accessToken: string;
+  refreshToken: string;
 }

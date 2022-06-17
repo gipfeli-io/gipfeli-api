@@ -1,26 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import repositoryMockFactory, {
-  RepositoryMockType,
-} from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
-import { Repository } from 'typeorm';
-import {
-  ActivateUserDto,
-  CreateUserDto,
-  UserCreatedDto,
-  UserDto,
-} from '../user/dto/user';
+import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { LoginDto } from './dto/auth';
+import { TokenDto } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
+import { UserSession } from './entities/user-session.entity';
+import { UserIdentifier } from './types/auth';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -32,6 +26,8 @@ describe('AuthController', () => {
   let userService: UserService;
 
   beforeEach(async () => {
+    process.env.AUTH_TOKEN_VALIDITY = '10';
+    process.env.REFRESH_TOKEN_VALIDITY = '10';
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       imports: [
@@ -56,6 +52,10 @@ describe('AuthController', () => {
           provide: getRepositoryToken(UserToken),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(UserSession),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 
@@ -65,19 +65,51 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('calls authService.login() with the request user object', async () => {
-      const mockReturn = Promise.resolve({} as LoginDto);
-      const mockUser = { username: 'test' };
+    it('calls authService.createSession() with the user ID from the request', async () => {
+      const mockReturn = Promise.resolve('');
+      const mockUser: UserIdentifier = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+      };
       const mockRequest = httpMocks.createRequest({
         user: mockUser,
       });
 
-      const spy = jest.spyOn(authService, 'login').mockReturnValue(mockReturn);
+      const spy = jest
+        .spyOn(authService, 'createSession')
+        .mockReturnValue(mockReturn);
 
       await authController.login(mockRequest);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(mockUser);
+      expect(spy).toHaveBeenCalledWith(mockUser.sub);
+    });
+
+    it('calls authService.login() with the correct params', async () => {
+      const mockReturn = Promise.resolve({} as TokenDto);
+      const mockUser: UserIdentifier = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+      };
+      const mockSession = 'x-x-x-x';
+      const mockRequest = httpMocks.createRequest({
+        user: mockUser,
+      });
+
+      authService.createSession = jest.fn().mockReturnValue(mockSession);
+
+      const spy = jest
+        .spyOn(authService, 'createTokenResponse')
+        .mockReturnValue(mockReturn);
+
+      await authController.login(mockRequest);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.sub,
+        mockUser.email,
+        mockSession,
+      );
     });
   });
 

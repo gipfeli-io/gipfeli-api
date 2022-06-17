@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Tour } from '../../tour/entities/tour.entity';
 import { UserToken } from './user-token.entity';
+import { UserSession } from '../../auth/entities/user-session.entity';
 
 export const UNIQUE_USER_EMAIL_CONSTRAINT = 'unique_user_email_constraint';
 
@@ -44,4 +45,7 @@ export class User {
 
   @OneToMany(() => UserToken, (userToken) => userToken.user)
   tokens: UserToken[];
+
+  @OneToMany(() => UserSession, (userSession) => userSession.user)
+  sessions: UserToken[];
 }
