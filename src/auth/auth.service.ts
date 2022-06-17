@@ -43,7 +43,7 @@ export class AuthService {
     sessionId: string,
   ): Promise<TokenDto> {
     const payload = { email, sub };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '10m' });
     const refreshToken = this.jwtService.sign(
       { sessionId },
       { expiresIn: '30d' },
