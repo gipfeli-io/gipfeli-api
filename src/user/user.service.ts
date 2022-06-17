@@ -164,4 +164,8 @@ export class UserService {
     }
     return hasValidToken;
   }
+
+  createSessionForId(userId: string) {
+
+  }
 }

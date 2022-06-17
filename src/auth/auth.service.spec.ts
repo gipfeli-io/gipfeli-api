@@ -14,9 +14,10 @@ import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
 import { Repository } from 'typeorm';
-
-let userDto: UserDto;
-let user: User;
+import { UserSession } from './entities/user-session.entity';
+import { UserIdentifier } from './dto/auth';
+import mock = jest.mock;
+import exp from 'constants';
 
 const userConfig = {
   email: 'sara@gipfeli.io',
@@ -47,6 +48,7 @@ const getUserDtoAndUserObject: (isActive: boolean) => [UserDto, User] = (
 describe('AuthService', () => {
   let service: AuthService;
   let userRepositoryMock: RepositoryMockType<Repository<User>>;
+  let sessionRepositoryMock: RepositoryMockType<Repository<UserSession>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -68,22 +70,33 @@ describe('AuthService', () => {
           provide: getRepositoryToken(UserToken),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(UserSession),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     userRepositoryMock = module.get(getRepositoryToken(User));
+    sessionRepositoryMock = module.get(getRepositoryToken(UserSession));
   });
 
   describe('validateUser', () => {
-    it('should return a user matching the parameters email and password', async () => {
+    it('should return a UserIdentifier matching the parameters email and password', async () => {
       const { unhashedPassword, email } = userConfig;
       const [_, user] = getUserDtoAndUserObject(true);
+      const mockSession = 'x-x-x-x';
       userRepositoryMock.findOne.mockReturnValue(user);
+      sessionRepositoryMock.create.mockReturnValue(mockSession);
 
-      const { password, ...result } = user;
+      const expected: UserIdentifier = {
+        sub: user.id,
+        email: user.email,
+      };
+
       expect(await service.validateUser(email, unhashedPassword)).toEqual(
-        result,
+        expected,
       );
     });
 
@@ -104,6 +117,16 @@ describe('AuthService', () => {
       const call = async () => await service.validateUser(email, password);
 
       await expect(call).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('createSession', () => {
+    it('creates a session and returns its value', async () => {
+      const userId = 'x-y-z';
+      const mockSession: UserSession = { id: 'session-id' } as UserSession;
+      sessionRepositoryMock.create.mockReturnValue(mockSession);
+      sessionRepositoryMock.save.mockReturnValue(mockSession);
+
+      await expect(await service.createSession(userId)).toEqual(mockSession.id);
     });
   });
 });

@@ -3,10 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from '../common/constants';
 import { UserDto } from '../../user/dto/user';
-import { AuthToken } from '../dto/auth';
+import { RefreshToken } from '../dto/auth';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'refresh') {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,7 +15,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: AuthToken): Promise<UserDto> {
-    return { id: payload.sub, email: payload.email } as UserDto;
+  async validate(payload: RefreshToken): Promise<UserDto> {
+    console.log(payload);
+    return { id: 'payload.sub', email: 'payload.email' } as UserDto;
   }
 }

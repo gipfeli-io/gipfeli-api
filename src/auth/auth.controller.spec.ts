@@ -16,11 +16,12 @@ import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { LoginDto } from './dto/auth';
+import { LoginDto, UserIdentifier } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
+import { UserSession } from './entities/user-session.entity';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -56,6 +57,10 @@ describe('AuthController', () => {
           provide: getRepositoryToken(UserToken),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(UserSession),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 
@@ -65,19 +70,49 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('calls authService.login() with the request user object', async () => {
-      const mockReturn = Promise.resolve({} as LoginDto);
-      const mockUser = { username: 'test' };
+    it('calls authService.createSession() with the user ID from the request', async () => {
+      const mockReturn = Promise.resolve('');
+      const mockUser: UserIdentifier = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+      };
       const mockRequest = httpMocks.createRequest({
         user: mockUser,
       });
+
+      const spy = jest
+        .spyOn(authService, 'createSession')
+        .mockReturnValue(mockReturn);
+
+      await authController.login(mockRequest);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockUser.sub);
+    });
+
+    it('calls authService.login() with the correct params', async () => {
+      const mockReturn = Promise.resolve({} as LoginDto);
+      const mockUser: UserIdentifier = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+      };
+      const mockSession = 'x-x-x-x';
+      const mockRequest = httpMocks.createRequest({
+        user: mockUser,
+      });
+
+      authService.createSession = jest.fn().mockReturnValue(mockSession);
 
       const spy = jest.spyOn(authService, 'login').mockReturnValue(mockReturn);
 
       await authController.login(mockRequest);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(mockUser);
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.sub,
+        mockUser.email,
+        mockSession,
+      );
     });
   });
 

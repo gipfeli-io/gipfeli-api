@@ -24,6 +24,7 @@ const defaultUser: User = {
   updatedAt: date,
   tokens: [],
   isActive: true,
+  sessions: [],
 };
 const createUserDto: CreateUserDto = {
   email: defaultUser.email,
