@@ -1,27 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import repositoryMockFactory, {
-  RepositoryMockType,
-} from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
-import { Repository } from 'typeorm';
-import {
-  ActivateUserDto,
-  CreateUserDto,
-  UserCreatedDto,
-  UserDto,
-} from '../user/dto/user';
+import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { LoginDto, UserIdentifier } from './dto/auth';
+import { TokenDto } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
+import { RefreshedToken, UserIdentifier } from './types/auth';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -90,8 +83,8 @@ describe('AuthController', () => {
       expect(spy).toHaveBeenCalledWith(mockUser.sub);
     });
 
-    it('calls authService.login() with the correct params', async () => {
-      const mockReturn = Promise.resolve({} as LoginDto);
+    it('calls authService.createTokenResponse() with the correct params', async () => {
+      const mockReturn = Promise.resolve({} as TokenDto);
       const mockUser: UserIdentifier = {
         sub: 'test',
         email: 'test@gipfeli.io',
@@ -103,7 +96,9 @@ describe('AuthController', () => {
 
       authService.createSession = jest.fn().mockReturnValue(mockSession);
 
-      const spy = jest.spyOn(authService, 'login').mockReturnValue(mockReturn);
+      const spy = jest
+        .spyOn(authService, 'createTokenResponse')
+        .mockReturnValue(mockReturn);
 
       await authController.login(mockRequest);
 
@@ -131,6 +126,33 @@ describe('AuthController', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(mockUser);
+    });
+  });
+
+  describe('refreshToken', () => {
+    it('calls authService.createTokenResponse() with the correct params', async () => {
+      const mockReturn = Promise.resolve({} as TokenDto);
+      const mockUser: RefreshedToken = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+        sessionId: 'x-x-x',
+      };
+      const mockRequest = httpMocks.createRequest({
+        user: mockUser,
+      });
+
+      const spy = jest
+        .spyOn(authService, 'createTokenResponse')
+        .mockReturnValue(mockReturn);
+
+      await authController.refreshToken(mockRequest);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.sub,
+        mockUser.email,
+        mockUser.sessionId,
+      );
     });
   });
 

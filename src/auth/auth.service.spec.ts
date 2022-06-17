@@ -15,9 +15,8 @@ import repositoryMockFactory, {
 } from '../utils/mock-utils/repository-mock.factory';
 import { Repository } from 'typeorm';
 import { UserSession } from './entities/user-session.entity';
-import { UserIdentifier } from './dto/auth';
-import mock = jest.mock;
-import exp from 'constants';
+import { RefreshedToken, UserIdentifier } from './types/auth';
+import * as dayjs from 'dayjs';
 
 const userConfig = {
   email: 'sara@gipfeli.io',
@@ -49,8 +48,12 @@ describe('AuthService', () => {
   let service: AuthService;
   let userRepositoryMock: RepositoryMockType<Repository<User>>;
   let sessionRepositoryMock: RepositoryMockType<Repository<UserSession>>;
+  const env = process.env;
 
   beforeEach(async () => {
+    jest.resetModules();
+    process.env = { ...env };
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({
@@ -119,6 +122,7 @@ describe('AuthService', () => {
       await expect(call).rejects.toThrow(NotFoundException);
     });
   });
+
   describe('createSession', () => {
     it('creates a session and returns its value', async () => {
       const userId = 'x-y-z';
@@ -128,5 +132,63 @@ describe('AuthService', () => {
 
       await expect(await service.createSession(userId)).toEqual(mockSession.id);
     });
+  });
+
+  describe('handleTokenRefresh', () => {
+    it('updates a session if it exists and is still valid and returns refresh data', async () => {
+      process.env.REFRESH_TOKEN_VALIDITY = '1000';
+      const mockSession: UserSession = {
+        id: 'session-id',
+        validFrom: dayjs().toISOString(),
+        user: {
+          id: 'x-x-x',
+          email: 'x@x.ch',
+        },
+      } as UserSession;
+      sessionRepositoryMock.findOne.mockReturnValue(mockSession);
+      sessionRepositoryMock.save.mockReturnValue(mockSession);
+
+      const result = await service.handleTokenRefresh(mockSession.id);
+      const expected: RefreshedToken = {
+        sub: mockSession.user.id,
+        email: mockSession.user.email,
+        sessionId: mockSession.id,
+      };
+
+      expect(sessionRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(sessionRepositoryMock.save).toHaveBeenCalledWith(mockSession);
+      expect(result).toEqual(expected);
+    });
+
+    it('returns undefined if no session exists', async () => {
+      sessionRepositoryMock.findOne.mockReturnValue(null);
+
+      const result = await service.handleTokenRefresh('');
+
+      expect(result).toEqual(undefined);
+    });
+
+    it('returns undefined if session validity is over and deletes the session', async () => {
+      process.env.REFRESH_TOKEN_VALIDITY = '-1';
+      const mockSession: UserSession = {
+        id: 'session-id',
+        validFrom: dayjs().toISOString(),
+        user: {
+          id: 'x-x-x',
+          email: 'x@x.ch',
+        },
+      } as UserSession;
+      sessionRepositoryMock.findOne.mockReturnValue(mockSession);
+
+      const result = await service.handleTokenRefresh(mockSession.id);
+
+      expect(sessionRepositoryMock.delete).toHaveBeenCalledTimes(1);
+      expect(sessionRepositoryMock.delete).toHaveBeenCalledWith(mockSession);
+      expect(result).toEqual(undefined);
+    });
+  });
+
+  afterEach(() => {
+    process.env = env;
   });
 });
