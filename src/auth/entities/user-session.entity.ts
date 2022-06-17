@@ -13,7 +13,7 @@ export class UserSession {
   id: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: string;
+  validFrom: string;
 
   @Column()
   userId: string;
