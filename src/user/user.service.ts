@@ -12,7 +12,7 @@ import {
   UserCreatedDto,
   UserDto,
 } from './dto/user';
-import { UserAlreadyExists, UserNotActivated } from './user.exceptions';
+import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
 
@@ -27,7 +27,6 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<UserDto[]> {
-    //Todo: do we need this route? Filter active/inactive?
     return this.userRepository.find();
   }
 
@@ -46,7 +45,11 @@ export class UserService {
 
     if (user) {
       if (!canBeInactive && !user.isActive) {
-        throw new UserNotActivated();
+        /*
+         Security-wise, we also throw a NotFoundException to not expose that
+         this user exists.
+        */
+        throw new NotFoundException();
       }
 
       return user;
@@ -89,7 +92,7 @@ export class UserService {
         e instanceof QueryFailedError &&
         e.driverError.constraint === UNIQUE_USER_EMAIL_CONSTRAINT
       ) {
-        throw new UserAlreadyExists();
+        throw new UserAlreadyExistsException();
       } else {
         throw e;
       }
@@ -156,16 +159,13 @@ export class UserService {
    */
   private async checkForValidToken(tokens: UserToken[], token: string) {
     let hasValidToken = false;
-    for (let i = 0; i < tokens.length; i++) {
-      const check = await this.cryptoService.compare(token, tokens[i].token);
+    for (const element of tokens) {
+      const check = await this.cryptoService.compare(token, element.token);
       if (check) {
         hasValidToken = true;
       }
     }
+
     return hasValidToken;
-  }
-
-  createSessionForId(userId: string) {
-
   }
 }

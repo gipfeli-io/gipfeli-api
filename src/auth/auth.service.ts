@@ -24,11 +24,12 @@ export class AuthService {
     password: string,
   ): Promise<UserIdentifier | null> {
     const user = await this.userService.findOne(email);
+    const passwordsMatch = await this.hashService.compare(
+      password,
+      user.password,
+    );
 
-    if (user && (await this.hashService.compare(password, user.password))) {
-      return { sub: user.id, email: user.email };
-    }
-    return null;
+    return passwordsMatch ? { sub: user.id, email: user.email } : null;
   }
 
   /**

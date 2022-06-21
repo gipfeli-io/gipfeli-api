@@ -10,7 +10,7 @@ export class UserController {
 
   @Get()
   async getUsers(): Promise<UserDto[]> {
-    return await this.userService.findAll();
+    return this.userService.findAll();
   }
 
   @Get('profile')

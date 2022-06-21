@@ -6,7 +6,7 @@ import { UserToken, UserTokenType } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
 import { QueryFailedError, Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { UserAlreadyExists, UserNotActivated } from './user.exceptions';
+import { UserAlreadyExistsException } from './user.exceptions';
 import { ActivateUserDto, CreateUserDto } from './dto/user';
 import repositoryMockFactory, {
   RepositoryMockType,
@@ -71,7 +71,7 @@ describe('UserService', () => {
       expect(userServiceSpy).toHaveBeenCalledWith(email);
     });
 
-    it('raises UserNotActivated if user is inactive', async () => {
+    it('raises NotFoundException if user is inactive', async () => {
       const user = Object.assign({}, defaultUser);
       user.isActive = false;
       userRepositoryMock.findOne.mockReturnValue(user);
@@ -79,7 +79,7 @@ describe('UserService', () => {
 
       const result = async () => await userService.findOne(email);
 
-      await expect(result).rejects.toThrow(UserNotActivated);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
 
     it('raises NotFoundException if user does not exist', async () => {
@@ -155,7 +155,7 @@ describe('UserService', () => {
 
       const result = async () => await userService.create(createUserDto);
 
-      await expect(result).rejects.toThrow(UserAlreadyExists);
+      await expect(result).rejects.toThrow(UserAlreadyExistsException);
     });
 
     it('throws any other exception on save ', async () => {
