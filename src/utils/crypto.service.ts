@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CryptoService {
-  private readonly hashRounds: number = parseInt(process.env.NO_OF_ROUNDS);
+  private readonly hashRounds: number;
+  constructor(private readonly configService: ConfigService) {
+    this.hashRounds = this.configService.get<number>('security.noOfHashRounds');
+  }
 
   /**
    * Hashes the value with an automatically generated salt and returns the
@@ -13,7 +17,7 @@ export class CryptoService {
    * @param value
    */
   async hash(value: string): Promise<string> {
-    return await bcrypt.hash(value, this.hashRounds);
+    return bcrypt.hash(value, this.hashRounds);
   }
 
   /**
@@ -23,7 +27,7 @@ export class CryptoService {
    * @param hash The hash to compare against
    */
   async compare(value: string, hash: string): Promise<boolean> {
-    return await bcrypt.compare(value, hash);
+    return bcrypt.compare(value, hash);
   }
 
   /**

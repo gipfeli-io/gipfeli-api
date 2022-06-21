@@ -1,11 +1,34 @@
 import { ConsoleNotificationService } from './console-notification.service';
 import { getUserActivationUrl } from '../utils/message.helpers';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+
+const defaultBaseUrl = 'https://test.gipfeli.io';
 
 describe('ConsoleNotificationService', () => {
   let service: ConsoleNotificationService;
   let logSpy;
-  beforeEach(() => {
-    service = new ConsoleNotificationService();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ConsoleNotificationService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'environment.appUrl') {
+                return defaultBaseUrl;
+              }
+              return null;
+            }),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<ConsoleNotificationService>(
+      ConsoleNotificationService,
+    );
     logSpy = jest.spyOn(console, 'log');
   });
 
@@ -40,7 +63,7 @@ describe('ConsoleNotificationService', () => {
     expect(logSpy.mock.calls[2][0]).toContain(userDto.id);
     expect(logSpy.mock.calls[3][0]).toContain(token);
     expect(logSpy.mock.calls[4][0]).toContain(
-      getUserActivationUrl(token, userDto.id),
+      getUserActivationUrl(defaultBaseUrl, token, userDto.id),
     );
   });
 

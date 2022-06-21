@@ -3,10 +3,11 @@ import { getUserActivationUrl } from '../../utils/message.helpers';
 
 class SignUpMessage {
   public static getMessage(
+    baseUrl: string,
     token: string,
     userId: string,
   ): SendGridMessageInterface {
-    const signUpUrl = getUserActivationUrl(token, userId)
+    const signUpUrl = getUserActivationUrl(baseUrl, token, userId);
     return {
       subject: 'Activate your gipfeli.io account!',
       text: `Hi there!\nYou recently signed up on gipfeli.io.Please use the following link to activate your account:\n\n${signUpUrl}\n\nGlad to have you here,\nyour gipfeli.io Team`,

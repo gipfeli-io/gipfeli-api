@@ -17,6 +17,9 @@ import { Repository } from 'typeorm';
 import { UserSession } from './entities/user-session.entity';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import * as dayjs from 'dayjs';
+import { ConfigService } from '@nestjs/config';
+
+const defaulRefreshTokenValidity = 1000;
 
 const userConfig = {
   email: 'sara@gipfeli.io',
@@ -45,15 +48,11 @@ const getUserDtoAndUserObject: (isActive: boolean) => [UserDto, User] = (
 };
 
 describe('AuthService', () => {
-  let service: AuthService;
+  let authService: AuthService;
   let userRepositoryMock: RepositoryMockType<Repository<User>>;
   let sessionRepositoryMock: RepositoryMockType<Repository<UserSession>>;
-  const env = process.env;
 
   beforeEach(async () => {
-    jest.resetModules();
-    process.env = { ...env };
-
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({
@@ -77,10 +76,21 @@ describe('AuthService', () => {
           provide: getRepositoryToken(UserSession),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'security.refreshTokenValidity') {
+                return defaulRefreshTokenValidity;
+              }
+              return null;
+            }),
+          },
+        },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
     userRepositoryMock = module.get(getRepositoryToken(User));
     sessionRepositoryMock = module.get(getRepositoryToken(UserSession));
   });
@@ -98,7 +108,7 @@ describe('AuthService', () => {
         email: user.email,
       };
 
-      expect(await service.validateUser(email, unhashedPassword)).toEqual(
+      expect(await authService.validateUser(email, unhashedPassword)).toEqual(
         expected,
       );
     });
@@ -109,7 +119,7 @@ describe('AuthService', () => {
       const [_, user] = getUserDtoAndUserObject(true);
       userRepositoryMock.findOne.mockReturnValue(user);
 
-      expect(await service.validateUser(email, password)).toEqual(null);
+      expect(await authService.validateUser(email, password)).toEqual(null);
     });
 
     it('throws NotFoundException if user and password do not match or do not exist', async () => {
@@ -117,7 +127,7 @@ describe('AuthService', () => {
       const password = '5678';
       userRepositoryMock.findOne.mockReturnValue(null);
 
-      const call = async () => await service.validateUser(email, password);
+      const call = async () => await authService.validateUser(email, password);
 
       await expect(call).rejects.toThrow(NotFoundException);
     });
@@ -130,13 +140,14 @@ describe('AuthService', () => {
       sessionRepositoryMock.create.mockReturnValue(mockSession);
       sessionRepositoryMock.save.mockReturnValue(mockSession);
 
-      await expect(await service.createSession(userId)).toEqual(mockSession.id);
+      await expect(await authService.createSession(userId)).toEqual(
+        mockSession.id,
+      );
     });
   });
 
   describe('handleTokenRefresh', () => {
     it('updates a session if it exists and is still valid and returns refresh data', async () => {
-      process.env.REFRESH_TOKEN_VALIDITY = '1000';
       const mockSession: UserSession = {
         id: 'session-id',
         validFrom: dayjs().toISOString(),
@@ -148,7 +159,7 @@ describe('AuthService', () => {
       sessionRepositoryMock.findOne.mockReturnValue(mockSession);
       sessionRepositoryMock.save.mockReturnValue(mockSession);
 
-      const result = await service.handleTokenRefresh(mockSession.id);
+      const result = await authService.handleTokenRefresh(mockSession.id);
       const expected: RefreshedToken = {
         sub: mockSession.user.id,
         email: mockSession.user.email,
@@ -163,13 +174,12 @@ describe('AuthService', () => {
     it('returns undefined if no session exists', async () => {
       sessionRepositoryMock.findOne.mockReturnValue(null);
 
-      const result = await service.handleTokenRefresh('');
+      const result = await authService.handleTokenRefresh('');
 
       expect(result).toEqual(undefined);
     });
 
     it('returns undefined if session validity is over and deletes the session', async () => {
-      process.env.REFRESH_TOKEN_VALIDITY = '-1';
       const mockSession: UserSession = {
         id: 'session-id',
         validFrom: dayjs().toISOString(),
@@ -179,16 +189,14 @@ describe('AuthService', () => {
         },
       } as UserSession;
       sessionRepositoryMock.findOne.mockReturnValue(mockSession);
+      const fakeDate = dayjs().add(defaulRefreshTokenValidity, 'minutes');
+      jest.useFakeTimers().setSystemTime(fakeDate.toDate());
 
-      const result = await service.handleTokenRefresh(mockSession.id);
+      const result = await authService.handleTokenRefresh(mockSession.id);
 
       expect(sessionRepositoryMock.delete).toHaveBeenCalledTimes(1);
       expect(sessionRepositoryMock.delete).toHaveBeenCalledWith(mockSession);
       expect(result).toEqual(undefined);
     });
-  });
-
-  afterEach(() => {
-    process.env = env;
   });
 });
