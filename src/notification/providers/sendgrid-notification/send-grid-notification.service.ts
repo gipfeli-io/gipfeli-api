@@ -5,9 +5,8 @@ import {
 } from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
 import * as SendGrid from '@sendgrid/mail';
-import debugMessage from './messages/debug.message';
-import { EmailNotSent } from '../../notification.exceptions';
 import DebugMessage from './messages/debug.message';
+import { EmailNotSentException } from '../../notification.exceptions';
 import SignUpMessage from './messages/sign-up.message';
 
 @Injectable()
@@ -48,7 +47,7 @@ export class SendGridNotificationService implements NotificationService {
       await SendGrid.send(emailBody);
       return true;
     } catch (error) {
-      throw new EmailNotSent();
+      throw new EmailNotSentException();
     }
   }
 }

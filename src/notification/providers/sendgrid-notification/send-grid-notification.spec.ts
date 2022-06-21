@@ -3,7 +3,7 @@ import * as SendGrid from '@sendgrid/mail';
 import DebugMessage from './messages/debug.message';
 import SignUpMessage from './messages/sign-up.message';
 import { UserDto } from '../../../user/dto/user';
-import { EmailNotSent } from '../../notification.exceptions';
+import { EmailNotSentException } from '../../notification.exceptions';
 
 jest.mock('@sendgrid/mail', () => {
   return {
@@ -62,7 +62,7 @@ describe('SendGridNotificationService', () => {
 
     const result = async () => await service.sendDebugMessage('', recipient);
 
-    await expect(result).rejects.toThrow(EmailNotSent);
+    await expect(result).rejects.toThrow(EmailNotSentException);
   });
 
   afterEach(() => {
