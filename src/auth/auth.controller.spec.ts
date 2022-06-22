@@ -15,6 +15,7 @@ import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
 import { UserIdentifier } from './types/auth';
+import { ConfigService } from '@nestjs/config';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -40,6 +41,15 @@ describe('AuthController', () => {
         AuthService,
         UserService,
         CryptoService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              // We only need dummy values, and all of the called config values are numbers
+              return 10;
+            }),
+          },
+        },
         {
           provide: NotificationServiceInterface,
           useValue: notificationServiceMock,
