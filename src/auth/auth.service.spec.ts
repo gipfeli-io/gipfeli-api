@@ -5,7 +5,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './common/constants';
 import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
@@ -19,7 +18,8 @@ import { RefreshedToken, UserIdentifier } from './types/auth';
 import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
 
-const defaulRefreshTokenValidity = 1000;
+const defaultRefreshTokenValidity = 1000;
+const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
 const userConfig = {
   email: 'sara@gipfeli.io',
@@ -56,7 +56,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({
-          secret: jwtConstants.secret,
+          secret: defaultToken,
           signOptions: { expiresIn: '3600s' },
         }),
       ],
@@ -81,7 +81,7 @@ describe('AuthService', () => {
           useValue: {
             get: jest.fn((key: string) => {
               if (key === 'security.refreshTokenValidity') {
-                return defaulRefreshTokenValidity;
+                return defaultRefreshTokenValidity;
               }
               return null;
             }),
@@ -189,7 +189,7 @@ describe('AuthService', () => {
         },
       } as UserSession;
       sessionRepositoryMock.findOne.mockReturnValue(mockSession);
-      const fakeDate = dayjs().add(defaulRefreshTokenValidity, 'minutes');
+      const fakeDate = dayjs().add(defaultRefreshTokenValidity, 'minutes');
       jest.useFakeTimers().setSystemTime(fakeDate.toDate());
 
       const result = await authService.handleTokenRefresh(mockSession.id);

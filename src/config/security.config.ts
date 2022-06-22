@@ -5,4 +5,5 @@ export default registerAs('security', () => ({
   noOfHashRounds: parseInt(process.env.NO_OF_ROUNDS),
   authTokenValidity: parseInt(process.env.AUTH_TOKEN_VALIDITY),
   refreshTokenValidity: parseInt(process.env.REFRESH_TOKEN_VALIDITY),
+  jwtSecret: process.env.JWT_SECRET,
 }));

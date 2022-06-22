@@ -10,12 +10,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TokenDto } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
 import { UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
+
+const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -31,7 +32,7 @@ describe('AuthController', () => {
       controllers: [AuthController],
       imports: [
         JwtModule.register({
-          secret: jwtConstants.secret,
+          secret: defaultToken,
           signOptions: { expiresIn: '3600s' },
         }),
       ],
