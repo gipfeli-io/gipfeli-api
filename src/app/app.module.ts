@@ -10,22 +10,18 @@ import { ConfigModule } from '@nestjs/config';
 import securityConfig from '../config/security.config';
 import environmentConfig from '../config/environment.config';
 import integrationsConfig from '../config/integrations.config';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(DatabaseConfig),
     AuthModule,
     TourModule,
+    NotificationModule,
     ConfigModule.forRoot({
       load: [securityConfig, environmentConfig, integrationsConfig],
     }),
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: NotificationServiceInterface,
-      useClass: SendGridNotificationService,
-    },
-  ],
 })
 export class AppModule {}
