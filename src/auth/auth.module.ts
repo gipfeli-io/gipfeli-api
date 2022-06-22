@@ -15,6 +15,7 @@ import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { RefreshJwtStrategy } from './strategies/refresh-jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSession } from './entities/user-session.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserSession } from './entities/user-session.entity';
     UtilsModule,
     PassportModule,
     NotificationModule,
+    ConfigModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '3600s' },

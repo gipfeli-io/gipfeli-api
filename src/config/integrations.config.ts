@@ -5,4 +5,7 @@ export default registerAs('integrations', () => ({
     sender: process.env.SENDGRID_SENDER,
     apiKey: process.env.SENDGRID_API_KEY,
   },
+  sentry: {
+    dsn: process.env.SENTRY_DSN,
+  },
 }));

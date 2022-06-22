@@ -4,12 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { SentryInterceptor } from './shared/interceptors/SentryInterceptor';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT || 3000;
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('environment.port');
   app.enableCors({
-    origin: process.env.CORS_ORIGIN,
+    origin: configService.get<string>('security.corsOrigin'),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
 
@@ -23,9 +25,9 @@ async function bootstrap() {
   );
 
   // Initialize sentry if DSN is set
-  const sentryDsn = process.env.SENTRY_DSN;
+  const sentryDsn = configService.get<string>('integrations.sentry.dsn');
   if (sentryDsn !== '') {
-    const environment = process.env.ENVIRONMENT
+    const environment = configService.get<string>('environment.environment');
     Sentry.init({
       integrations: [
         // Setup tracing integration to measure performance

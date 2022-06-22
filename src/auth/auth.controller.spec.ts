@@ -27,8 +27,6 @@ describe('AuthController', () => {
   let userService: UserService;
 
   beforeEach(async () => {
-    process.env.AUTH_TOKEN_VALIDITY = '10';
-    process.env.REFRESH_TOKEN_VALIDITY = '10';
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       imports: [
