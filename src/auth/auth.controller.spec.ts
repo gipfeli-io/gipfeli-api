@@ -10,11 +10,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TokenDto } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './common/constants';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
 import { UserIdentifier } from './types/auth';
+import { ConfigService } from '@nestjs/config';
+
+const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
@@ -26,13 +28,11 @@ describe('AuthController', () => {
   let userService: UserService;
 
   beforeEach(async () => {
-    process.env.AUTH_TOKEN_VALIDITY = '10';
-    process.env.REFRESH_TOKEN_VALIDITY = '10';
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       imports: [
         JwtModule.register({
-          secret: jwtConstants.secret,
+          secret: defaultToken,
           signOptions: { expiresIn: '3600s' },
         }),
       ],
@@ -40,6 +40,15 @@ describe('AuthController', () => {
         AuthService,
         UserService,
         CryptoService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              // We only need dummy values, and all of the called config values are numbers
+              return 10;
+            }),
+          },
+        },
         {
           provide: NotificationServiceInterface,
           useValue: notificationServiceMock,

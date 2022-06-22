@@ -5,9 +5,16 @@ import {
 } from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
 import { getUserActivationUrl } from '../utils/message.helpers';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
+  private readonly baseUrl: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.baseUrl = this.configService.get<string>('environment.appUrl');
+  }
+
   async sendDebugMessage(
     message: string,
     recipient: NotificationRecipient,
@@ -25,7 +32,9 @@ export class ConsoleNotificationService implements NotificationService {
     this.printRecipient(this.extractRecipientFromUser(recipient));
     console.log(`=> userId: ${id}`);
     console.log(`=> token: ${token}`);
-    console.log(`=> SignUpLink: ${getUserActivationUrl(token, id)}`);
+    console.log(
+      `=> SignUpLink: ${getUserActivationUrl(this.baseUrl, token, id)}`,
+    );
 
     return Promise.resolve(true);
   }

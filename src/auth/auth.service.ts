@@ -8,16 +8,28 @@ import { Repository } from 'typeorm';
 import { UserSession } from './entities/user-session.entity';
 import * as dayjs from 'dayjs';
 import { RefreshedToken, UserIdentifier } from './types/auth';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  private readonly authTokenValidity: number;
+  private readonly refreshTokenValidity: number;
+
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly hashService: CryptoService,
     @InjectRepository(UserSession)
     private readonly sessionRepository: Repository<UserSession>,
-  ) {}
+  ) {
+    this.authTokenValidity = this.configService.get<number>(
+      'security.authTokenValidity',
+    );
+    this.refreshTokenValidity = this.configService.get<number>(
+      'security.refreshTokenValidity',
+    );
+  }
 
   async validateUser(
     email: string,
@@ -45,11 +57,11 @@ export class AuthService {
   ): Promise<TokenDto> {
     const payload = { email, sub };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: `${process.env.AUTH_TOKEN_VALIDITY}m`,
+      expiresIn: `${this.authTokenValidity}m`,
     });
     const refreshToken = this.jwtService.sign(
       { sessionId },
-      { expiresIn: `${process.env.REFRESH_TOKEN_VALIDITY}m` },
+      { expiresIn: `${this.refreshTokenValidity}m` },
     );
     return {
       accessToken,
@@ -102,10 +114,9 @@ export class AuthService {
    * @private
    */
   private isTokenStillValid(validFrom: string) {
-    const validity = process.env.REFRESH_TOKEN_VALIDITY;
     const current = dayjs();
     const sessionValidUntil = dayjs(validFrom).add(
-      parseInt(validity),
+      this.refreshTokenValidity,
       'minutes',
     );
 

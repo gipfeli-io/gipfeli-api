@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { User } from '../src/user/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
 /**
@@ -9,7 +8,13 @@ import * as bcrypt from 'bcrypt';
  */
 export class HashUserPasswords1653640927249 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const users = await queryRunner.manager.find(User);
+    /**
+     * Since the user table changed, we cannot use .find(User), because the current entity does not match the one we
+     * have at this state in the database. That is why we have to use this pure SQL script, otherwise new setups will
+     * fail.
+     */
+    const schema = await queryRunner.getCurrentSchema();
+    const users = await queryRunner.query(`SELECT * FROM ${schema}.user`);
 
     for (const user of users) {
       user.password = bcrypt.hashSync(user.password, 10);

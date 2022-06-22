@@ -1,20 +1,23 @@
-import { Module } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { NotificationServiceInterface } from './types/notification-service';
 import { ConsoleNotificationService } from './providers/console-notification/console-notification.service';
 import { SendGridNotificationService } from './providers/sendgrid-notification/send-grid-notification.service';
+import { ConfigService } from '@nestjs/config';
 
-const notificationProvider = {
+const notificationProviderFactory: Provider = {
   provide: NotificationServiceInterface,
-  useClass:
-    process.env.JEST_WORKER_ID === undefined &&
-    (process.env.ENVIRONMENT === 'production' ||
-      process.env.ENVIRONMENT === 'staging')
-      ? SendGridNotificationService
-      : ConsoleNotificationService,
+  useFactory: (configService: ConfigService) => {
+    return configService.get<string>('JEST_WORKER_ID') === undefined &&
+      (configService.get<string>('environment.environment') === 'production' ||
+        configService.get<string>('environment.environment') === 'staging')
+      ? new SendGridNotificationService(configService)
+      : new ConsoleNotificationService(configService);
+  },
+  inject: [ConfigService],
 };
 
 @Module({
-  providers: [notificationProvider],
-  exports: [notificationProvider],
+  providers: [notificationProviderFactory, ConfigService],
+  exports: [notificationProviderFactory],
 })
 export class NotificationModule {}

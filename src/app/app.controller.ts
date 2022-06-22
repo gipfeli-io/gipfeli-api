@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Request,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Inject, Res } from '@nestjs/common';
 import { Response } from 'express';
 import {
   NotificationService,

@@ -4,6 +4,8 @@ import DebugMessage from './messages/debug.message';
 import SignUpMessage from './messages/sign-up.message';
 import { UserDto } from '../../../user/dto/user';
 import { EmailNotSentException } from '../../notification.exceptions';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 
 jest.mock('@sendgrid/mail', () => {
   return {
@@ -12,14 +14,37 @@ jest.mock('@sendgrid/mail', () => {
   };
 });
 
+const defaultBaseUrl = 'https://test.gipfeli.io';
 const defaultSender = 'x@x.com';
 const recipient = { email: 'test@gipfeli.io', id: 'xxx', name: 'Test Person' };
 
 describe('SendGridNotificationService', () => {
   let service: SendGridNotificationService;
-  beforeEach(() => {
-    process.env.SENDGRID_SENDER = defaultSender;
-    service = new SendGridNotificationService();
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SendGridNotificationService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'integrations.sendGrid.sender') {
+                return defaultSender;
+              }
+              if (key === 'environment.appUrl') {
+                return defaultBaseUrl;
+              }
+              return null;
+            }),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<SendGridNotificationService>(
+      SendGridNotificationService,
+    );
   });
 
   it('sends a debug message', async () => {
@@ -41,7 +66,11 @@ describe('SendGridNotificationService', () => {
   it('sends a signup message', async () => {
     const token = 'test-token';
     const recipient = { email: 'test@gipfeli.io', id: 'xxx' } as UserDto;
-    const signupMessage = SignUpMessage.getMessage(token, recipient.id);
+    const signupMessage = SignUpMessage.getMessage(
+      defaultBaseUrl,
+      token,
+      recipient.id,
+    );
 
     await service.sendSignUpMessage(token, recipient);
 
@@ -60,7 +89,8 @@ describe('SendGridNotificationService', () => {
       throw new Error();
     });
 
-    const result = async () => await service.sendDebugMessage('', recipient);
+    const result = async () =>
+      await service.sendDebugMessage('', recipient);
 
     await expect(result).rejects.toThrow(EmailNotSentException);
   });

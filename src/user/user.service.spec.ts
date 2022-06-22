@@ -11,6 +11,7 @@ import { ActivateUserDto, CreateUserDto } from './dto/user';
 import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
+import {ConfigService} from "@nestjs/config";
 
 const date = new Date();
 const defaultUser: User = {
@@ -44,6 +45,17 @@ describe('UserService', () => {
       providers: [
         UserService,
         CryptoService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'security.noOfHashRounds') {
+                return 10;
+              }
+              return null;
+            }),
+          },
+        },
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,

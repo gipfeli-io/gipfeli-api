@@ -4,10 +4,13 @@ import { UserController } from './user.controller';
 import { UserDto } from './dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import repositoryMockFactory, { RepositoryMockType } from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory, {
+  RepositoryMockType,
+} from '../utils/mock-utils/repository-mock.factory';
 import { UserToken } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 const results: UserDto[] = [
   {
@@ -26,10 +29,6 @@ const results: UserDto[] = [
   },
 ];
 
-const userRepositoryMock = {
-  find: jest.fn(() => Promise.resolve(results)),
-};
-
 describe('UserController', () => {
   let userController: UserController;
   let userRepositoryMock: RepositoryMockType<Repository<User>>;
@@ -40,6 +39,7 @@ describe('UserController', () => {
       providers: [
         UserService,
         CryptoService,
+        ConfigService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,

@@ -8,13 +8,22 @@ import * as SendGrid from '@sendgrid/mail';
 import DebugMessage from './messages/debug.message';
 import { EmailNotSentException } from '../../notification.exceptions';
 import SignUpMessage from './messages/sign-up.message';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SendGridNotificationService implements NotificationService {
-  private readonly sender: string = process.env.SENDGRID_SENDER;
+  private readonly sender: string;
+  private readonly baseUrl: string;
 
-  constructor() {
-    SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+  constructor(private readonly configService: ConfigService) {
+    this.sender = this.configService.get<string>(
+      'integrations.sendGrid.sender',
+    );
+    this.baseUrl = this.configService.get<string>('environment.appUrl');
+    const apiKey = this.configService.get<string>(
+      'integrations.sendGrid.apiKey',
+    );
+    SendGrid.setApiKey(apiKey);
   }
 
   async sendDebugMessage(
@@ -32,7 +41,7 @@ export class SendGridNotificationService implements NotificationService {
   }
 
   async sendSignUpMessage(token: string, recipient: UserDto): Promise<boolean> {
-    const content = SignUpMessage.getMessage(token, recipient.id);
+    const content = SignUpMessage.getMessage(this.baseUrl, token, recipient.id);
     const emailBody: SendGrid.MailDataRequired = {
       to: recipient.email,
       from: this.sender,
