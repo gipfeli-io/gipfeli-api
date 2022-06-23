@@ -50,9 +50,11 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "slugify": "^1.6.5",
     "typeorm": "^0.2.45"
   },
   "devDependencies": {
+    "@google-cloud/storage": "^6.2.0",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
@@ -60,6 +62,7 @@
     "@types/express": "^4.17.13",
     "@types/geojson": "^7946.0.8",
     "@types/jest": "27.4.1",
+    "@types/multer": "^1.4.7",
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",

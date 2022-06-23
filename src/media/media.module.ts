@@ -3,6 +3,7 @@ import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
 import { StorageProviderInterface } from './providers/types/storage-provider';
 import { GoogleCloudStorageProvider } from './providers/google-cloud-storage/google-cloud-storage-provider';
+import { ConfigModule } from '@nestjs/config';
 
 const storageProvider: Provider = {
   provide: StorageProviderInterface,
@@ -10,6 +11,7 @@ const storageProvider: Provider = {
 };
 
 @Module({
+  imports: [ConfigModule],
   controllers: [MediaController],
   providers: [MediaService, storageProvider],
 })

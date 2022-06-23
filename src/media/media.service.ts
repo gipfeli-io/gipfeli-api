@@ -3,6 +3,7 @@ import {
   StorageProvider,
   StorageProviderInterface,
 } from './providers/types/storage-provider';
+import { UploadFileDto } from './dto/file';
 
 @Injectable()
 export class MediaService {
@@ -11,7 +12,9 @@ export class MediaService {
     private readonly storageProvider: StorageProvider,
   ) {}
 
-  async debug() {
-    await this.storageProvider.put('test');
+  async uploadImage(file: UploadFileDto) {
+    // Todo: Create path with user prepended.
+    await this.storageProvider.put('images', file);
+    // todo: create fileimage
   }
 }

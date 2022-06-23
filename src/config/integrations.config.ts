@@ -8,4 +8,12 @@ export default registerAs('integrations', () => ({
   sentry: {
     dsn: process.env.SENTRY_DSN,
   },
+  googleCloudStorage: {
+    bucketName: process.env.GCS_BUCKET,
+    credentials: process.env.GCS_SERVICE_ACCOUNT
+      ? JSON.parse(
+          Buffer.from(process.env.GCS_SERVICE_ACCOUNT, 'base64').toString(),
+        )
+      : {},
+  },
 }));
