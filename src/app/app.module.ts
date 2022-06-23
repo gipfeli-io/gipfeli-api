@@ -9,9 +9,11 @@ import databaseConfig from '../config/database.config';
 import environmentConfig from '../config/environment.config';
 import integrationsConfig from '../config/integrations.config';
 import { NotificationModule } from '../notification/notification.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
+    MediaModule,
     AuthModule,
     TourModule,
     NotificationModule,
