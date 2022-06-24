@@ -6,6 +6,8 @@ import { GoogleCloudStorageProvider } from './providers/google-cloud-storage/goo
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Image } from './entities/image.entity';
 
 const storageProvider: Provider = {
   provide: StorageProviderInterface,
@@ -14,6 +16,7 @@ const storageProvider: Provider = {
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Image]),
     ConfigModule,
     MulterModule.registerAsync({
       imports: [ConfigModule],
