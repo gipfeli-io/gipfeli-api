@@ -1,13 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
-import { AuthenticatedUserDto, UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
 
 @Injectable()
 export class TourService {

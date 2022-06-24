@@ -12,7 +12,7 @@ import {
 import { TourService } from './tour.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
-import { AuthenticatedUserDto, UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
 import { User } from '../utils/decorators/user.decorator';
 
 @Controller('tours')

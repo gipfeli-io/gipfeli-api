@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { UploadFileDto } from '../../dto/file';
 import { randomUUID } from 'crypto';
 import slugify from 'slugify';
-import { UploadFailedException } from '../../media.exceptions';
 import { GoogleCloudStorageException } from './google-cloud-storage-provider.exceptions';
 
 @Injectable()

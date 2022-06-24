@@ -27,6 +27,7 @@
     "create-user": "npx ts-node ./scripts/user.ts create"
   },
   "dependencies": {
+    "@google-cloud/storage": "^6.2.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.1.0",
     "@nestjs/core": "^8.0.0",
@@ -54,7 +55,6 @@
     "typeorm": "^0.2.45"
   },
   "devDependencies": {
-    "@google-cloud/storage": "^6.2.0",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",

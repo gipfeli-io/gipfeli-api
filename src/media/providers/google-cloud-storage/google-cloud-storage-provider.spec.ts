@@ -80,7 +80,7 @@ describe('GoogleCloudStorageProvider', () => {
         }),
       }));
 
-      const result = async () => await gcsProvider.put(mockPath, fileMock);
+      const result = async () => gcsProvider.put(mockPath, fileMock);
 
       await expect(result).rejects.toThrow(GoogleCloudStorageException);
     });
