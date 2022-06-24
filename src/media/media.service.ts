@@ -4,7 +4,7 @@ import {
   StorageProviderInterface,
 } from './providers/types/storage-provider';
 import { UploadFileDto } from './dto/file';
-import { UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
 import { FilePath } from './enums/file-path';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class MediaService {
     private readonly storageProvider: StorageProvider,
   ) {}
 
-  async uploadImage(user: UserDto, file: UploadFileDto) {
+  async uploadImage(user: AuthenticatedUserDto, file: UploadFileDto) {
     const { id } = user;
     const filePath = this.getStoragePath(FilePath.IMAGE, id);
     await this.storageProvider.put(filePath, file);

@@ -11,7 +11,7 @@ import { UploadFileDto } from './dto/file';
 import imageFilter from './filters/image.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../utils/decorators/user.decorator';
-import { UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
 
 @UseGuards(JwtAuthGuard)
 @Controller('media')
@@ -21,7 +21,7 @@ export class MediaController {
   @Post('upload-image')
   @UseInterceptors(FileInterceptor('image', { fileFilter: imageFilter }))
   async uploadImage(
-    @User() user: UserDto,
+    @User() user: AuthenticatedUserDto,
     @UploadedFile() file: UploadFileDto,
   ): Promise<void> {
     await this.mediaService.uploadImage(user, file);
