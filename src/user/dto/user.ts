@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/mapped-types';
+import { OmitType, PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class UserDto {
@@ -23,8 +23,15 @@ export class UserDto {
   password: string;
 }
 
-export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {
-}
+/**
+ * This DTO is create by the @User decorator and consists of the
+ */
+export class AuthenticatedUserDto extends PickType(UserDto, [
+  'id',
+  'email',
+] as const) {}
+
+export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
 
 export class UserCreatedDto {
   user: UserDto;

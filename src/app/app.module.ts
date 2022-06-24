@@ -10,6 +10,7 @@ import environmentConfig from '../config/environment.config';
 import integrationsConfig from '../config/integrations.config';
 import { NotificationModule } from '../notification/notification.module';
 import { MediaModule } from '../media/media.module';
+import mediaConfig from '../config/media.config';
 
 @Module({
   imports: [
@@ -18,7 +19,12 @@ import { MediaModule } from '../media/media.module';
     TourModule,
     NotificationModule,
     ConfigModule.forRoot({
-      load: [securityConfig, environmentConfig, integrationsConfig],
+      load: [
+        securityConfig,
+        environmentConfig,
+        integrationsConfig,
+        mediaConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forRoot({ load: [databaseConfig] })],
