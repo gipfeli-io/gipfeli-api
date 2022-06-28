@@ -12,6 +12,7 @@ import imageFilter from './filters/image.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../utils/decorators/user.decorator';
 import { AuthenticatedUserDto } from '../user/dto/user';
+import { SavedImageDto } from './dto/image';
 
 @UseGuards(JwtAuthGuard)
 @Controller('media')
@@ -23,7 +24,7 @@ export class MediaController {
   async uploadImage(
     @User() user: AuthenticatedUserDto,
     @UploadedFile() file: UploadFileDto,
-  ): Promise<void> {
-    await this.mediaService.uploadImage(user, file);
+  ): Promise<SavedImageDto> {
+    return this.mediaService.uploadImage(user, file);
   }
 }
