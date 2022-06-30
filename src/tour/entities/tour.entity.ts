@@ -3,7 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  ManyToOne, OneToMany,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -49,6 +50,9 @@ export class Tour {
   @ManyToOne(() => User, (user) => user.tours)
   user: User;
 
-  @OneToMany(() => Image, (image) => image.user)
-  images: Image;
+  @OneToMany(() => Image, (image) => image.tour, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  images: Image[];
 }

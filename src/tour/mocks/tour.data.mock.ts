@@ -16,6 +16,7 @@ export const tourDataMockForPaul: TourDto[] = [
       email: 'paul@gipfeli.io',
       password: 'redacted',
     },
+    images: [],
   },
   {
     id: 'a815f336-1586-4857-a9cc-b521dac7d3c2',
@@ -32,6 +33,7 @@ export const tourDataMockForPaul: TourDto[] = [
       email: 'paul@gipfeli.io',
       password: 'redacted',
     },
+    images: [],
   },
 ];
 export const tourDataMockForFranz: TourDto[] = [
@@ -50,6 +52,7 @@ export const tourDataMockForFranz: TourDto[] = [
       email: 'franz@gipfeli.io',
       password: 'redacted',
     },
+    images: [],
   },
 ];
 

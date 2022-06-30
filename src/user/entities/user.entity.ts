@@ -50,6 +50,9 @@ export class User {
   @OneToMany(() => UserSession, (userSession) => userSession.user)
   sessions: UserToken[];
 
-  @OneToMany(() => Image, (image) => image.user)
+  @OneToMany(() => Image, (image) => image.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   images: Image[];
 }

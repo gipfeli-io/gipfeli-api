@@ -4,19 +4,32 @@ import { Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
 import { AuthenticatedUserDto } from '../user/dto/user';
+import { Image } from '../media/entities/image.entity';
 
 @Injectable()
 export class TourService {
   constructor(
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
   ) {}
 
   async create(
     createTourDto: CreateTourDto,
     user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const newTour = this.tourRepository.create({ user, ...createTourDto });
+    const { images, ...tour } = createTourDto;
+    const savedImages = await this.imageRepository.findByIds(
+      images.map((image) => image.id),
+      { where: { user }, relations: ['user']},
+    );
+
+    const newTour = this.tourRepository.create({
+      user,
+      ...createTourDto,
+      images: savedImages,
+    });
 
     return this.tourRepository.save(newTour);
   }
