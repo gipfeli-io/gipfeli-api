@@ -4,11 +4,13 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Point } from 'geojson';
 import { User } from '../../user/entities/user.entity';
+import { Image } from '../../media/entities/image.entity';
 
 @Entity()
 export class Tour {
@@ -47,4 +49,10 @@ export class Tour {
 
   @ManyToOne(() => User, (user) => user.tours)
   user: User;
+
+  @OneToMany(() => Image, (image) => image.tour, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  images: Image[];
 }

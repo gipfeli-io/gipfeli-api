@@ -1,38 +1,50 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
-import { UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
+import { Image } from '../media/entities/image.entity';
 
 @Injectable()
 export class TourService {
   constructor(
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
   ) {}
 
-  async create(createTourDto: CreateTourDto, user: UserDto): Promise<Tour> {
-    const newTour = this.tourRepository.create({ user, ...createTourDto });
+  async create(
+    createTourDto: CreateTourDto,
+    user: AuthenticatedUserDto,
+  ): Promise<Tour> {
+    const { images, ...tour } = createTourDto;
+    const savedImages = await this.imageRepository.findByIds(
+      images.map((image) => image.id),
+      { where: { user } },
+    );
 
-    return await this.tourRepository.save(newTour);
+    const newTour = this.tourRepository.create({
+      user,
+      images: savedImages,
+      ...tour,
+    });
+
+    return this.tourRepository.save(newTour);
   }
 
-  findAll(user: UserDto): Promise<TourDto[]> {
+  findAll(user: AuthenticatedUserDto): Promise<TourDto[]> {
     return this.tourRepository.find({
       where: { user },
       relations: ['user'],
     });
   }
 
-  async findOne(id: string, user: UserDto): Promise<TourDto> {
+  async findOne(id: string, user: AuthenticatedUserDto): Promise<TourDto> {
     const result = await this.tourRepository.findOne(id, {
       where: { user },
-      relations: ['user'],
+      relations: ['user', 'images'],
     });
 
     if (!result) {
@@ -45,21 +57,33 @@ export class TourService {
   async update(
     id: string,
     updateTourDto: UpdateTourDto,
-    user: UserDto,
+    user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const updateResult = await this.tourRepository.update(
-      { id, user },
-      updateTourDto,
-    );
+    const { images, ...tour } = updateTourDto;
 
-    if (updateResult.affected === 0) {
+    const existingTour = await this.tourRepository.findOne(id, {
+      where: { user },
+    });
+
+    if (!existingTour) {
       throw new NotFoundException();
     }
 
-    return await this.tourRepository.findOne(id, { relations: ['user'] });
+    // We have to manually add our images and then merge the result, because
+    // repository.update() does not sync relations.
+    const savedImages = await this.imageRepository.findByIds(
+      images.map((image) => image.id),
+      { where: { user } },
+    );
+
+    existingTour.images = savedImages;
+    const mergedTour = this.tourRepository.merge(existingTour, tour);
+    await this.tourRepository.save(mergedTour);
+
+    return this.tourRepository.findOne(id, { relations: ['user', 'images'] });
   }
 
-  async remove(id: string, user: UserDto): Promise<void> {
+  async remove(id: string, user: AuthenticatedUserDto): Promise<void> {
     const deleteResult = await this.tourRepository.delete({ id, user });
 
     if (deleteResult.affected === 0) {

@@ -1,177 +1,119 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserDto } from '../user/dto/user';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { TourController } from './tour.controller';
 import { TourService } from './tour.service';
+import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { Tour } from './entities/tour.entity';
-import {
-  tourDataMockForFranz,
-  tourDataMockForPaul,
-} from './mocks/tour.data.mock';
-import { tourRepositoryMock } from './mocks/tour.repository.mock';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { TourDto } from './dto/tour';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { AuthenticatedUserDto } from '../user/dto/user';
+import { Image } from '../media/entities/image.entity';
+import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
+import { TourController } from './tour.controller';
 
-const resultsForFranz = tourDataMockForFranz;
-const resultsForPaul = tourDataMockForPaul;
+const mockUser: AuthenticatedUserDto = {
+  email: 'test@gipfeli.io',
+  id: 'mocked-id',
+};
+const mockId = 'mocked-tour-id';
+const mockExistingTour: UpdateTourDto = {
+  id: mockId,
+  description: 'testExisting',
+} as UpdateTourDto;
+const mockNewTour: CreateTourDto = {
+  description: 'testNew',
+} as CreateTourDto;
+const mockTour: TourDto = {
+  description: 'testMock',
+} as TourDto;
 
-const results = [...resultsForFranz, ...resultsForPaul];
-
-describe('TourController', () => {
+describe('TourService', () => {
   let tourController: TourController;
+  let tourService: TourService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [TourController],
       providers: [
+        TourController,
         TourService,
         {
           provide: getRepositoryToken(Tour),
-          useValue: tourRepositoryMock,
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Image),
+          useFactory: repositoryMockFactory,
         },
       ],
-    })
-      .useMocker((token) => {
-        if (token === TourService) {
-          return {
-            findAll: jest.fn().mockResolvedValue(results),
-          };
-        }
-      })
-      .compile();
+    }).compile();
 
     tourController = module.get<TourController>(TourController);
+    tourService = module.get<TourService>(TourService);
   });
 
   describe('findAll', () =>
-    it('returns all tours for the given user', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'findAll');
-      const result = await tourController.findAll({
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+    it('calls tourService.findAll() with the correct params and returns it', async () => {
+      const spy = jest
+        .spyOn(tourService, 'findAll')
+        .mockReturnValue(Promise.resolve([mockTour]));
 
-      expect(result.length).toEqual(2);
-      expect(result[0].id).toEqual(resultsForPaul[0].id);
-      expect(result[1].id).toEqual(resultsForPaul[1].id);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
+      const result = await tourController.findAll(mockUser);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockUser);
+      expect(result).toEqual([mockTour]);
     }));
 
-  describe('findOne', () => {
-    it('returns an existing tour  for the given user', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'findOne');
-      const result = await tourController.findOne(resultsForPaul[0].id, {
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+  describe('findOne', () =>
+    it('calls tourService.findOne() with the correct params and returns it', async () => {
+      const spy = jest
+        .spyOn(tourService, 'findOne')
+        .mockReturnValue(Promise.resolve(mockTour));
 
-      expect(result).toBeDefined();
-      expect(result.id).toEqual(resultsForPaul[0].id);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
-    });
+      const result = await tourController.findOne(mockId, mockUser);
 
-    it('does not return a tour that belongs to another user and throws a NotFoundException', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'findOne');
-      const result = async () =>
-        await tourController.findOne(resultsForFranz[0].id, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockId, mockUser);
+      expect(result).toEqual(mockTour);
+    }));
 
-      await expect(result).rejects.toThrow(NotFoundException);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
-    });
-  });
+  describe('create', () =>
+    it('calls tourService.create() with the correct params and returns it', async () => {
+      const spy = jest
+        .spyOn(tourService, 'create')
+        .mockReturnValue(Promise.resolve(mockNewTour as Tour));
 
-  describe('update', () => {
-    it('updates an existing tour and returns it', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'update');
+      const result = await tourController.create(mockNewTour, mockUser);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockNewTour, mockUser);
+      expect(result).toEqual(mockNewTour);
+    }));
+
+  describe('update', () =>
+    it('calls tourService.update() with the correct params and returns it', async () => {
+      const spy = jest
+        .spyOn(tourService, 'update')
+        .mockReturnValue(Promise.resolve(mockExistingTour as Tour));
+
       const result = await tourController.update(
-        resultsForPaul[0].id,
-        { name: 'updated' },
-        {
-          id: resultsForPaul[0].user.id,
-        } as UserDto,
+        mockId,
+        mockExistingTour,
+        mockUser,
       );
 
-      expect(result).toBeDefined();
-      expect(result.id).toEqual(resultsForPaul[0].id);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
-    });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockId, mockExistingTour, mockUser);
+      expect(result).toEqual(mockExistingTour);
+    }));
 
-    it('raises NotFoundException if trying to update non existing tour', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'update');
-      const result = async () =>
-        await tourController.update('does-not-exist', { name: 'updated' }, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+  describe('update', () =>
+    it('calls tourService.remove() with the correct params and returns void', async () => {
+      const spy = jest
+        .spyOn(tourService, 'remove')
+        .mockReturnValue(Promise.resolve(undefined));
 
-      await expect(result).rejects.toThrow(NotFoundException);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
-    });
+      const result = await tourController.remove(mockId, mockUser);
 
-    it('raises NotFoundException if trying to update a tour of another user', async () => {
-      const controllerSpy = jest.spyOn(tourController, 'update');
-      const result = async () =>
-        await tourController.update(
-          resultsForFranz[0].id,
-          { name: 'updated' },
-          {
-            id: resultsForPaul[0].user.id,
-          } as UserDto,
-        );
-
-      await expect(result).rejects.toThrow(NotFoundException);
-      expect(controllerSpy).toHaveBeenCalledTimes(1);
-    });
-
-    describe('delete', () => {
-      // Todo: functions returns Promise<void>, not testable. refactor!
-      xit('deletes an existing tour', async () => {
-        const controllerSpy = jest.spyOn(tourController, 'remove');
-        const result = async () =>
-          await tourController.remove(resultsForPaul[0].id, {
-            id: resultsForPaul[0].user.id,
-          } as UserDto);
-
-        await expect(result).resolves.not.toThrow();
-        expect(controllerSpy).toHaveBeenCalledTimes(1);
-      });
-
-      it('raises NotFoundException if trying to update non existing tour', async () => {
-        const controllerSpy = jest.spyOn(tourController, 'remove');
-        const result = async () =>
-          await tourController.remove(resultsForFranz[0].id, {
-            id: 'does-not-exist',
-          } as UserDto);
-
-        await expect(result).rejects.toThrow(NotFoundException);
-        expect(controllerSpy).toHaveBeenCalledTimes(1);
-      });
-
-      it('raises NotFoundException if trying to update a tour of another user', async () => {
-        const controllerSpy = jest.spyOn(tourController, 'remove');
-        const result = async () =>
-          await tourController.remove(resultsForFranz[0].id, {
-            id: resultsForPaul[0].user.id,
-          } as UserDto);
-
-        await expect(result).rejects.toThrow(NotFoundException);
-        expect(controllerSpy).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    describe('create', () => {
-      it('creates a tour and returns it', async () => {
-        const controllerSpy = jest.spyOn(tourController, 'create');
-        const result = await tourController.create(
-          { description: 'test' } as TourDto,
-          {
-            id: resultsForPaul[0].user.id,
-          } as UserDto,
-        );
-
-        expect(result).toBeDefined();
-        expect(result.description).toEqual('test');
-        expect(controllerSpy).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockId, mockUser);
+      expect(result).toEqual(undefined);
+    }));
 });

@@ -10,6 +10,7 @@ import {
 import { Tour } from '../../tour/entities/tour.entity';
 import { UserToken } from './user-token.entity';
 import { UserSession } from '../../auth/entities/user-session.entity';
+import { Image } from '../../media/entities/image.entity';
 
 export const UNIQUE_USER_EMAIL_CONSTRAINT = 'unique_user_email_constraint';
 
@@ -48,4 +49,10 @@ export class User {
 
   @OneToMany(() => UserSession, (userSession) => userSession.user)
   sessions: UserToken[];
+
+  @OneToMany(() => Image, (image) => image.user, {
+    cascade: true,
+    onDelete: 'CASCADE', // todo: this should be changed so we do not immediately delete images when a user is deleted.
+  })
+  images: Image[];
 }

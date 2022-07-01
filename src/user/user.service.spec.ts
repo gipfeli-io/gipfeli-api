@@ -11,7 +11,7 @@ import { ActivateUserDto, CreateUserDto } from './dto/user';
 import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from '@nestjs/config';
 
 const date = new Date();
 const defaultUser: User = {
@@ -26,6 +26,7 @@ const defaultUser: User = {
   tokens: [],
   isActive: true,
   sessions: [],
+  images: [],
 };
 const createUserDto: CreateUserDto = {
   email: defaultUser.email,
