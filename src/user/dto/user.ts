@@ -24,7 +24,8 @@ export class UserDto {
 }
 
 /**
- * This DTO is create by the @User decorator and consists of the
+ * This DTO is create by the @User decorator and consists of the user's ID and
+ * email.
  */
 export class AuthenticatedUserDto extends PickType(UserDto, [
   'id',
