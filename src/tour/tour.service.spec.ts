@@ -104,40 +104,85 @@ describe('TourService', () => {
   });
 
   describe('update', () => {
-    it('updates an existing tour by scoping it and then finds and returns it', async () => {
-      tourRepositoryMock.update.mockReturnValue(mockExistingTour);
+    it('calls the image repository with correct IDs and user scope', async () => {
       tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      await tourService.update(mockId, mockExistingTour, mockUser);
+
+      const expectedIds = mockImages.map((image) => image.id);
+      const expectedConditions: FindManyOptions<Image> = {
+        where: { user: mockUser },
+      };
+
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledWith(
+        expectedIds,
+        expectedConditions,
+      );
+    });
+
+    it('updates an existing tour by scoping it and then finds and returns it', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
+      tourRepositoryMock.save.mockReturnValue(mockExistingTour);
 
       const result = await tourService.update(
         mockId,
         mockExistingTour,
         mockUser,
       );
-
-      const expectedConditions: FindConditions<Tour> = {
-        id: mockId,
-        user: mockUser,
-      };
-      expect(tourRepositoryMock.update).toHaveBeenCalledTimes(1);
-      expect(tourRepositoryMock.update).toHaveBeenCalledWith(
-        expectedConditions,
-        mockExistingTour,
-      );
-      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockExistingTour);
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(2);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
-        relations: ['user'],
+        relations: ['user', 'images'],
+      });
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
+        where: { user: mockUser },
       });
       expect(result).toEqual(mockExistingTour);
     });
 
+    it('sets the image property on the tour and merges the entity with the DTO', async () => {
+      const mockTourWithoutImage = Object.assign({}, mockExistingTour);
+      mockTourWithoutImage.images = [];
+      tourRepositoryMock.findOne.mockReturnValue(
+        Object.assign({}, mockTourWithoutImage),
+      );
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      const result = await tourService.update(
+        mockId,
+        mockTourWithoutImage,
+        mockUser,
+      );
+
+      // Merge is called with the entity (added with images) and the DTO (without images)
+      const expectedEntity = {
+        ...mockTourWithoutImage,
+        images: mockImages,
+      };
+      const expectedDto = {
+        description: mockTourWithoutImage.description,
+        id: mockTourWithoutImage.id,
+      };
+      expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
+        expectedEntity,
+        expectedDto,
+      );
+      expect(result.images).toEqual(mockImages);
+    });
+
     it('raises NotFoundException if trying to update tour that does not match selection', async () => {
-      tourRepositoryMock.update.mockReturnValue({ affected: 0 });
+      tourRepositoryMock.findOne.mockReturnValue(undefined);
 
       const result = async () =>
         await tourService.update(mockId, mockExistingTour, mockUser);
 
       await expect(result).rejects.toThrow(NotFoundException);
-      expect(tourRepositoryMock.findOne).not.toHaveBeenCalled();
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).not.toHaveBeenCalled();
     });
   });
 
