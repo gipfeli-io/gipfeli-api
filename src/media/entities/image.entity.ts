@@ -27,12 +27,12 @@ export class Image {
   @Column()
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.images, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.images, { onDelete: 'CASCADE' }) // see todo in user
   user?: User;
 
   @Column({ nullable: true })
   tourId: string | null;
 
-  @ManyToOne(() => Tour, (tour) => tour.images, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Tour, (tour) => tour.images, { onDelete: 'SET NULL' })
   tour?: Tour | null;
 }

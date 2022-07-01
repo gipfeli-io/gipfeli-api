@@ -52,7 +52,7 @@ export class Tour {
 
   @OneToMany(() => Image, (image) => image.tour, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   images: Image[];
 }

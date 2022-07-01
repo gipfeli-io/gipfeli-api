@@ -52,7 +52,7 @@ export class User {
 
   @OneToMany(() => Image, (image) => image.user, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: 'CASCADE', // todo: this should be changed so we do not immediately delete images when a user is deleted.
   })
   images: Image[];
 }
