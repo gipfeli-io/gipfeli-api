@@ -22,13 +22,13 @@ export class TourService {
     const { images, ...tour } = createTourDto;
     const savedImages = await this.imageRepository.findByIds(
       images.map((image) => image.id),
-      { where: { user }, relations: ['user']},
+      { where: { user } },
     );
 
     const newTour = this.tourRepository.create({
       user,
-      ...createTourDto,
       images: savedImages,
+      ...tour,
     });
 
     return this.tourRepository.save(newTour);
@@ -44,7 +44,7 @@ export class TourService {
   async findOne(id: string, user: AuthenticatedUserDto): Promise<TourDto> {
     const result = await this.tourRepository.findOne(id, {
       where: { user },
-      relations: ['user'],
+      relations: ['user', 'images'],
     });
 
     if (!result) {
