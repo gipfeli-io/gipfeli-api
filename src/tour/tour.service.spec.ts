@@ -1,140 +1,256 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserDto } from '../user/dto/user';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { TourService } from './tour.service';
-import { Tour } from './entities/tour.entity';
-import { TourDto } from './dto/tour';
-import { NotFoundException } from '@nestjs/common';
-import { tourRepositoryMock } from './mocks/tour.repository.mock';
+import repositoryMockFactory, {
+  RepositoryMockType,
+} from '../utils/mock-utils/repository-mock.factory';
 import {
-  tourDataMockForFranz,
-  tourDataMockForPaul,
-} from './mocks/tour.data.mock';
+  FindConditions,
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+} from 'typeorm';
+import { Tour } from './entities/tour.entity';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { AuthenticatedUserDto } from '../user/dto/user';
+import { Image } from '../media/entities/image.entity';
+import { NotFoundException } from '@nestjs/common';
+import { CreateTourDto, UpdateTourDto } from './dto/tour';
+import { SavedImageDto } from '../media/dto/image';
 
-const resultsForFranz = tourDataMockForFranz;
-const resultsForPaul = tourDataMockForPaul;
+const mockUser: AuthenticatedUserDto = {
+  email: 'test@gipfeli.io',
+  id: 'mocked-id',
+};
+const mockImages: SavedImageDto[] = [
+  { id: 'img-1', identifier: 'ident-1' },
+  { id: 'img-2', identifier: 'ident-2' },
+];
+const mockId = 'mocked-tour-id';
+const mockExistingTour: UpdateTourDto = {
+  id: mockId,
+  description: 'test',
+  images: mockImages,
+} as UpdateTourDto;
+const mockNewTour: CreateTourDto = {
+  description: 'test',
+  images: mockImages,
+} as CreateTourDto;
 
 describe('TourService', () => {
-  let service: TourService;
+  let tourService: TourService;
+  let tourRepositoryMock: RepositoryMockType<Repository<Tour>>;
+  let imageRepositoryMock: RepositoryMockType<Repository<Image>>;
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TourService,
         {
           provide: getRepositoryToken(Tour),
-          useValue: tourRepositoryMock,
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Image),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
 
-    service = module.get<TourService>(TourService);
+    tourService = module.get<TourService>(TourService);
+    tourRepositoryMock = module.get(getRepositoryToken(Tour));
+    imageRepositoryMock = module.get(getRepositoryToken(Image));
   });
 
   describe('findAll', () =>
-    it('returns all tours for the given user', async () => {
-      const result = await service.findAll({
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+    it('scopes the query to the current user and returns the result', async () => {
+      const mockResult: Tour[] = [{ id: 'mock' } as Tour];
+      tourRepositoryMock.find.mockReturnValue(mockResult);
 
-      expect(result.length).toEqual(2);
-      expect(result[0].id).toEqual(resultsForPaul[0].id);
-      expect(result[1].id).toEqual(resultsForPaul[1].id);
+      const result = await tourService.findAll(mockUser);
+
+      const expectedConditions: FindManyOptions<Tour> = {
+        relations: ['user'],
+        where: { user: mockUser },
+      };
+      expect(tourRepositoryMock.find).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.find).toHaveBeenCalledWith(expectedConditions);
+      expect(result).toEqual(mockResult);
     }));
 
   describe('findOne', () => {
-    it('returns an existing tour  for the given user', async () => {
-      const result = await service.findOne(resultsForPaul[0].id, {
-        id: resultsForPaul[0].user.id,
-      } as UserDto);
+    it('scopes the query to the current user and returns the result with the images in relation', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
 
-      expect(result).toBeDefined();
-      expect(result.id).toEqual(resultsForPaul[0].id);
+      const result = await tourService.findOne(mockId, mockUser);
+
+      const expectedConditions: FindOneOptions<Tour> = {
+        relations: ['user', 'images'],
+        where: { user: mockUser },
+      };
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(
+        mockId,
+        expectedConditions,
+      );
+      expect(result).toEqual(mockExistingTour);
     });
 
-    it('does not return a tour that belongs to another user and throws NotFoundException', async () => {
-      const call = async () =>
-        await service.findOne(resultsForFranz[0].id, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+    it('raises NotFoundException if the query does not return a result', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(undefined);
 
-      await expect(call).rejects.toThrow(NotFoundException);
+      const result = async () => await tourService.findOne(mockId, mockUser);
+      await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
-    it('updates an existing tour and returns it', async () => {
-      const result = await service.update(
-        resultsForPaul[0].id,
-        { name: 'updated' },
-        {
-          id: resultsForPaul[0].user.id,
-        } as UserDto,
+    it('calls the image repository with correct IDs and user scope', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      await tourService.update(mockId, mockExistingTour, mockUser);
+
+      const expectedIds = mockImages.map((image) => image.id);
+      const expectedConditions: FindManyOptions<Image> = {
+        where: { user: mockUser },
+      };
+
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledWith(
+        expectedIds,
+        expectedConditions,
+      );
+    });
+
+    it('updates an existing tour by scoping it and then finds and returns it', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
+      tourRepositoryMock.save.mockReturnValue(mockExistingTour);
+
+      const result = await tourService.update(
+        mockId,
+        mockExistingTour,
+        mockUser,
+      );
+      expect(tourRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockExistingTour);
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(2);
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
+        relations: ['user', 'images'],
+      });
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
+        where: { user: mockUser },
+      });
+      expect(result).toEqual(mockExistingTour);
+    });
+
+    it('sets the image property on the tour and merges the entity with the DTO', async () => {
+      const mockTourWithoutImage = Object.assign({}, mockExistingTour);
+      mockTourWithoutImage.images = [];
+      tourRepositoryMock.findOne.mockReturnValue(
+        Object.assign({}, mockTourWithoutImage),
+      );
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      const result = await tourService.update(
+        mockId,
+        mockTourWithoutImage,
+        mockUser,
       );
 
-      expect(result).toBeDefined();
-      expect(result.id).toEqual(resultsForPaul[0].id);
+      // Merge is called with the entity (added with images) and the DTO (without images)
+      const expectedEntity = {
+        ...mockTourWithoutImage,
+        images: mockImages,
+      };
+      const expectedDto = {
+        description: mockTourWithoutImage.description,
+        id: mockTourWithoutImage.id,
+      };
+      expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
+        expectedEntity,
+        expectedDto,
+      );
+      expect(result.images).toEqual(mockImages);
     });
 
-    it('raises NotFoundException if trying to update non existing tour', async () => {
+    it('raises NotFoundException if trying to update tour that does not match selection', async () => {
+      tourRepositoryMock.findOne.mockReturnValue(undefined);
+
       const result = async () =>
-        await service.update('does-not-exist', { name: 'updated' }, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+        await tourService.update(mockId, mockExistingTour, mockUser);
 
       await expect(result).rejects.toThrow(NotFoundException);
-    });
-
-    it('raises NotFoundException if trying to update a tour of another user', async () => {
-      const result = async () =>
-        await service.update(resultsForFranz[0].id, { name: 'updated' }, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
-
-      await expect(result).rejects.toThrow(NotFoundException);
+      expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).not.toHaveBeenCalled();
     });
   });
 
   describe('delete', () => {
-    // Todo: functions returns Promise<void>, not testable. refactor!
-    xit('deletes an existing tour', async () => {
-      const result = async () =>
-        await service.remove(resultsForPaul[0].id, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+    it('deletes an existing tour scoped to the user', async () => {
+      tourRepositoryMock.delete.mockReturnValue({ affected: 1 });
 
-      await expect(result).resolves.not.toThrow();
+      const result = await tourService.remove(mockId, mockUser);
+
+      const expectedConditions: FindConditions<Tour> = {
+        id: mockId,
+        user: mockUser,
+      };
+      expect(tourRepositoryMock.delete).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.delete).toHaveBeenCalledWith(
+        expectedConditions,
+      );
+      // Service returns undefined currently
+      expect(result).toEqual(undefined);
     });
 
-    it('raises NotFoundException if trying to update non existing tour', async () => {
-      const result = async () =>
-        await service.remove(resultsForFranz[0].id, {
-          id: 'does-not-exist',
-        } as UserDto);
+    it('raises NotFoundException if trying to delete tour that does not match selection', async () => {
+      tourRepositoryMock.delete.mockReturnValue({ affected: 0 });
 
-      await expect(result).rejects.toThrow(NotFoundException);
-    });
-
-    it('raises NotFoundException if trying to update a tour of another user', async () => {
-      const result = async () =>
-        await service.remove(resultsForFranz[0].id, {
-          id: resultsForPaul[0].user.id,
-        } as UserDto);
+      const result = async () => await tourService.remove(mockId, mockUser);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('create', () => {
-    it('creates a tour and returns it', async () => {
-      const result = await service.create(
-        { description: 'test' } as TourDto,
-        {
-          id: resultsForPaul[0].user.id,
-        } as UserDto,
-      );
+    it('creates a tour with assigned images and returns it', async () => {
+      tourRepositoryMock.create.mockReturnValue(mockNewTour);
+      tourRepositoryMock.save.mockReturnValue(mockNewTour);
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+      const { images, ...tourData } = mockNewTour;
 
-      expect(result).toBeDefined();
-      expect(result.description).toEqual('test');
+      const result = await tourService.create(mockNewTour, mockUser);
+
+      const expectedConditions = {
+        user: mockUser,
+        images: mockImages,
+        ...tourData,
+      };
+      expect(tourRepositoryMock.create).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.create).toHaveBeenCalledWith(
+        expectedConditions,
+      );
+      expect(tourRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockNewTour);
+      expect(result).toEqual(mockNewTour);
+    });
+
+    it('calls the image repository with correct IDs and user scope', async () => {
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      await tourService.create(mockNewTour, mockUser);
+
+      const expectedIds = mockImages.map((image) => image.id);
+      const expectedConditions: FindManyOptions<Image> = {
+        where: { user: mockUser },
+      };
+
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledWith(
+        expectedIds,
+        expectedConditions,
+      );
     });
   });
 });

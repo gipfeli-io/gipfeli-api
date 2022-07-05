@@ -2,6 +2,7 @@ import { Point } from 'geojson';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { UserDto } from '../../user/dto/user';
 import {
+  IsArray,
   IsDate,
   IsInstance,
   IsNotEmpty,
@@ -9,6 +10,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { IsPoint } from './validators/is-point.decorator';
+import { SavedImageDto } from '../../media/dto/image';
 
 export class TourDto {
   @IsUUID()
@@ -42,6 +44,9 @@ export class TourDto {
   @IsInstance(UserDto)
   @IsNotEmpty()
   user: UserDto;
+
+  @IsArray()
+  images: SavedImageDto[];
 }
 
 export class UpdateTourDto extends PartialType(

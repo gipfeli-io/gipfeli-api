@@ -12,7 +12,7 @@ import {
 import { TourService } from './tour.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
-import { UserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user';
 import { User } from '../utils/decorators/user.decorator';
 
 @Controller('tours')
@@ -23,21 +23,20 @@ export class TourController {
   @Post()
   async create(
     @Body() createTourDto: CreateTourDto,
-    @User() user: UserDto,
+    @User() user: AuthenticatedUserDto,
   ): Promise<TourDto> {
-    return await this.tourService.create(createTourDto, user);
+    return this.tourService.create(createTourDto, user);
   }
 
   @Get()
-  findAll(@User() user: UserDto): Promise<TourDto[]> {
-    // Todo: async not required -> do we use it?
+  async findAll(@User() user: AuthenticatedUserDto): Promise<TourDto[]> {
     return this.tourService.findAll(user);
   }
 
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
-    @User() user: UserDto,
+    @User() user: AuthenticatedUserDto,
   ): Promise<TourDto> {
     return this.tourService.findOne(id, user);
   }
@@ -46,7 +45,7 @@ export class TourController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTourDto: UpdateTourDto,
-    @User() user: UserDto,
+    @User() user: AuthenticatedUserDto,
   ): Promise<TourDto> {
     return this.tourService.update(id, updateTourDto, user);
   }
@@ -54,7 +53,7 @@ export class TourController {
   @Delete(':id')
   remove(
     @Param('id', ParseUUIDPipe) id: string,
-    @User() user: UserDto,
+    @User() user: AuthenticatedUserDto,
   ): Promise<void> {
     return this.tourService.remove(id, user);
   }
