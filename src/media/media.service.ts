@@ -10,31 +10,39 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image';
+import {
+  GeoReferenceProvider,
+  GeoReferenceProviderInterface,
+} from './providers/types/geo-reference-provider';
 
 @Injectable()
 export class MediaService {
   constructor(
     @Inject(StorageProviderInterface)
     private readonly storageProvider: StorageProvider,
+    @Inject(GeoReferenceProviderInterface)
+    private readonly geoReferenceProvider: GeoReferenceProvider,
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
   ) {}
 
-  async uploadImage(
+  public async uploadImage(
     user: AuthenticatedUserDto,
     file: UploadFileDto,
   ): Promise<SavedImageDto> {
     const userId = user.id;
     const filePath = this.getStoragePath(FilePath.IMAGE, userId);
     const storedFile = await this.storageProvider.put(filePath, file);
+    const location = await this.geoReferenceProvider.extractGeoLocation(file);
 
     const imageEntity = this.imageRepository.create({
       identifier: storedFile.identifier,
+      location,
       userId,
     });
     const { id, identifier } = await this.imageRepository.save(imageEntity);
 
-    return { id, identifier };
+    return { id, identifier, location };
   }
 
   /**
