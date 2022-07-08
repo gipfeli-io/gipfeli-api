@@ -18,6 +18,6 @@ export class ExifrProvider implements GeoReferenceProvider {
   }
 
   private getPoint(latitude: number, longitude: number): Point {
-    return { type: 'Point', coordinates: [latitude, longitude] };
+    return { type: 'Point', coordinates: [longitude, latitude] };
   }
 }

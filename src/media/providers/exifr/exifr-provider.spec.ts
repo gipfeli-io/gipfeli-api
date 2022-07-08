@@ -43,7 +43,7 @@ describe('ExifrProvider', () => {
 
     const expectedResult: Point = {
       type: 'Point',
-      coordinates: [mockPoint.latitude, mockPoint.longitude],
+      coordinates: [mockPoint.longitude, mockPoint.latitude],
     };
     expect(result).toEqual(expectedResult);
   });
