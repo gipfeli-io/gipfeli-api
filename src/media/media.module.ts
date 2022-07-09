@@ -11,12 +11,12 @@ import { Image } from './entities/image.entity';
 import { GeoReferenceProviderInterface } from './providers/types/geo-reference-provider';
 import { ExifrProvider } from './providers/exifr/exifr-provider';
 
-const storageProvider: Provider = {
+const StorageProvider: Provider = {
   provide: StorageProviderInterface,
   useClass: GoogleCloudStorageProvider,
 };
 
-const geoReferenceProvider: Provider = {
+const GeoReferenceProvider: Provider = {
   provide: GeoReferenceProviderInterface,
   useClass: ExifrProvider,
 };
@@ -39,6 +39,6 @@ const geoReferenceProvider: Provider = {
     }),
   ],
   controllers: [MediaController],
-  providers: [MediaService, storageProvider, geoReferenceProvider],
+  providers: [MediaService, StorageProvider, GeoReferenceProvider],
 })
 export class MediaModule {}
