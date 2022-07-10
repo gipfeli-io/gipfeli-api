@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MediaService } from './media.service';
 import {
+  StorageProvider,
   StorageProviderInterface,
   UploadedFileHandle,
 } from './providers/types/storage-provider';
@@ -13,15 +14,28 @@ import repositoryMockFactory, {
 } from '../utils/mock-utils/repository-mock.factory';
 import { Image } from './entities/image.entity';
 import { Repository } from 'typeorm';
-import spyOn = jest.spyOn;
+import {
+  GeoReferenceProvider,
+  GeoReferenceProviderInterface,
+} from './providers/types/geo-reference-provider';
+import { Point } from 'geojson';
 
 const fileResponseMock: UploadedFileHandle = {
   identifier: 'mocked-identifier',
   metadata: {},
 };
 
-const storageProviderMock = {
+const imageLocationMock: Point = {
+  type: 'Point',
+  coordinates: [47.37789, 8.53174],
+};
+
+const storageProviderMock: StorageProvider = {
   put: jest.fn().mockReturnValue(fileResponseMock),
+};
+
+const geoReferenceProviderMock: GeoReferenceProvider = {
+  extractGeoLocation: jest.fn().mockReturnValue(imageLocationMock),
 };
 
 const userMock: AuthenticatedUserDto = {
@@ -45,6 +59,10 @@ describe('MediaService', () => {
           useValue: storageProviderMock,
         },
         {
+          provide: GeoReferenceProviderInterface,
+          useValue: geoReferenceProviderMock,
+        },
+        {
           provide: getRepositoryToken(Image),
           useFactory: repositoryMockFactory,
         },
@@ -66,11 +84,21 @@ describe('MediaService', () => {
       expect(spy).toHaveBeenCalledWith(expectedPath, fileMock);
     });
 
+    it('calls geoReferenceProvider.extractGeoLocation with the uploaded file', async () => {
+      const spy = jest.spyOn(geoReferenceProviderMock, 'extractGeoLocation');
+
+      await mediaService.uploadImage(userMock, fileMock);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(fileMock);
+    });
+
     it('saves the image to the database and assigns it a user', async () => {
       await mediaService.uploadImage(userMock, fileMock);
 
       const expectedCallArgument = {
         identifier: fileResponseMock.identifier,
+        location: imageLocationMock,
         userId: userMock.id,
       };
 
@@ -90,7 +118,10 @@ describe('MediaService', () => {
 
       const result = await mediaService.uploadImage(userMock, fileMock);
 
-      expect(result).toEqual(imageMock);
+      const expectedResult = { location: imageLocationMock, ...imageMock };
+      expect(result).toEqual(expectedResult);
     });
   });
+
+  afterEach(() => jest.clearAllMocks());
 });

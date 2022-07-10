@@ -8,10 +8,17 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Image } from './entities/image.entity';
+import { GeoReferenceProviderInterface } from './providers/types/geo-reference-provider';
+import { ExifrProvider } from './providers/exifr/exifr-provider';
 
-const storageProvider: Provider = {
+const StorageProvider: Provider = {
   provide: StorageProviderInterface,
   useClass: GoogleCloudStorageProvider,
+};
+
+const GeoReferenceProvider: Provider = {
+  provide: GeoReferenceProviderInterface,
+  useClass: ExifrProvider,
 };
 
 @Module({
@@ -32,6 +39,6 @@ const storageProvider: Provider = {
     }),
   ],
   controllers: [MediaController],
-  providers: [MediaService, storageProvider],
+  providers: [MediaService, StorageProvider, GeoReferenceProvider],
 })
 export class MediaModule {}

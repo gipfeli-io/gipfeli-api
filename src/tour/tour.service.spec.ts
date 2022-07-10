@@ -22,8 +22,8 @@ const mockUser: AuthenticatedUserDto = {
   id: 'mocked-id',
 };
 const mockImages: SavedImageDto[] = [
-  { id: 'img-1', identifier: 'ident-1' },
-  { id: 'img-2', identifier: 'ident-2' },
+  { id: 'img-1', identifier: 'ident-1', location: null },
+  { id: 'img-2', identifier: 'ident-2', location: null },
 ];
 const mockId = 'mocked-tour-id';
 const mockExistingTour: UpdateTourDto = {
