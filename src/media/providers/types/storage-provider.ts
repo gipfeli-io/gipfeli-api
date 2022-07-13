@@ -14,6 +14,12 @@ export interface UploadedFileHandle {
   metadata?: any;
 }
 
+export interface BatchStorageOperationStatistics {
+  totalOperations: number;
+  successfulOperations: number;
+  errors: string[];
+}
+
 export interface StorageProvider {
   /**
    * Store an uploaded file to a given path
@@ -21,6 +27,14 @@ export interface StorageProvider {
    * @param file
    */
   put: (path: string, file: UploadFileDto) => Promise<UploadedFileHandle>;
+
+  /**
+   * Deletes a list of identifiers from the storage
+   * @param identifiers
+   */
+  deleteMany: (
+    identifiers: string[],
+  ) => Promise<BatchStorageOperationStatistics>;
 }
 
 /**

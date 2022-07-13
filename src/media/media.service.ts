@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  BatchStorageOperationStatistics,
   StorageProvider,
   StorageProviderInterface,
 } from './providers/types/storage-provider';
@@ -7,13 +8,14 @@ import { UploadFileDto } from './dto/file';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { FilePath } from './enums/file-path';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image';
 import {
   GeoReferenceProvider,
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
+import { CleanUpResult } from './types/clean-up-result';
 
 @Injectable()
 export class MediaService {
@@ -43,6 +45,22 @@ export class MediaService {
     const { id, identifier } = await this.imageRepository.save(imageEntity);
 
     return { id, identifier, location };
+  }
+
+  public async cleanUpImages(): Promise<CleanUpResult> {
+    const imagesToClean = await this.imageRepository.find({
+      where: [{ tourId: null }, { userId: null }],
+    });
+
+    const imageIdentifiers = imagesToClean.map((image) => image.identifier);
+    const deletedFromStorage = await this.storageProvider.deleteMany(
+      imageIdentifiers,
+    );
+    const deletedFromDb = await this.imageRepository.delete(
+      imagesToClean.map((image) => image.id),
+    );
+
+    return { database: deletedFromDb, storage: deletedFromStorage };
   }
 
   /**

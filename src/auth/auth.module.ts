@@ -15,6 +15,8 @@ import { RefreshJwtStrategy } from './strategies/refresh-jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSession } from './entities/user-session.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TokenBearerStrategy } from './strategies/token-bearer.strategy';
+import { TokenBearerAuthGuard } from './guards/token-bearer-auth.guard';
 
 @Module({
   imports: [
@@ -39,9 +41,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     LocalStrategy,
     JwtStrategy,
     RefreshJwtStrategy,
+    TokenBearerStrategy,
     LocalAuthGuard,
     JwtAuthGuard,
     RefreshAuthGuard,
+    TokenBearerAuthGuard,
   ],
   controllers: [AuthController],
   exports: [AuthService],
