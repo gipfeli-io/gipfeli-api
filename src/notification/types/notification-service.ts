@@ -1,4 +1,5 @@
 import { UserDto } from '../../user/dto/user';
+import { CleanUpResult } from '../../media/types/clean-up-result';
 
 export interface NotificationRecipient {
   name: string;
@@ -23,6 +24,13 @@ export interface NotificationService {
    * @param recipient
    */
   sendSignUpMessage: (token: string, recipient: UserDto) => Promise<boolean>;
+
+  /**
+   * Notifies administrators about a clean up operation and returns whether it
+   * was succesful.
+   * @param results
+   */
+  sendCleanUpResults: (results: CleanUpResult) => Promise<boolean>;
 }
 
 /**

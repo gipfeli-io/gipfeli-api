@@ -9,6 +9,7 @@ import DebugMessage from './messages/debug.message';
 import { EmailNotSentException } from '../../notification.exceptions';
 import SignUpMessage from './messages/sign-up.message';
 import { ConfigService } from '@nestjs/config';
+import { CleanUpResult } from '../../../media/types/clean-up-result';
 
 @Injectable()
 export class SendGridNotificationService implements NotificationService {
@@ -24,6 +25,18 @@ export class SendGridNotificationService implements NotificationService {
       'integrations.sendGrid.apiKey',
     );
     SendGrid.setApiKey(apiKey);
+  }
+
+  async sendCleanUpResults(results: CleanUpResult): Promise<boolean> {
+    const { database, storage } = results;
+    console.log('sendCleanUpResults:');
+    console.log(`=> DB removals: ${database.affected}`);
+    console.log(`=> Storage operations: ${storage.totalOperations}`);
+    console.log(`=> Storage successes: ${storage.successfulOperations}`);
+    console.log(`=> Storage errors: ${storage.errors.length}`);
+    storage.errors.forEach((error) => console.log(`===> ${error}`));
+
+    return Promise.resolve(true);
   }
 
   async sendDebugMessage(

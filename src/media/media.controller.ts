@@ -44,6 +44,8 @@ export class MediaController {
   async cleanUpImages(): Promise<{ status: boolean }> {
     const result = await this.mediaService.cleanUpImages();
 
+    await this.notificationService.sendCleanUpResults(result);
+
     return { status: true };
   }
 }

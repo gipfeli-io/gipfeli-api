@@ -56,9 +56,15 @@ export class MediaService {
     const deletedFromStorage = await this.storageProvider.deleteMany(
       imageIdentifiers,
     );
-    const deletedFromDb = await this.imageRepository.delete(
-      imagesToClean.map((image) => image.id),
-    );
+
+    let deletedFromDb: DeleteResult;
+    if (imagesToClean.length > 0) {
+      deletedFromDb = await this.imageRepository.delete(
+        imagesToClean.map((image) => image.id),
+      );
+    } else {
+      deletedFromDb = { affected: 0, raw: null };
+    }
 
     return { database: deletedFromDb, storage: deletedFromStorage };
   }
