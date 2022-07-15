@@ -41,11 +41,9 @@ export class MediaController {
 
   @Get('clean-up-images')
   @UseGuards(TokenBearerAuthGuard)
-  async cleanUpImages(): Promise<{ status: boolean }> {
+  async cleanUpImages(): Promise<void> {
     const result = await this.mediaService.cleanUpImages();
 
     await this.notificationService.sendCleanUpResults(result);
-
-    return { status: true };
   }
 }

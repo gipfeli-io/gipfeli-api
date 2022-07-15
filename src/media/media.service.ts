@@ -51,8 +51,8 @@ export class MediaService {
     const imagesToClean = await this.imageRepository.find({
       where: [{ tourId: null }, { userId: null }],
     });
-
     const imageIdentifiers = imagesToClean.map((image) => image.identifier);
+
     const deletedFromStorage = await this.storageProvider.deleteMany(
       imageIdentifiers,
     );
