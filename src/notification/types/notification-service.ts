@@ -2,7 +2,7 @@ import { UserDto } from '../../user/dto/user';
 import { CleanUpResult } from '../../media/types/clean-up-result';
 
 export interface NotificationRecipient {
-  name: string;
+  name?: string;
   email: string;
 }
 

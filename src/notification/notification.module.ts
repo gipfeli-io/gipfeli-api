@@ -11,7 +11,7 @@ const notificationProviderFactory: Provider = {
       (configService.get<string>('environment.environment') === 'production' ||
         configService.get<string>('environment.environment') === 'staging')
       ? new SendGridNotificationService(configService)
-      : new ConsoleNotificationService(configService);
+      : new SendGridNotificationService(configService);
   },
   inject: [ConfigService],
 };
