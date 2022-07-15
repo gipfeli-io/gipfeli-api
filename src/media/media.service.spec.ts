@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MediaService } from './media.service';
 import {
+  BatchStorageOperationStatistics,
   StorageProvider,
   StorageProviderInterface,
   UploadedFileHandle,
@@ -13,12 +14,13 @@ import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
 import { Image } from './entities/image.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import {
   GeoReferenceProvider,
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
 import { Point } from 'geojson';
+import { CleanUpResult } from './types/clean-up-result';
 
 const fileResponseMock: UploadedFileHandle = {
   identifier: 'mocked-identifier',
@@ -32,6 +34,7 @@ const imageLocationMock: Point = {
 
 const storageProviderMock: StorageProvider = {
   put: jest.fn().mockReturnValue(fileResponseMock),
+  deleteMany: jest.fn(),
 };
 
 const geoReferenceProviderMock: GeoReferenceProvider = {
@@ -42,9 +45,15 @@ const userMock: AuthenticatedUserDto = {
   id: 'test-user-id',
   email: 'test@gipfeli.io',
 };
+
 const fileMock = {
   mockedFileType: 'this-is-a-mock',
 } as unknown as UploadFileDto;
+
+const imageMocks: Image[] = [
+  { id: 'mocked-id-1', identifier: 'mocked-identifier-1' },
+  { id: 'mocked-id-2', identifier: 'mocked-identifier-2' },
+] as Image[];
 
 describe('MediaService', () => {
   let mediaService: MediaService;
@@ -113,13 +122,61 @@ describe('MediaService', () => {
     });
 
     it('returns the image id and filehandle', async () => {
-      const imageMock = { id: 'mocked-id', identifier: 'mocked-identifier' };
+      const imageMock = imageMocks[0];
       jest.spyOn(imageRepositoryMock, 'save').mockReturnValue(imageMock);
 
       const result = await mediaService.uploadImage(userMock, fileMock);
 
       const expectedResult = { location: imageLocationMock, ...imageMock };
       expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('cleanUpImages', () => {
+    it('retrieves images to delete and deletes them from storage and db and returns the statistics', async () => {
+      const imageIdentifiers = imageMocks.map((image) => image.identifier);
+      const imageIds = imageMocks.map((image) => image.id);
+      const deleteResponseDb: DeleteResult = {
+        affected: imageMocks.length,
+        raw: null,
+      };
+      const deleteResponseStorage: BatchStorageOperationStatistics = {
+        totalOperations: imageMocks.length,
+        successfulOperations: imageMocks.length,
+        errors: [],
+      };
+      jest.spyOn(imageRepositoryMock, 'find').mockReturnValue(imageMocks);
+      jest
+        .spyOn(imageRepositoryMock, 'delete')
+        .mockReturnValue(deleteResponseDb);
+      jest
+        .spyOn(storageProviderMock, 'deleteMany')
+        .mockReturnValue(Promise.resolve(deleteResponseStorage));
+
+      const result = await mediaService.cleanUpImages();
+
+      const expectedResult: CleanUpResult = {
+        storage: deleteResponseStorage,
+        database: deleteResponseDb,
+      };
+      expect(result).toEqual(expectedResult);
+      expect(storageProviderMock.deleteMany).toHaveBeenCalledTimes(1);
+      expect(storageProviderMock.deleteMany).toHaveBeenCalledWith(
+        imageIdentifiers,
+      );
+      expect(imageRepositoryMock.delete).toHaveBeenCalledTimes(1);
+      expect(imageRepositoryMock.delete).toHaveBeenCalledWith(imageIds);
+    });
+
+    it('calls storageProvider.deleteMany but not imageRepository.delete if no images are to be deleted to avoid exception', async () => {
+      jest.spyOn(imageRepositoryMock, 'find').mockReturnValue([]);
+
+      const result = await mediaService.cleanUpImages();
+
+      expect(storageProviderMock.deleteMany).toHaveBeenCalledTimes(1);
+      expect(storageProviderMock.deleteMany).toHaveBeenCalledWith([]);
+      expect(imageRepositoryMock.delete).not.toHaveBeenCalled();
+      expect(result.database.affected).toEqual(0);
     });
   });
 

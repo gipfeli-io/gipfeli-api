@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Image } from './entities/image.entity';
 import { GeoReferenceProviderInterface } from './providers/types/geo-reference-provider';
 import { ExifrProvider } from './providers/exifr/exifr-provider';
+import { NotificationModule } from '../notification/notification.module';
 
 const StorageProvider: Provider = {
   provide: StorageProviderInterface,
@@ -25,6 +26,7 @@ const GeoReferenceProvider: Provider = {
   imports: [
     TypeOrmModule.forFeature([Image]),
     ConfigModule,
+    NotificationModule,
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {

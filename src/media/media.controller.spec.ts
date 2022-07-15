@@ -4,9 +4,15 @@ import { MediaService } from './media.service';
 import { StorageProviderInterface } from './providers/types/storage-provider';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { UploadFileDto } from './dto/file';
+import { NotificationServiceInterface } from '../notification/types/notification-service';
 
 const mediaServiceMock = {
   uploadImage: jest.fn(),
+  cleanUpImages: jest.fn(),
+};
+
+const notificationServiceMock = {
+  sendCleanUpResults: jest.fn(),
 };
 
 describe('MediaController', () => {
@@ -16,7 +22,13 @@ describe('MediaController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MediaController],
-      providers: [{ provide: MediaService, useValue: mediaServiceMock }],
+      providers: [
+        { provide: MediaService, useValue: mediaServiceMock },
+        {
+          provide: NotificationServiceInterface,
+          useValue: notificationServiceMock,
+        },
+      ],
     })
       .useMocker((token) => {
         if (token === StorageProviderInterface) {
@@ -44,6 +56,21 @@ describe('MediaController', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(userMock, fileMock);
+    });
+  });
+
+  describe('cleanUpImages', () => {
+    it('calls mediaService.uploadimage with the file and the usersession', async () => {
+      const mediaServiceSpy = jest.spyOn(mediaService, 'cleanUpImages');
+      const notificationProviderSpy = jest.spyOn(
+        notificationServiceMock,
+        'sendCleanUpResults',
+      );
+
+      await mediaController.cleanUpImages();
+
+      expect(mediaServiceSpy).toHaveBeenCalledTimes(1);
+      expect(notificationProviderSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

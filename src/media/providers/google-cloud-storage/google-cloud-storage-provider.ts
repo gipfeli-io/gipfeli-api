@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { StorageProvider, UploadedFileHandle } from '../types/storage-provider';
+import {
+  BatchStorageOperationStatistics,
+  StorageProvider,
+  UploadedFileHandle,
+} from '../types/storage-provider';
 import { Bucket, Storage } from '@google-cloud/storage';
 import { ConfigService } from '@nestjs/config';
 import { UploadFileDto } from '../../dto/file';
@@ -37,6 +41,24 @@ export class GoogleCloudStorageProvider implements StorageProvider {
     }
 
     return { identifier: gcsFile.name, metadata: gcsFile.metadata };
+  }
+
+  async deleteMany(
+    identifiers: string[],
+  ): Promise<BatchStorageOperationStatistics> {
+    const totalOperations = identifiers.length;
+    const errors: string[] = [];
+    let successfulOperations = 0;
+    for (const identifier of identifiers) {
+      try {
+        await this.bucket.file(identifier).delete();
+        successfulOperations++;
+      } catch (e) {
+        errors.push(e.message);
+      }
+    }
+
+    return { totalOperations, successfulOperations, errors };
   }
 
   /**

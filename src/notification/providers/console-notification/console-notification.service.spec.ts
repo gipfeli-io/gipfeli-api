@@ -2,6 +2,7 @@ import { ConsoleNotificationService } from './console-notification.service';
 import { getUserActivationUrl } from '../utils/message.helpers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { CleanUpResult } from '../../../media/types/clean-up-result';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 
@@ -65,6 +66,47 @@ describe('ConsoleNotificationService', () => {
     expect(logSpy.mock.calls[4][0]).toContain(
       getUserActivationUrl(defaultBaseUrl, token, userDto.id),
     );
+  });
+
+  describe('sendCleanUpResult', () => {
+    let mockResult: CleanUpResult;
+
+    beforeEach(() => {
+      mockResult = {
+        database: { affected: 42, raw: null },
+        storage: { errors: [], successfulOperations: 32, totalOperations: 22 },
+      };
+    });
+
+    it('prints a cleanupresult message that has no errors', async () => {
+      await service.sendCleanUpResults(mockResult);
+
+      expect(logSpy).toHaveBeenCalledTimes(5);
+      expect(logSpy.mock.calls[1][0]).toContain(
+        mockResult.database.affected.toString(),
+      );
+      expect(logSpy.mock.calls[2][0]).toContain(
+        mockResult.storage.totalOperations.toString(),
+      );
+      expect(logSpy.mock.calls[3][0]).toContain(
+        mockResult.storage.successfulOperations.toString(),
+      );
+      expect(logSpy.mock.calls[4][0]).toContain(
+        mockResult.storage.errors.length.toString(),
+      );
+    });
+
+    it('prints a a list of errors', async () => {
+      const errors = ['first', 'second'];
+      mockResult.storage.errors = errors;
+
+      await service.sendCleanUpResults(mockResult);
+
+      expect(logSpy).toHaveBeenCalledTimes(7);
+      expect(logSpy.mock.calls[4][0]).toContain(errors.length.toString());
+      expect(logSpy.mock.calls[5][0]).toContain(errors[0]);
+      expect(logSpy.mock.calls[6][0]).toContain(errors[1]);
+    });
   });
 
   afterEach(() => {
