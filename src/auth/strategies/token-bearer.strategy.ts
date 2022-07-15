@@ -6,8 +6,7 @@ import { ConfigService } from '@nestjs/config';
 /**
  * This strategy just returns whether the supplied BearerToken matches the
  * defined clean up token in the configuration. It is only used for endpoints
- * without sensitive data, such as the cleanup task invocation for the our
- * storage.
+ * without sensitive data, such as the cleanup task invocation for the storage.
  */
 @Injectable()
 export class TokenBearerStrategy extends PassportStrategy(

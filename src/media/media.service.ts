@@ -65,6 +65,7 @@ export class MediaService {
       imageIdentifiers,
     );
 
+    // Only call delete if we have images to delete, otherwise it throws.
     let deletedFromDb: DeleteResult;
     if (imagesToClean.length > 0) {
       deletedFromDb = await this.imageRepository.delete(

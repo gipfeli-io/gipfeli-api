@@ -7,8 +7,8 @@ import { EmailNotSentException } from '../../notification.exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
-import { BatchStorageOperationStatistics } from '../../../media/providers/types/storage-provider';
 import { CleanUpResult } from '../../../media/types/clean-up-result';
+import { NotificationRecipient } from '../../types/notification-service';
 
 jest.mock('@sendgrid/mail', () => {
   return {
@@ -20,7 +20,7 @@ jest.mock('@sendgrid/mail', () => {
 const defaultBaseUrl = 'https://test.gipfeli.io';
 const defaultSender = 'x@x.com';
 const recipient = { email: 'test@gipfeli.io', id: 'xxx', name: 'Test Person' };
-const adminRecipients = [
+const adminRecipients: NotificationRecipient[] = [
   { email: 'test@gipfeli.io' },
   { email: 'test+dev@gipfeli.io' },
 ];
@@ -112,7 +112,7 @@ describe('SendGridNotificationService', () => {
 
     expect(SendGrid.send).toHaveBeenCalledTimes(1);
     expect(SendGrid.send).toHaveBeenCalledWith({
-      to: adminRecipients.map((recipient) => recipient.email),
+      to: adminRecipients.map((admin) => admin.email),
       html: notificationMessage.html,
       subject: notificationMessage.subject,
       text: notificationMessage.text,
@@ -125,7 +125,7 @@ describe('SendGridNotificationService', () => {
       throw new Error();
     });
 
-    const result = async () => await service.sendDebugMessage('', recipient);
+    const result = async () => service.sendDebugMessage('', recipient);
 
     await expect(result).rejects.toThrow(EmailNotSentException);
   });
