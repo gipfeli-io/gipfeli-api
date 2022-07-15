@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  BatchStorageOperationStatistics,
   StorageProvider,
   StorageProviderInterface,
 } from './providers/types/storage-provider';
@@ -8,7 +7,7 @@ import { UploadFileDto } from './dto/file';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { FilePath } from './enums/file-path';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image';
 import {
@@ -16,6 +15,7 @@ import {
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
 import { CleanUpResult } from './types/clean-up-result';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class MediaService {
@@ -48,8 +48,16 @@ export class MediaService {
   }
 
   public async cleanUpImages(): Promise<CleanUpResult> {
+    /*
+     We only delete images which are older than 1 day and match the conditions
+     to avoid accidentally deleting images that are in the upload process.
+     This does only apply for the tour conditions; images without user are
+     immediately deleted.
+    */
+    const bufferDate = dayjs().subtract(1, 'day').toDate();
+    const dateCondition = LessThan(bufferDate);
     const imagesToClean = await this.imageRepository.find({
-      where: [{ tourId: null }, { userId: null }],
+      where: [{ tourId: null, createdAt: dateCondition }, { userId: null }],
     });
     const imageIdentifiers = imagesToClean.map((image) => image.identifier);
 
