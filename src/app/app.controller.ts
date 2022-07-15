@@ -24,4 +24,9 @@ export class AppController {
     const message = 'This is a test message.';
     await this.notificationService.sendDebugMessage(message, recipient);
   }
+
+  @Get('heartbeat')
+  async heartbeat(): Promise<string> {
+    return 'Up and running';
+  }
 }
