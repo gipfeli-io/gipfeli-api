@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
-import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm';
+import {
+  EntityNotFoundError,
+  MoreThanOrEqual,
+  QueryFailedError,
+  Repository,
+} from 'typeorm';
 import {
   ActivateUserDto,
   CreateUserDto,
@@ -20,6 +25,7 @@ import {
   PasswordResetRequestDto,
   SetNewPasswordDto,
 } from '../auth/dto/auth';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -199,6 +205,7 @@ export class UserService {
       token,
       userId,
       true,
+      dayjs().subtract(2, 'h'), // validity period is 2 hours
     );
 
     if (hasValidToken) {
@@ -218,11 +225,14 @@ export class UserService {
 
   /**
    * Checks whether a given user and a supplied token exist in the database.
+   * Optionally takes a Date object which can be used to limit a token's
+   * validity period.
    * Returns the result of the comparison and the user entity.
    * @param tokenType
    * @param token
    * @param userId
    * @param isActive
+   * @param validFrom
    * @private
    */
   private async checkForTokenMatchesWithUser(
@@ -230,17 +240,20 @@ export class UserService {
     token: string,
     userId: string,
     isActive = false,
+    validFrom = dayjs(new Date(1970, 1, 1)),
   ): Promise<{ hasValidToken: boolean; user: User }> {
     let user;
     try {
       user = await this.userRepository
         .createQueryBuilder('user')
         .innerJoinAndSelect(
+          // todo: add integration test for this
           'user.tokens',
           'tokens',
-          '"tokenType" = :tokenType',
+          '"tokenType" = :tokenType AND tokens."createdAt" >= :validFrom',
           {
             tokenType: tokenType,
+            validFrom: validFrom.toISOString(),
           },
         )
         .where({ id: userId, isActive })
@@ -257,6 +270,7 @@ export class UserService {
 
     return { hasValidToken, user };
   }
+
   /**
    * Checks whether a given token matches a token in a list of hashed tokens.
    * @param tokens

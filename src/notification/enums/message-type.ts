@@ -4,5 +4,5 @@
  */
 export enum MessageType {
   SIGNUP = 'user/activate/',
-  PASSWORD_RESET = 'auth/password-reset/',
+  PASSWORD_RESET = 'password-reset/',
 }
