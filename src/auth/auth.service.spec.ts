@@ -49,7 +49,7 @@ const getUserDtoAndUserObject: (isActive: boolean) => [UserDto, User] = (
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userRepositoryMock: RepositoryMockType<Repository<User>>;
+  let userService: UserService;
   let sessionRepositoryMock: RepositoryMockType<Repository<UserSession>>;
 
   beforeEach(async () => {
@@ -91,7 +91,7 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userRepositoryMock = module.get(getRepositoryToken(User));
+    userService = module.get<UserService>(UserService);
     sessionRepositoryMock = module.get(getRepositoryToken(UserSession));
   });
 
@@ -99,50 +99,41 @@ describe('AuthService', () => {
     it('should return a UserIdentifier matching the parameters email and password', async () => {
       const { unhashedPassword, email } = userConfig;
       const [_, user] = getUserDtoAndUserObject(true);
+      jest
+        .spyOn(userService, 'findOneForAuth')
+        .mockReturnValue(Promise.resolve(user));
       const mockSession = 'x-x-x-x';
       sessionRepositoryMock.create.mockReturnValue(mockSession);
-      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
-        return {
-          addSelect: jest.fn().mockReturnThis(),
-          where: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockReturnValueOnce(user),
-        };
-      });
 
       const expected: UserIdentifier = {
         sub: user.id,
         email: user.email,
       };
 
-      expect(await authService.validateUser(email, unhashedPassword)).toEqual(
-        expected,
-      );
+      const result = await authService.validateUser(email, unhashedPassword);
+
+      expect(result).toEqual(expected);
     });
 
     it('should return null when password does not match', async () => {
       const { email } = userConfig;
       const password = 'this-is-a-wrong-password';
       const [_, user] = getUserDtoAndUserObject(true);
-      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
-        return {
-          addSelect: jest.fn().mockReturnThis(),
-          where: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockReturnValueOnce(user),
-        };
-      });
+      jest
+        .spyOn(userService, 'findOneForAuth')
+        .mockReturnValue(Promise.resolve(user));
 
-      expect(await authService.validateUser(email, password)).toEqual(null);
+      const result = await authService.validateUser(email, password);
+
+      expect(result).toEqual(null);
     });
 
-    it('throws NotFoundException if user and password do not match or do not exist', async () => {
+    it('throws NotFoundException if user and password do not match or do not exist and the user service throws the exception', async () => {
+      // todo: is this test needed? the exception thrown is tested in userservice, and just rethrown here without catch?
       const email = 'peter@gipfeli.io';
       const password = '5678';
-      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
-        return {
-          addSelect: jest.fn().mockReturnThis(),
-          where: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockReturnValueOnce(null),
-        };
+      jest.spyOn(userService, 'findOneForAuth').mockImplementation(() => {
+        throw new NotFoundException();
       });
 
       const call = async () => await authService.validateUser(email, password);
