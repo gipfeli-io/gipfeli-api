@@ -4,9 +4,10 @@ import {
   NotificationService,
 } from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
-import { getUserActivationUrl } from '../utils/message.helpers';
+import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from 'src/media/dto/clean-up-result';
+import { MessageType } from '../../enums/message-type';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
@@ -14,6 +15,26 @@ export class ConsoleNotificationService implements NotificationService {
 
   constructor(private readonly configService: ConfigService) {
     this.baseUrl = this.configService.get<string>('environment.appUrl');
+  }
+
+  async sendPasswordResetRequestMessage(
+    token: string,
+    recipient: UserDto,
+  ): Promise<boolean> {
+    const { id } = recipient;
+    console.log('sendPasswordResetRequestMessage:');
+    this.printRecipient(this.extractRecipientFromUser(recipient));
+    console.log(`=> userId: ${id}`);
+    console.log(`=> token: ${token}`);
+    console.log(
+      `=> ResetLink: ${getTokenizedLinkForUser(
+        this.baseUrl,
+        token,
+        id,
+        MessageType.PASSWORD_RESET,
+      )}`,
+    );
+    return true;
   }
 
   async sendCleanUpResults(results: CleanUpResultDto): Promise<boolean> {
@@ -46,7 +67,12 @@ export class ConsoleNotificationService implements NotificationService {
     console.log(`=> userId: ${id}`);
     console.log(`=> token: ${token}`);
     console.log(
-      `=> SignUpLink: ${getUserActivationUrl(this.baseUrl, token, id)}`,
+      `=> SignUpLink: ${getTokenizedLinkForUser(
+        this.baseUrl,
+        token,
+        id,
+        MessageType.SIGNUP,
+      )}`,
     );
 
     return Promise.resolve(true);

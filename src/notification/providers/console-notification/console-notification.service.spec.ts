@@ -1,8 +1,9 @@
 import { ConsoleNotificationService } from './console-notification.service';
-import { getUserActivationUrl } from '../utils/message.helpers';
+import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
+import { MessageType } from '../../enums/message-type';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 
@@ -64,7 +65,40 @@ describe('ConsoleNotificationService', () => {
     expect(logSpy.mock.calls[2][0]).toContain(userDto.id);
     expect(logSpy.mock.calls[3][0]).toContain(token);
     expect(logSpy.mock.calls[4][0]).toContain(
-      getUserActivationUrl(defaultBaseUrl, token, userDto.id),
+      getTokenizedLinkForUser(
+        defaultBaseUrl,
+        token,
+        userDto.id,
+        MessageType.SIGNUP,
+      ),
+    );
+  });
+
+  it('prints a password reset request message', async () => {
+    const token = 'xyz';
+    const userDto = {
+      id: 'x-x-x',
+      firstName: 'debug',
+      lastName: 'debugLast',
+      password: 'x',
+      email: 'a@a.com',
+    };
+
+    await service.sendPasswordResetRequestMessage(token, userDto);
+
+    expect(logSpy).toHaveBeenCalledTimes(5);
+    expect(logSpy.mock.calls[1][0]).toContain(userDto.email);
+    expect(logSpy.mock.calls[1][0]).toContain(userDto.firstName);
+    expect(logSpy.mock.calls[1][0]).toContain(userDto.lastName);
+    expect(logSpy.mock.calls[2][0]).toContain(userDto.id);
+    expect(logSpy.mock.calls[3][0]).toContain(token);
+    expect(logSpy.mock.calls[4][0]).toContain(
+      getTokenizedLinkForUser(
+        defaultBaseUrl,
+        token,
+        userDto.id,
+        MessageType.PASSWORD_RESET,
+      ),
     );
   });
 

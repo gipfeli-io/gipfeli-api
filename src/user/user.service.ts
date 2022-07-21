@@ -15,6 +15,11 @@ import {
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
+import { RandomTokenContainer } from '../utils/types/random-token';
+import {
+  PasswordResetRequestCreatedDto,
+  PasswordResetRequestDto,
+} from '../auth/dto/auth';
 
 @Injectable()
 export class UserService {
@@ -173,6 +178,36 @@ export class UserService {
     }
     // The tokens do not match
     throw new BadRequestException();
+  }
+
+  /**
+   * Creates a password request token if the given user exists or throws a
+   * NotFoundException
+   *
+   * @param passwordResetRequestDto
+   */
+  async createPasswordResetTokenForUser(
+    passwordResetRequestDto: PasswordResetRequestDto,
+  ): Promise<PasswordResetRequestCreatedDto> {
+    const { email } = passwordResetRequestDto;
+    const user = await this.userRepository.findOne({
+      where: [{ email: email }],
+    });
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const { token, tokenHash } =
+      await this.cryptoService.getRandomTokenWithHash();
+    const resetToken = this.tokenRepository.create({
+      user: user,
+      token: tokenHash,
+      tokenType: UserTokenType.PASSWORD_RESET,
+    });
+    await this.tokenRepository.save(resetToken);
+
+    return { user, token };
   }
 
   /**

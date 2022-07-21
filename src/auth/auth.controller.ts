@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Inject,
+  NotFoundException,
   Post,
   Request,
   UseGuards,
@@ -10,7 +11,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { UserService } from '../user/user.service';
-import { TokenDto } from './dto/auth';
+import { PasswordResetRequestDto, TokenDto } from './dto/auth';
 import {
   NotificationService,
   NotificationServiceInterface,
@@ -54,5 +55,25 @@ export class AuthController {
     const { sub, email, sessionId } = req.user as RefreshedToken;
 
     return this.authService.createTokenResponse(sub, email, sessionId);
+  }
+
+  @Post('password-reset-request')
+  async passwordResetRequest(
+    @Body() passwordResetRequestDto: PasswordResetRequestDto,
+  ): Promise<void> {
+    try {
+      const { user, token } =
+        await this.userService.createPasswordResetTokenForUser(
+          passwordResetRequestDto,
+        );
+
+      await this.notificationService.sendPasswordResetRequestMessage(token, user);
+    } catch (err) {
+      // Only throw errors other than NotFoundException to avoid exposing user
+      // registration details.
+      if (!(err instanceof NotFoundException)) {
+        throw err;
+      }
+    }
   }
 }

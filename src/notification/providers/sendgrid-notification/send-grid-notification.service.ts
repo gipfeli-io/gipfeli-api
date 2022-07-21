@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
 import { SendGridMessageInterface } from './messages/send-grid-message.interface';
+import PasswordResetRequestMessage from './messages/password-reset-request.message';
 
 @Injectable()
 export class SendGridNotificationService implements NotificationService {
@@ -31,6 +32,20 @@ export class SendGridNotificationService implements NotificationService {
       'integrations.sendGrid.apiKey',
     );
     SendGrid.setApiKey(apiKey);
+  }
+
+  async sendPasswordResetRequestMessage(
+    token: string,
+    recipient: UserDto,
+  ): Promise<boolean> {
+    const content = PasswordResetRequestMessage.getMessage(
+      this.baseUrl,
+      token,
+      recipient.id,
+    );
+    const emailBody = this.getEmailBody(recipient.email, content);
+    await this.dispatchEmail(emailBody);
+    return true;
   }
 
   async sendCleanUpResults(results: CleanUpResultDto): Promise<boolean> {

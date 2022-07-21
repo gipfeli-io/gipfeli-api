@@ -12,6 +12,11 @@ import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
 import { ConfigService } from '@nestjs/config';
+import {
+  PasswordResetRequestCreatedDto,
+  PasswordResetRequestDto,
+} from '../auth/dto/auth';
+import { RandomTokenContainer } from '../utils/types/random-token';
 
 const date = new Date();
 const defaultUser: User = {
@@ -278,6 +283,7 @@ describe('UserService', () => {
         }),
       );
     });
+
     it('throws an exception if the token does not match', async () => {
       const newUser = Object.assign({}, defaultUser);
       const tokenValue = 'xxx';
@@ -307,6 +313,50 @@ describe('UserService', () => {
         await userService.activateUser(activateUserDto);
 
       await expect(result).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('createPasswordResetTokenForUser', () => {
+    it('throws NotFoundException if user does not exist', async () => {
+      const user: PasswordResetRequestDto = { email: 'test@gipfeli.io' };
+      userRepositoryMock.findOne.mockReturnValue(null);
+
+      const result = async () =>
+        await userService.createPasswordResetTokenForUser(user);
+
+      await expect(result).rejects.toThrow(NotFoundException);
+    });
+
+    it('finds a user, creates a token for them and returns the user and its token', async () => {
+      const user: PasswordResetRequestDto = { email: defaultUser.email };
+      const tokenContainerMock: RandomTokenContainer = {
+        token: 'mocked-token',
+        tokenHash: 'hashed-token',
+      };
+      jest
+        .spyOn(cryptoService, 'getRandomTokenWithHash')
+        .mockReturnValue(Promise.resolve(tokenContainerMock));
+      userRepositoryMock.findOne.mockReturnValue(defaultUser);
+
+      const result = await userService.createPasswordResetTokenForUser(user);
+
+      const expectedResult: PasswordResetRequestCreatedDto = {
+        user: defaultUser,
+        token: tokenContainerMock.token,
+      };
+      expect(result).toEqual(expectedResult);
+      expect(tokenRepositoryMock.create).toHaveBeenCalledWith({
+        user: defaultUser,
+        token: tokenContainerMock.tokenHash,
+        tokenType: UserTokenType.PASSWORD_RESET,
+      });
+      expect(tokenRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: defaultUser,
+          token: tokenContainerMock.tokenHash,
+          tokenType: UserTokenType.PASSWORD_RESET,
+        }),
+      );
     });
   });
 });
