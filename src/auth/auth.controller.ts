@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { UserService } from '../user/user.service';
-import { PasswordResetRequestDto, TokenDto } from './dto/auth';
+import { PasswordResetRequestDto, SetNewPasswordDto, TokenDto } from './dto/auth';
 import {
   NotificationService,
   NotificationServiceInterface,
@@ -67,7 +67,10 @@ export class AuthController {
           passwordResetRequestDto,
         );
 
-      await this.notificationService.sendPasswordResetRequestMessage(token, user);
+      await this.notificationService.sendPasswordResetRequestMessage(
+        token,
+        user,
+      );
     } catch (err) {
       // Only throw errors other than NotFoundException to avoid exposing user
       // registration details.
@@ -75,5 +78,12 @@ export class AuthController {
         throw err;
       }
     }
+  }
+
+  @Post('password-reset-set')
+  async passwordResetSet(
+    @Body() setNewPasswordDto: SetNewPasswordDto,
+  ): Promise<void> {
+    return this.userService.resetPassword(setNewPasswordDto);
   }
 }

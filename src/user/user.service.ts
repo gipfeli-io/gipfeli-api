@@ -15,10 +15,10 @@ import {
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
-import { RandomTokenContainer } from '../utils/types/random-token';
 import {
   PasswordResetRequestCreatedDto,
   PasswordResetRequestDto,
+  SetNewPasswordDto,
 } from '../auth/dto/auth';
 
 @Injectable()
@@ -140,30 +140,11 @@ export class UserService {
   async activateUser(activateUserDto: ActivateUserDto): Promise<void> {
     const { userId, token } = activateUserDto;
 
-    let user;
-    try {
-      user = await this.userRepository
-        .createQueryBuilder('user')
-        .innerJoinAndSelect(
-          'user.tokens',
-          'tokens',
-          '"tokenType" = :tokenType',
-          {
-            tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-          },
-        )
-        .where({ id: userId, isActive: false })
-        .getOneOrFail();
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new BadRequestException();
-      }
-
-      // At this point, something bad happened, so we raise the actual error
-      throw e;
-    }
-
-    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+    const { hasValidToken, user } = await this.checkForTokenMatchesWithUser(
+      UserTokenType.ACCOUNT_ACTIVATION,
+      token,
+      userId,
+    );
 
     if (hasValidToken) {
       await this.tokenRepository.delete({
@@ -210,6 +191,72 @@ export class UserService {
     return { user, token };
   }
 
+  async resetPassword(setNewPasswordDto: SetNewPasswordDto): Promise<void> {
+    const { userId, password, token } = setNewPasswordDto;
+
+    const { hasValidToken, user } = await this.checkForTokenMatchesWithUser(
+      UserTokenType.PASSWORD_RESET,
+      token,
+      userId,
+      true,
+    );
+
+    if (hasValidToken) {
+      await this.tokenRepository.delete({
+        userId,
+        tokenType: UserTokenType.PASSWORD_RESET,
+      });
+
+      user.password = await this.cryptoService.hash(password);
+      await this.userRepository.save(user);
+
+      return Promise.resolve();
+    }
+    // The tokens do not match
+    throw new BadRequestException();
+  }
+
+  /**
+   * Checks whether a given user and a supplied token exist in the database.
+   * Returns the result of the comparison and the user entity.
+   * @param tokenType
+   * @param token
+   * @param userId
+   * @param isActive
+   * @private
+   */
+  private async checkForTokenMatchesWithUser(
+    tokenType: UserTokenType,
+    token: string,
+    userId: string,
+    isActive = false,
+  ): Promise<{ hasValidToken: boolean; user: User }> {
+    let user;
+    try {
+      user = await this.userRepository
+        .createQueryBuilder('user')
+        .innerJoinAndSelect(
+          'user.tokens',
+          'tokens',
+          '"tokenType" = :tokenType',
+          {
+            tokenType: tokenType,
+          },
+        )
+        .where({ id: userId, isActive })
+        .getOneOrFail();
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new BadRequestException();
+      }
+
+      // At this point, something bad happened, so we raise the actual error
+      throw e;
+    }
+    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+
+    return { hasValidToken, user };
+  }
   /**
    * Checks whether a given token matches a token in a list of hashed tokens.
    * @param tokens

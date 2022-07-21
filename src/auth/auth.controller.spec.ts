@@ -11,6 +11,7 @@ import { AuthController } from './auth.controller';
 import {
   PasswordResetRequestCreatedDto,
   PasswordResetRequestDto,
+  SetNewPasswordDto,
   TokenDto,
 } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
@@ -235,6 +236,23 @@ describe('AuthController', () => {
         await authController.passwordResetRequest({ email });
 
       await expect(result).rejects.toThrow(Error);
+    });
+  });
+
+  describe('passwordResetSet', () => {
+    it('calls userService.resetPassword() with correct params', async () => {
+      const serviceSpy = jest
+        .spyOn(userService, 'resetPassword')
+        .mockReturnValue(Promise.resolve());
+      const setNewPasswordDto: SetNewPasswordDto = {
+        password: 'x-x-x',
+        token: 'mock-token',
+        userId: 'mock-user-id',
+      };
+
+      await authController.passwordResetSet(setNewPasswordDto);
+
+      expect(serviceSpy).toHaveBeenCalledWith(setNewPasswordDto);
     });
   });
 });
