@@ -22,6 +22,8 @@ const repositoryMockFactory: () => RepositoryMockType<Repository<any>> =
       innerJoinAndSelect: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       getOneOrFail: jest.fn((entity) => entity),
+      addSelect: jest.fn().mockReturnThis(),
+      getOne: jest.fn((entity) => entity),
     })),
   }));
 

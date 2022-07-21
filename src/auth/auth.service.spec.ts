@@ -100,8 +100,14 @@ describe('AuthService', () => {
       const { unhashedPassword, email } = userConfig;
       const [_, user] = getUserDtoAndUserObject(true);
       const mockSession = 'x-x-x-x';
-      userRepositoryMock.findOne.mockReturnValue(user);
       sessionRepositoryMock.create.mockReturnValue(mockSession);
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          addSelect: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(user),
+        };
+      });
 
       const expected: UserIdentifier = {
         sub: user.id,
@@ -117,7 +123,13 @@ describe('AuthService', () => {
       const { email } = userConfig;
       const password = 'this-is-a-wrong-password';
       const [_, user] = getUserDtoAndUserObject(true);
-      userRepositoryMock.findOne.mockReturnValue(user);
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          addSelect: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(user),
+        };
+      });
 
       expect(await authService.validateUser(email, password)).toEqual(null);
     });
@@ -125,7 +137,13 @@ describe('AuthService', () => {
     it('throws NotFoundException if user and password do not match or do not exist', async () => {
       const email = 'peter@gipfeli.io';
       const password = '5678';
-      userRepositoryMock.findOne.mockReturnValue(null);
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          addSelect: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(null),
+        };
+      });
 
       const call = async () => await authService.validateUser(email, password);
 
