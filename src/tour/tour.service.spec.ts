@@ -69,7 +69,6 @@ describe('TourService', () => {
       const result = await tourService.findAll(mockUser);
 
       const expectedConditions: FindManyOptions<Tour> = {
-        relations: ['user'],
         where: { user: mockUser },
       };
       expect(tourRepositoryMock.find).toHaveBeenCalledTimes(1);
@@ -84,7 +83,7 @@ describe('TourService', () => {
       const result = await tourService.findOne(mockId, mockUser);
 
       const expectedConditions: FindOneOptions<Tour> = {
-        relations: ['user', 'images'],
+        relations: ['images'],
         where: { user: mockUser },
       };
       expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);

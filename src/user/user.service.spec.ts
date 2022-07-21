@@ -75,33 +75,91 @@ describe('UserService', () => {
   });
 
   describe('findOne', () => {
-    it('returns a user', async () => {
-      const userServiceSpy = jest.spyOn(userService, 'findOne');
-      userRepositoryMock.findOne.mockReturnValue(defaultUser);
-      const email = 'peter@gipfeli.io';
+    it('returns a user without password', async () => {
+      const addSelectMock = jest.fn();
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: jest.fn().mockReturnThis(),
+          addSelect: addSelectMock,
+          getOne: jest.fn().mockReturnValueOnce(defaultUser),
+        };
+      });
 
-      expect(await userService.findOne(email)).toEqual(defaultUser);
-      expect(userServiceSpy).toHaveBeenCalledWith(email);
+      const result = await userService.findOne(defaultUser.email);
+      expect(result).toEqual(defaultUser);
+      expect(addSelectMock).not.toHaveBeenCalled();
     });
 
-    it('raises NotFoundException if user is inactive', async () => {
+    it('raises NotFoundException if user is inactive and canBeInactive is not set', async () => {
       const user = Object.assign({}, defaultUser);
       user.isActive = false;
-      userRepositoryMock.findOne.mockReturnValue(user);
-      const email = 'peter@gipfeli.io';
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(user),
+        };
+      });
 
-      const result = async () => await userService.findOne(email);
+      const result = async () => await userService.findOne(user.email);
 
       await expect(result).rejects.toThrow(NotFoundException);
+    });
+
+    it('returns user if is inactive if canBeInactive is set', async () => {
+      const user = Object.assign({}, defaultUser);
+      user.isActive = false;
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(user),
+        };
+      });
+
+      expect(await userService.findOne(user.email, true)).toEqual(user);
+    });
+
+    it('adds password if exposePassword is true', async () => {
+      const addSelectMock = jest.fn();
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: jest.fn().mockReturnThis(),
+          addSelect: addSelectMock,
+          getOne: jest.fn().mockReturnValueOnce(defaultUser),
+        };
+      });
+
+      await userService.findOne(defaultUser.email, false, true);
+
+      expect(addSelectMock).toHaveBeenCalledTimes(1);
+      expect(addSelectMock).toHaveBeenCalledWith('user.password');
     });
 
     it('raises NotFoundException if user does not exist', async () => {
-      userRepositoryMock.findOne.mockReturnValue(null);
-      const email = 'peter@gipfeli.io';
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          addSelect: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(null),
+        };
+      });
+      const email = 'does-not-exist@gipfeli.io';
 
       const result = async () => await userService.findOne(email);
 
       await expect(result).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findOneForAuthentication', () => {
+    it('calls findOne() with correct params to choose active users only and expose the password', async () => {
+      const findOneSpy = jest
+        .spyOn(userService, 'findOne')
+        .mockReturnValue(Promise.resolve(defaultUser));
+      const { email } = defaultUser;
+
+      await userService.findOneForAuth(email);
+
+      expect(findOneSpy).toHaveBeenCalledWith(email, false, true);
     });
   });
 

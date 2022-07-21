@@ -31,17 +31,41 @@ export class UserService {
   }
 
   /**
+   * Convenience method for calling findOne() with the correct params to also
+   * expose the password. Only works for active users.
+   *
+   * @param email
+   */
+  async findOneForAuth(email: string): Promise<UserDto> {
+    return this.findOne(email, false, true);
+  }
+
+  /**
    * Returns on user or throws a NotFoundException. If canBeInactive is set, it
    * also returns a user that has not activated their account yet. Defaults to
    * false so we always scope this to the active users only and throw a
    * UserNotActivatedException.
+   *
+   * If exposePassword is set to true, it will explicitly select the password
+   * and add it to the User object.
+   *
    * @param email
    * @param canBeInactive
+   * @param exposePassword
    */
-  async findOne(email: string, canBeInactive = false): Promise<UserDto> {
-    const user = await this.userRepository.findOne({
-      where: [{ email: email }],
-    });
+  async findOne(
+    email: string,
+    canBeInactive = false,
+    exposePassword = false,
+  ): Promise<UserDto> {
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email });
+    if (exposePassword) {
+      qb.addSelect('user.password');
+    }
+
+    const user = await qb.getOne();
 
     if (user) {
       if (!canBeInactive && !user.isActive) {

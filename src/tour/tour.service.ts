@@ -37,14 +37,13 @@ export class TourService {
   findAll(user: AuthenticatedUserDto): Promise<TourDto[]> {
     return this.tourRepository.find({
       where: { user },
-      relations: ['user'],
     });
   }
 
   async findOne(id: string, user: AuthenticatedUserDto): Promise<TourDto> {
     const result = await this.tourRepository.findOne(id, {
       where: { user },
-      relations: ['user', 'images'],
+      relations: ['images'],
     });
 
     if (!result) {

@@ -35,7 +35,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<UserIdentifier | null> {
-    const user = await this.userService.findOne(email);
+    const user = await this.userService.findOneForAuth(email);
     const passwordsMatch = await this.hashService.compare(
       password,
       user.password,
