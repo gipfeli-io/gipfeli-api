@@ -18,7 +18,6 @@ import {
   SetNewPasswordDto,
 } from '../auth/dto/auth';
 import { RandomTokenContainer } from '../utils/types/random-token';
-import objectContaining = jasmine.objectContaining;
 
 const date = new Date();
 const defaultUser: User = {
@@ -42,13 +41,17 @@ const createUserDto: CreateUserDto = {
   firstName: defaultUser.firstName,
 };
 
+const tokenValue = 'x-x-x';
+
 describe('UserService', () => {
   let userService: UserService;
   let cryptoService: CryptoService;
   let userRepositoryMock: RepositoryMockType<Repository<User>>;
   let tokenRepositoryMock: RepositoryMockType<Repository<UserToken>>;
+  let mockUser: User;
 
   beforeEach(async () => {
+    mockUser = Object.assign({}, defaultUser);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -98,31 +101,29 @@ describe('UserService', () => {
     });
 
     it('raises NotFoundException if user is inactive and canBeInactive is not set', async () => {
-      const user = Object.assign({}, defaultUser);
-      user.isActive = false;
+      mockUser.isActive = false;
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
           where: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockReturnValueOnce(user),
+          getOne: jest.fn().mockReturnValueOnce(mockUser),
         };
       });
 
-      const result = async () => await userService.findOne(user.email);
+      const result = async () => await userService.findOne(mockUser.email);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
 
     it('returns user if is inactive if canBeInactive is set', async () => {
-      const user = Object.assign({}, defaultUser);
-      user.isActive = false;
+      mockUser.isActive = false;
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
           where: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockReturnValueOnce(user),
+          getOne: jest.fn().mockReturnValueOnce(mockUser),
         };
       });
 
-      expect(await userService.findOne(user.email, true)).toEqual(user);
+      expect(await userService.findOne(mockUser.email, true)).toEqual(mockUser);
     });
 
     it('adds password if exposePassword is true', async () => {
@@ -249,27 +250,25 @@ describe('UserService', () => {
 
   describe('activateUser', () => {
     it('activates a user and deletes the tokens', async () => {
-      const newUser = Object.assign({}, defaultUser);
-      const tokenValue = 'xxx';
       const token = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-        user: newUser,
+        user: mockUser,
       } as UserToken;
 
-      newUser.isActive = false;
-      newUser.tokens = [token];
+      mockUser.isActive = false;
+      mockUser.tokens = [token];
 
       const activateUserDto: ActivateUserDto = {
         token: tokenValue,
-        userId: newUser.id,
+        userId: mockUser.id,
       };
 
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
           innerJoinAndSelect: jest.fn().mockReturnThis(),
           where: jest.fn().mockReturnThis(),
-          getOneOrFail: jest.fn().mockReturnValueOnce(newUser),
+          getOneOrFail: jest.fn().mockReturnValueOnce(mockUser),
         };
       });
 
@@ -277,7 +276,7 @@ describe('UserService', () => {
 
       expect(tokenRepositoryMock.delete).toHaveBeenCalledWith({
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-        userId: newUser.id,
+        userId: mockUser.id,
       });
       expect(userRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -287,27 +286,25 @@ describe('UserService', () => {
     });
 
     it('throws an exception if the token does not match', async () => {
-      const newUser = Object.assign({}, defaultUser);
-      const tokenValue = 'xxx';
       const token = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-        user: newUser,
+        user: mockUser,
       } as UserToken;
 
-      newUser.isActive = false;
-      newUser.tokens = [token];
+      mockUser.isActive = false;
+      mockUser.tokens = [token];
 
       const activateUserDto: ActivateUserDto = {
         token: 'wrong-token',
-        userId: newUser.id,
+        userId: mockUser.id,
       };
 
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
           innerJoinAndSelect: jest.fn().mockReturnThis(),
           where: jest.fn().mockReturnThis(),
-          getOneOrFail: jest.fn().mockReturnValueOnce(newUser),
+          getOneOrFail: jest.fn().mockReturnValueOnce(mockUser),
         };
       });
 
@@ -364,8 +361,6 @@ describe('UserService', () => {
 
   describe('resetPassword', () => {
     it('sets a user password and deletes the tokens', async () => {
-      const mockUser = Object.assign({}, defaultUser);
-      const tokenValue = 'xxx';
       const token = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.PASSWORD_RESET,
@@ -406,8 +401,6 @@ describe('UserService', () => {
     });
 
     it('throws an exception if the token does not match', async () => {
-      const mockUser = Object.assign({}, defaultUser);
-      const tokenValue = 'xxx';
       const token = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.PASSWORD_RESET,
