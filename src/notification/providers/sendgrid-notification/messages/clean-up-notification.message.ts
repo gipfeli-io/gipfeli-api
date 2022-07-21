@@ -1,8 +1,10 @@
 import { SendGridMessageInterface } from './send-grid-message.interface';
-import { CleanUpResult } from '../../../../media/types/clean-up-result';
+import { CleanUpResultDto } from '../../../../media/dto/clean-up-result';
 
 class CleanUpNotificationMessage {
-  public static getMessage(results: CleanUpResult): SendGridMessageInterface {
+  public static getMessage(
+    results: CleanUpResultDto,
+  ): SendGridMessageInterface {
     const textResults = CleanUpNotificationMessage.getStatisticsContent(
       'text',
       results,
@@ -21,7 +23,7 @@ class CleanUpNotificationMessage {
 
   private static getStatisticsContent(
     type: 'text' | 'html',
-    results: CleanUpResult,
+    results: CleanUpResultDto,
   ): string {
     const { database, storage } = results;
     const separator = type === 'text' ? '\n' : '<br>';
