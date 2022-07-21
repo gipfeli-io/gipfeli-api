@@ -6,7 +6,7 @@ import {
 import { UserDto } from '../../../user/dto/user';
 import { getUserActivationUrl } from '../utils/message.helpers';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResult } from 'src/media/types/clean-up-result';
+import { CleanUpResultDto } from 'src/media/dto/clean-up-result';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
@@ -16,7 +16,7 @@ export class ConsoleNotificationService implements NotificationService {
     this.baseUrl = this.configService.get<string>('environment.appUrl');
   }
 
-  async sendCleanUpResults(results: CleanUpResult): Promise<boolean> {
+  async sendCleanUpResults(results: CleanUpResultDto): Promise<boolean> {
     const { database, storage } = results;
     console.log('sendCleanUpResults:');
     console.log(`=> DB removals: ${database.affected}`);

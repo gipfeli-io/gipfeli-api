@@ -7,14 +7,14 @@ import { UploadFileDto } from './dto/file';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { FilePath } from './enums/file-path';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, LessThan, Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image';
 import {
   GeoReferenceProvider,
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
-import { CleanUpResult } from './types/clean-up-result';
+import { CleanUpResultDto } from './dto/clean-up-result';
 import * as dayjs from 'dayjs';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class MediaService {
     return { id, identifier, location };
   }
 
-  public async cleanUpImages(): Promise<CleanUpResult> {
+  public async cleanUpImages(): Promise<CleanUpResultDto> {
     /*
      We only delete images which are older than 1 day and match the conditions
      to avoid accidentally deleting images that are in the upload process.
@@ -61,21 +61,18 @@ export class MediaService {
     });
     const imageIdentifiers = imagesToClean.map((image) => image.identifier);
 
-    const deletedFromStorage = await this.storageProvider.deleteMany(
-      imageIdentifiers,
-    );
-
-    // Only call delete if we have images to delete, otherwise it throws.
-    let deletedFromDb: DeleteResult;
     if (imagesToClean.length > 0) {
-      deletedFromDb = await this.imageRepository.delete(
+      const deletedFromStorage = await this.storageProvider.deleteMany(
+        imageIdentifiers,
+      );
+      const deletedFromDb = await this.imageRepository.delete(
         imagesToClean.map((image) => image.id),
       );
-    } else {
-      deletedFromDb = { affected: 0, raw: null };
+
+      return new CleanUpResultDto(deletedFromDb, deletedFromStorage);
     }
 
-    return { database: deletedFromDb, storage: deletedFromStorage };
+    return new CleanUpResultDto();
   }
 
   /**

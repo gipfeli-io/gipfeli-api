@@ -2,7 +2,7 @@ import { ConsoleNotificationService } from './console-notification.service';
 import { getUserActivationUrl } from '../utils/message.helpers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResult } from '../../../media/types/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 
@@ -69,7 +69,7 @@ describe('ConsoleNotificationService', () => {
   });
 
   describe('sendCleanUpResult', () => {
-    let mockResult: CleanUpResult;
+    let mockResult: CleanUpResultDto;
 
     beforeEach(() => {
       mockResult = {

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationRecipient, NotificationService, } from '../../types/notification-service';
+import {
+  NotificationRecipient,
+  NotificationService,
+} from '../../types/notification-service';
 import { UserDto } from '../../../user/dto/user';
 import * as SendGrid from '@sendgrid/mail';
 import DebugMessage from './messages/debug.message';
 import { EmailNotSentException } from '../../notification.exceptions';
 import SignUpMessage from './messages/sign-up.message';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResult } from '../../../media/types/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
 import { SendGridMessageInterface } from './messages/send-grid-message.interface';
 
@@ -30,7 +33,7 @@ export class SendGridNotificationService implements NotificationService {
     SendGrid.setApiKey(apiKey);
   }
 
-  async sendCleanUpResults(results: CleanUpResult): Promise<boolean> {
+  async sendCleanUpResults(results: CleanUpResultDto): Promise<boolean> {
     const content = CleanUpNotificationMessage.getMessage(results);
     const recipients = this.adminContacts.map((contact) => contact.email);
     const emailBody = this.getEmailBody(recipients, content);

@@ -20,7 +20,7 @@ import {
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
 import { Point } from 'geojson';
-import { CleanUpResult } from './types/clean-up-result';
+import { CleanUpResultDto } from './dto/clean-up-result';
 
 const fileResponseMock: UploadedFileHandle = {
   identifier: 'mocked-identifier',
@@ -155,10 +155,10 @@ describe('MediaService', () => {
 
       const result = await mediaService.cleanUpImages();
 
-      const expectedResult: CleanUpResult = {
-        storage: deleteResponseStorage,
-        database: deleteResponseDb,
-      };
+      const expectedResult = new CleanUpResultDto(
+        deleteResponseDb,
+        deleteResponseStorage,
+      );
       expect(result).toEqual(expectedResult);
       expect(storageProviderMock.deleteMany).toHaveBeenCalledTimes(1);
       expect(storageProviderMock.deleteMany).toHaveBeenCalledWith(
@@ -166,17 +166,6 @@ describe('MediaService', () => {
       );
       expect(imageRepositoryMock.delete).toHaveBeenCalledTimes(1);
       expect(imageRepositoryMock.delete).toHaveBeenCalledWith(imageIds);
-    });
-
-    it('calls storageProvider.deleteMany but not imageRepository.delete if no images are to be deleted to avoid exception', async () => {
-      jest.spyOn(imageRepositoryMock, 'find').mockReturnValue([]);
-
-      const result = await mediaService.cleanUpImages();
-
-      expect(storageProviderMock.deleteMany).toHaveBeenCalledTimes(1);
-      expect(storageProviderMock.deleteMany).toHaveBeenCalledWith([]);
-      expect(imageRepositoryMock.delete).not.toHaveBeenCalled();
-      expect(result.database.affected).toEqual(0);
     });
   });
 

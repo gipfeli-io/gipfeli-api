@@ -7,7 +7,7 @@ import { EmailNotSentException } from '../../notification.exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
-import { CleanUpResult } from '../../../media/types/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
 import { NotificationRecipient } from '../../types/notification-service';
 
 jest.mock('@sendgrid/mail', () => {
@@ -94,17 +94,7 @@ describe('SendGridNotificationService', () => {
   });
 
   it('sends a cleanupnotification message', async () => {
-    const results: CleanUpResult = {
-      storage: {
-        successfulOperations: 0,
-        totalOperations: 0,
-        errors: [],
-      },
-      database: {
-        affected: 0,
-        raw: null,
-      },
-    };
+    const results = new CleanUpResultDto();
 
     const notificationMessage = CleanUpNotificationMessage.getMessage(results);
 
