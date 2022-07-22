@@ -31,6 +31,16 @@ export interface NotificationService {
    * @param results
    */
   sendCleanUpResults: (results: CleanUpResultDto) => Promise<boolean>;
+
+  /**
+   * Notifies a user about their pending password reset request.
+   * @param user
+   * @param token
+   */
+  sendPasswordResetRequestMessage: (
+    token: string,
+    recipient: UserDto,
+  ) => Promise<boolean>;
 }
 
 /**

@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
 import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
 import { NotificationRecipient } from '../../types/notification-service';
+import PasswordResetRequestMessage from './messages/password-reset-request.message';
 
 jest.mock('@sendgrid/mail', () => {
   return {
@@ -89,6 +90,27 @@ describe('SendGridNotificationService', () => {
       html: signupMessage.html,
       subject: signupMessage.subject,
       text: signupMessage.text,
+      from: defaultSender,
+    });
+  });
+
+  it('sends a password reset message', async () => {
+    const token = 'test-token';
+    const recipient = { email: 'test@gipfeli.io', id: 'xxx' } as UserDto;
+    const passwordResetRequestMessage = PasswordResetRequestMessage.getMessage(
+      defaultBaseUrl,
+      token,
+      recipient.id,
+    );
+
+    await service.sendPasswordResetRequestMessage(token, recipient);
+
+    expect(SendGrid.send).toHaveBeenCalledTimes(1);
+    expect(SendGrid.send).toHaveBeenCalledWith({
+      to: recipient.email,
+      html: passwordResetRequestMessage.html,
+      subject: passwordResetRequestMessage.subject,
+      text: passwordResetRequestMessage.text,
       from: defaultSender,
     });
   });

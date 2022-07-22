@@ -2,24 +2,31 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
-import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
+import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { TokenDto } from './dto/auth';
+import {
+  PasswordResetRequestCreatedDto,
+  PasswordResetRequestDto,
+  SetNewPasswordDto,
+  TokenDto,
+} from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
 import { UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
+import { NotFoundException } from '@nestjs/common';
 
 const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
 const notificationServiceMock = {
   sendSignUpMessage: jest.fn(),
+  sendPasswordResetRequestMessage: jest.fn(),
 };
 
 describe('AuthController', () => {
@@ -176,6 +183,76 @@ describe('AuthController', () => {
 
     afterEach(() => {
       jest.resetAllMocks();
+    });
+  });
+
+  // todo: add tests for refreshToken()
+
+  describe('passwordResetRequest', () => {
+    it('calls userService to create a token and sends a message containing the token to the user', async () => {
+      const mockRequest: PasswordResetRequestDto = { email: 'test@gipfeli.io' };
+      const tokenMock = 'mocked-token';
+      const userMock = mockRequest.email as unknown as UserDto;
+      const mockTokenResponse: PasswordResetRequestCreatedDto = {
+        token: tokenMock,
+        user: userMock,
+      };
+      const userServiceSpy = jest
+        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .mockReturnValue(Promise.resolve(mockTokenResponse));
+      const notificationServiceSpy = jest
+        .spyOn(notificationServiceMock, 'sendPasswordResetRequestMessage')
+        .mockReturnValue(Promise.resolve());
+
+      await authController.passwordResetRequest(mockRequest);
+
+      expect(userServiceSpy).toHaveBeenCalledWith(mockRequest);
+      expect(notificationServiceSpy).toHaveBeenCalledWith(tokenMock, userMock);
+    });
+
+    it('fails gracefully if the user is not found and does not send a message', async () => {
+      jest
+        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .mockImplementation(() => {
+          throw new NotFoundException();
+        });
+      const email = 'does-not-exist@gipfeli.io';
+
+      const result = async () =>
+        await authController.passwordResetRequest({ email });
+
+      await expect(result).not.toThrow();
+    });
+
+    it('throws exceptions other than NotFoundError', async () => {
+      jest
+        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .mockImplementation(() => {
+          throw new Error();
+        });
+      const email = 'does-not-exist@gipfeli.io';
+
+      const result = async () =>
+        await authController.passwordResetRequest({ email });
+
+      await expect(result).rejects.toThrow(Error);
+    });
+  });
+
+  describe('passwordResetSet', () => {
+    it('calls userService.resetPassword() with correct params', async () => {
+      const serviceSpy = jest
+        .spyOn(userService, 'resetPassword')
+        .mockReturnValue(Promise.resolve());
+      const setNewPasswordDto: SetNewPasswordDto = {
+        password: 'x-x-x',
+        token: 'mock-token',
+        userId: 'mock-user-id',
+      };
+
+      await authController.passwordResetSet(setNewPasswordDto);
+
+      expect(serviceSpy).toHaveBeenCalledWith(setNewPasswordDto);
     });
   });
 });

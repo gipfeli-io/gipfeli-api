@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { RandomTokenContainer } from './types/random-token';
 
 @Injectable()
 export class CryptoService {
@@ -34,10 +35,7 @@ export class CryptoService {
    * Creates a random secure string that can be used as a token. Returns its
    * string representation as well as a hashed version.
    */
-  async getRandomTokenWithHash(): Promise<{
-    token: string;
-    tokenHash: string;
-  }> {
+  async getRandomTokenWithHash(): Promise<RandomTokenContainer> {
     const token = crypto.randomBytes(25).toString('hex');
     const tokenHash = await this.hash(token);
 

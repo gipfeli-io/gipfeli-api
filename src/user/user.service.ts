@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
-import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm';
+import {
+  EntityNotFoundError,
+  MoreThanOrEqual,
+  QueryFailedError,
+  Repository,
+} from 'typeorm';
 import {
   ActivateUserDto,
   CreateUserDto,
@@ -15,6 +20,12 @@ import {
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
+import {
+  PasswordResetRequestCreatedDto,
+  PasswordResetRequestDto,
+  SetNewPasswordDto,
+} from '../auth/dto/auth';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -135,30 +146,11 @@ export class UserService {
   async activateUser(activateUserDto: ActivateUserDto): Promise<void> {
     const { userId, token } = activateUserDto;
 
-    let user;
-    try {
-      user = await this.userRepository
-        .createQueryBuilder('user')
-        .innerJoinAndSelect(
-          'user.tokens',
-          'tokens',
-          '"tokenType" = :tokenType',
-          {
-            tokenType: UserTokenType.ACCOUNT_ACTIVATION,
-          },
-        )
-        .where({ id: userId, isActive: false })
-        .getOneOrFail();
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new BadRequestException();
-      }
-
-      // At this point, something bad happened, so we raise the actual error
-      throw e;
-    }
-
-    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+    const { hasValidToken, user } = await this.checkForTokenMatchesWithUser(
+      UserTokenType.ACCOUNT_ACTIVATION,
+      token,
+      userId,
+    );
 
     if (hasValidToken) {
       await this.tokenRepository.delete({
@@ -173,6 +165,110 @@ export class UserService {
     }
     // The tokens do not match
     throw new BadRequestException();
+  }
+
+  /**
+   * Creates a password request token if the given user exists or throws a
+   * NotFoundException
+   *
+   * @param passwordResetRequestDto
+   */
+  async createPasswordResetTokenForUser(
+    passwordResetRequestDto: PasswordResetRequestDto,
+  ): Promise<PasswordResetRequestCreatedDto> {
+    const { email } = passwordResetRequestDto;
+    const user = await this.userRepository.findOne({
+      where: [{ email: email }],
+    });
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const { token, tokenHash } =
+      await this.cryptoService.getRandomTokenWithHash();
+    const resetToken = this.tokenRepository.create({
+      user: user,
+      token: tokenHash,
+      tokenType: UserTokenType.PASSWORD_RESET,
+    });
+    await this.tokenRepository.save(resetToken);
+
+    return { user, token };
+  }
+
+  async resetPassword(setNewPasswordDto: SetNewPasswordDto): Promise<void> {
+    const { userId, password, token } = setNewPasswordDto;
+
+    const { hasValidToken, user } = await this.checkForTokenMatchesWithUser(
+      UserTokenType.PASSWORD_RESET,
+      token,
+      userId,
+      true,
+      dayjs().subtract(2, 'h'), // validity period is 2 hours
+    );
+
+    if (hasValidToken) {
+      await this.tokenRepository.delete({
+        userId,
+        tokenType: UserTokenType.PASSWORD_RESET,
+      });
+
+      user.password = await this.cryptoService.hash(password);
+      await this.userRepository.save(user);
+
+      return Promise.resolve();
+    }
+    // The tokens do not match
+    throw new BadRequestException();
+  }
+
+  /**
+   * Checks whether a given user and a supplied token exist in the database.
+   * Optionally takes a dayjs object which can be used to limit a token's
+   * validity period.
+   * Returns the result of the comparison and the user entity.
+   * @param tokenType
+   * @param token
+   * @param userId
+   * @param isActive
+   * @param validFrom
+   * @private
+   */
+  private async checkForTokenMatchesWithUser(
+    tokenType: UserTokenType,
+    token: string,
+    userId: string,
+    isActive = false,
+    validFrom = dayjs(new Date(1970, 1, 1)),
+  ): Promise<{ hasValidToken: boolean; user: User }> {
+    let user;
+    try {
+      user = await this.userRepository
+        .createQueryBuilder('user')
+        .innerJoinAndSelect(
+          // todo: add integration test for this
+          'user.tokens',
+          'tokens',
+          '"tokenType" = :tokenType AND tokens."createdAt" >= :validFrom',
+          {
+            tokenType: tokenType,
+            validFrom: validFrom.toISOString(),
+          },
+        )
+        .where({ id: userId, isActive })
+        .getOneOrFail();
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new BadRequestException();
+      }
+
+      // At this point, something bad happened, so we raise the actual error
+      throw e;
+    }
+    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+
+    return { hasValidToken, user };
   }
 
   /**
