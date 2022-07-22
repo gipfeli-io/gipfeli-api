@@ -3,17 +3,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
 import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import {
-  PasswordResetRequestCreatedDto,
-  PasswordResetRequestDto,
-  SetNewPasswordDto,
-  TokenDto,
-} from './dto/auth';
+import { PasswordResetRequestCreatedDto, PasswordResetRequestDto, SetNewPasswordDto, TokenDto, } from './dto/auth';
 import { JwtModule } from '@nestjs/jwt';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
@@ -86,6 +81,7 @@ describe('AuthController', () => {
       const mockUser: UserIdentifier = {
         sub: 'test',
         email: 'test@gipfeli.io',
+        role: UserRole.USER,
       };
       const mockRequest = httpMocks.createRequest({
         user: mockUser,
@@ -106,6 +102,7 @@ describe('AuthController', () => {
       const mockUser: UserIdentifier = {
         sub: 'test',
         email: 'test@gipfeli.io',
+        role: UserRole.USER,
       };
       const mockSession = 'x-x-x-x';
       const mockRequest = httpMocks.createRequest({
@@ -125,6 +122,7 @@ describe('AuthController', () => {
         mockUser.sub,
         mockUser.email,
         mockSession,
+        mockUser.role,
       );
     });
   });

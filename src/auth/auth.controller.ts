@@ -32,10 +32,10 @@ export class AuthController {
   @Post('login')
   async login(@Request() req): Promise<TokenDto> {
     // Since our guard protects this endpoint, we can directly create a session
-    const { sub, email } = req.user as UserIdentifier;
+    const { sub, email, role } = req.user as UserIdentifier;
     const sessionId = await this.authService.createSession(sub);
 
-    return this.authService.createTokenResponse(sub, email, sessionId);
+    return this.authService.createTokenResponse(sub, email, sessionId, role);
   }
 
   @Post('signup')
@@ -52,9 +52,9 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   async refreshToken(@Request() req): Promise<TokenDto> {
-    const { sub, email, sessionId } = req.user as RefreshedToken;
+    const { sub, email, sessionId, role } = req.user as RefreshedToken;
 
-    return this.authService.createTokenResponse(sub, email, sessionId);
+    return this.authService.createTokenResponse(sub, email, sessionId, role);
   }
 
   @Post('password-reset-request')

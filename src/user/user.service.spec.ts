@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
+import {
+  UNIQUE_USER_EMAIL_CONSTRAINT,
+  User,
+  UserRole,
+} from './entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
@@ -26,6 +30,7 @@ const defaultUser: User = {
   lastName: 'Meier',
   email: 'peter@gipfeli.io',
   password: '1234',
+  role: UserRole.USER,
   tours: [],
   createdAt: date,
   updatedAt: date,

@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UserDto } from './dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
@@ -19,6 +19,7 @@ const results: UserDto[] = [
     lastName: 'Meier',
     email: 'peter@gipfeli.io',
     password: '1234',
+    role: UserRole.USER,
   },
   {
     id: '2bd0b79d-071a-4672-0804-027d97f98a6e',
@@ -26,6 +27,7 @@ const results: UserDto[] = [
     lastName: 'Müller',
     email: 'sara@gipfeli.io',
     password: '5678',
+    role: UserRole.USER,
   },
 ];
 
