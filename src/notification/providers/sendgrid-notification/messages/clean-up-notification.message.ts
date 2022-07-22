@@ -16,8 +16,8 @@ class CleanUpNotificationMessage {
 
     return {
       subject: 'gipfeli.io Database and Storage Cleanup Results',
-      text: `Hi there!\nAnother database and storage cleanup run just finished. Here are The results:\n\n${textResults}\n\nSee you,\nyour gipfeli.io Team`,
-      html: `Hi there!<br>Another database and storage cleanup run just finished. Here are The results:<br><br>${htmlResults}<br><br>See you,<br>your gipfeli.io Team`,
+      text: `Hi there!\n\nAnother database and storage cleanup run just finished. Here are the results:\n\n${textResults}\n\nSee you,\nyour gipfeli.io Team`,
+      html: `Hi there!<br><br>Another database and storage cleanup run just finished. Here are the results:<br><br>${htmlResults}<br><br>See you,<br>your gipfeli.io Team`,
     };
   }
 

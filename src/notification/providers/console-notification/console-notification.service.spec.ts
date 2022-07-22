@@ -3,7 +3,7 @@ import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
-import { MessageType } from '../../enums/message-type';
+import { TokenizedMessage } from '../../enums/tokenized-message';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 
@@ -69,7 +69,7 @@ describe('ConsoleNotificationService', () => {
         defaultBaseUrl,
         token,
         userDto.id,
-        MessageType.SIGNUP,
+        TokenizedMessage.SIGNUP,
       ),
     );
   });
@@ -97,7 +97,7 @@ describe('ConsoleNotificationService', () => {
         defaultBaseUrl,
         token,
         userDto.id,
-        MessageType.PASSWORD_RESET,
+        TokenizedMessage.PASSWORD_RESET,
       ),
     );
   });

@@ -7,7 +7,7 @@ import { UserDto } from '../../../user/dto/user';
 import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from 'src/media/dto/clean-up-result';
-import { MessageType } from '../../enums/message-type';
+import { TokenizedMessage } from '../../enums/tokenized-message';
 
 @Injectable()
 export class ConsoleNotificationService implements NotificationService {
@@ -21,20 +21,15 @@ export class ConsoleNotificationService implements NotificationService {
     token: string,
     recipient: UserDto,
   ): Promise<boolean> {
-    const { id } = recipient;
-    console.log('sendPasswordResetRequestMessage:');
-    this.printRecipient(this.extractRecipientFromUser(recipient));
-    console.log(`=> userId: ${id}`);
-    console.log(`=> token: ${token}`);
-    console.log(
-      `=> ResetLink: ${getTokenizedLinkForUser(
-        this.baseUrl,
-        token,
-        id,
-        MessageType.PASSWORD_RESET,
-      )}`,
+    this.printTokenizedMessage(
+      token,
+      recipient,
+      'sendPasswordResetRequestMessage',
+      'ResetLink',
+      TokenizedMessage.PASSWORD_RESET,
     );
-    return true;
+
+    return Promise.resolve(true);
   }
 
   async sendCleanUpResults(results: CleanUpResultDto): Promise<boolean> {
@@ -61,21 +56,47 @@ export class ConsoleNotificationService implements NotificationService {
   }
 
   async sendSignUpMessage(token: string, recipient: UserDto): Promise<boolean> {
+    this.printTokenizedMessage(
+      token,
+      recipient,
+      'sendSignUpMessage',
+      'SignUpLink',
+      TokenizedMessage.SIGNUP,
+    );
+
+    return Promise.resolve(true);
+  }
+
+  /**
+   * Prints a standardized tokenized message to the console with the token, user
+   * identifier and the link.
+   * @param token
+   * @param recipient
+   * @param title
+   * @param linkPrefix
+   * @param messageType
+   * @private
+   */
+  private printTokenizedMessage(
+    token: string,
+    recipient: UserDto,
+    title: string,
+    linkPrefix: string,
+    messageType: TokenizedMessage,
+  ): void {
     const { id } = recipient;
-    console.log('sendSignUpMessage:');
+    console.log(`${title}:`);
     this.printRecipient(this.extractRecipientFromUser(recipient));
     console.log(`=> userId: ${id}`);
     console.log(`=> token: ${token}`);
     console.log(
-      `=> SignUpLink: ${getTokenizedLinkForUser(
+      `=> ${linkPrefix}: ${getTokenizedLinkForUser(
         this.baseUrl,
         token,
         id,
-        MessageType.SIGNUP,
+        messageType,
       )}`,
     );
-
-    return Promise.resolve(true);
   }
 
   private printRecipient(recipient: NotificationRecipient) {

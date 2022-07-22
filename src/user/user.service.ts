@@ -225,7 +225,7 @@ export class UserService {
 
   /**
    * Checks whether a given user and a supplied token exist in the database.
-   * Optionally takes a Date object which can be used to limit a token's
+   * Optionally takes a dayjs object which can be used to limit a token's
    * validity period.
    * Returns the result of the comparison and the user entity.
    * @param tokenType
