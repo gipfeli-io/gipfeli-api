@@ -8,11 +8,16 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Tour } from '../../tour/entities/tour.entity';
-import { UserToken } from './user-token.entity';
+import { UserToken, UserTokenType } from './user-token.entity';
 import { UserSession } from '../../auth/entities/user-session.entity';
 import { Image } from '../../media/entities/image.entity';
 
 export const UNIQUE_USER_EMAIL_CONSTRAINT = 'unique_user_email_constraint';
+
+export enum UserRole {
+  ADMINISTRATOR,
+  USER,
+}
 
 @Entity()
 @Unique(UNIQUE_USER_EMAIL_CONSTRAINT, ['email'])
@@ -40,6 +45,13 @@ export class User {
 
   @Column({ default: false })
   isActive: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
 
   @OneToMany(() => Tour, (tour) => tour.user)
   tours: Tour[];

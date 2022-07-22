@@ -1,6 +1,8 @@
 /**
  * Basic JwtTokenPayload that is part of all JWTs.
  */
+import { UserRole } from '../../user/entities/user.entity';
+
 interface JwtTokenPayloadBase {
   iat: number;
   exp: number;
@@ -12,6 +14,7 @@ interface JwtTokenPayloadBase {
 export interface UserIdentifier {
   sub: string;
   email: string;
+  role: UserRole;
 }
 
 /**

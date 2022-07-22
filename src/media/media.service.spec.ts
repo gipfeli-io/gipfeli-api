@@ -21,6 +21,7 @@ import {
 } from './providers/types/geo-reference-provider';
 import { Point } from 'geojson';
 import { CleanUpResultDto } from './dto/clean-up-result';
+import { UserRole } from '../user/entities/user.entity';
 
 const fileResponseMock: UploadedFileHandle = {
   identifier: 'mocked-identifier',
@@ -44,6 +45,7 @@ const geoReferenceProviderMock: GeoReferenceProvider = {
 const userMock: AuthenticatedUserDto = {
   id: 'test-user-id',
   email: 'test@gipfeli.io',
+  role: UserRole.USER,
 };
 
 const fileMock = {

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../user/user.service';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserDto } from '../user/dto/user';
 import { AuthService } from './auth.service';
@@ -9,9 +9,7 @@ import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
 import { UserToken } from '../user/entities/user-token.entity';
-import repositoryMockFactory, {
-  RepositoryMockType,
-} from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory, { RepositoryMockType, } from '../utils/mock-utils/repository-mock.factory';
 import { Repository } from 'typeorm';
 import { UserSession } from './entities/user-session.entity';
 import { RefreshedToken, UserIdentifier } from './types/auth';
@@ -34,8 +32,9 @@ const getUserDtoAndUserObject: (isActive: boolean) => [UserDto, User] = (
   const lastName = 'Müller';
   const email = userConfig.email;
   const password = userConfig.unhashedPassword;
+  const role = UserRole.USER;
   return [
-    { id, firstName, lastName, email, password },
+    { id, firstName, lastName, email, password, role },
     {
       id,
       firstName,
@@ -108,6 +107,7 @@ describe('AuthService', () => {
       const expected: UserIdentifier = {
         sub: user.id,
         email: user.email,
+        role: user.role,
       };
 
       const result = await authService.validateUser(email, unhashedPassword);
@@ -163,6 +163,7 @@ describe('AuthService', () => {
         user: {
           id: 'x-x-x',
           email: 'x@x.ch',
+          role: UserRole.USER,
         },
       } as UserSession;
       sessionRepositoryMock.findOne.mockReturnValue(mockSession);
@@ -173,6 +174,7 @@ describe('AuthService', () => {
         sub: mockSession.user.id,
         email: mockSession.user.email,
         sessionId: mockSession.id,
+        role: mockSession.user.role,
       };
 
       expect(sessionRepositoryMock.save).toHaveBeenCalledTimes(1);

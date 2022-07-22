@@ -7,10 +7,12 @@ import { AuthenticatedUserDto } from '../user/dto/user';
 import { Image } from '../media/entities/image.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
 import { TourController } from './tour.controller';
+import { UserRole } from '../user/entities/user.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
   id: 'mocked-id',
+  role: UserRole.USER,
 };
 const mockId = 'mocked-tour-id';
 const mockExistingTour: UpdateTourDto = {

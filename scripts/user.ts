@@ -1,9 +1,9 @@
 import { ConnectionOptions, createConnection, getManager } from 'typeorm';
-import { User } from '../src/user/entities/user.entity';
+import { User, UserRole } from '../src/user/entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import * as yargs from 'yargs'
+import * as yargs from 'yargs';
 import * as inquirer from 'inquirer';
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 
 /**
  * This quick and dirty script file allows for easily adding a new user to the
@@ -13,7 +13,7 @@ import * as dotenv from 'dotenv'
  * another set of dependencies that hijacks nest (e.g. nestjs-cli).
  */
 
-dotenv.config()
+dotenv.config();
 const rootDir = process.env.NODE_ENV ? 'dist/' : './';
 
 const databaseConfig: ConnectionOptions = {
@@ -48,6 +48,18 @@ const createUser = async () => {
       name: 'password',
       type: 'password',
     },
+    {
+      message: 'Is admin?',
+      name: 'admin',
+      type: 'confirm',
+      default: false
+    },
+    {
+      message: 'Is active?',
+      name: 'active',
+      type: 'confirm',
+      default: true
+    }
   ]);
 
   const connection = await createConnection(databaseConfig);
@@ -58,14 +70,17 @@ const createUser = async () => {
   newUser.firstName = answers.firstname;
   newUser.lastName = answers.lastname;
   newUser.password = bcrypt.hashSync(answers.password, 10);
+  newUser.isActive = answers.active;
+  newUser.role = answers.admin ? UserRole.ADMINISTRATOR : UserRole.USER;
 
-  await manager.save(newUser)
-  console.log('Saved new user!')
+  await manager.save(newUser);
+  console.log('Saved new user!');
   await connection.close();
 };
 
 const argv = yargs(process.argv.splice(2))
-  .command('create', 'Create a new user (interactively)', () => {}, createUser)
+  .command('create', 'Create a new user (interactively)', () => {
+  }, createUser)
   .demandCommand(1, 1, 'choose a command')
   .strict()
   .help('h').argv;

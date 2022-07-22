@@ -23,7 +23,7 @@
     "typeorm:create": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts migration:create -n",
     "typeorm:generate": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts migration:generate -n",
     "typeorm:revert": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts migration:revert",
-    "typeorm-migration": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts migration:run",
+    "typeorm:migrate": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts migration:run",
     "create-user": "npx ts-node ./scripts/user.ts create"
   },
   "dependencies": {
