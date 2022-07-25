@@ -1,6 +1,8 @@
 import { OmitType, PickType } from '@nestjs/mapped-types';
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { UserRole } from '../entities/user.entity';
 
+// todo: rework our userdto to properly type it - the role and password are not used everywhere, etc.
 export class UserDto {
   @IsUUID()
   @IsNotEmpty()
@@ -21,18 +23,22 @@ export class UserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @IsEnum(UserRole)
+  role: UserRole;
 }
 
 /**
- * This DTO is create by the @User decorator and consists of the user's ID and
+ * This DTO is created by the @User decorator and consists of the user's ID and
  * email.
  */
 export class AuthenticatedUserDto extends PickType(UserDto, [
   'id',
   'email',
+  'role',
 ] as const) {}
 
-export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
+export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {}
 
 export class UserCreatedDto {
   user: UserDto;

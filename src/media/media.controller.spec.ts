@@ -5,6 +5,7 @@ import { StorageProviderInterface } from './providers/types/storage-provider';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { UploadFileDto } from './dto/file';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
+import { UserRole } from '../user/entities/user.entity';
 
 const mediaServiceMock = {
   uploadImage: jest.fn(),
@@ -47,6 +48,7 @@ describe('MediaController', () => {
       const userMock: AuthenticatedUserDto = {
         id: 'test',
         email: 'test@gipfeli.io',
+        role: UserRole.USER,
       };
       const fileMock = {
         mockedFileType: 'this-is-a-mock',

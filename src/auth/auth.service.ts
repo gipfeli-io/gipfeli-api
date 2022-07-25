@@ -9,6 +9,7 @@ import { UserSession } from './entities/user-session.entity';
 import * as dayjs from 'dayjs';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,9 @@ export class AuthService {
       user.password,
     );
 
-    return passwordsMatch ? { sub: user.id, email: user.email } : null;
+    return passwordsMatch
+      ? { sub: user.id, email: user.email, role: user.role }
+      : null;
   }
 
   /**
@@ -54,8 +57,9 @@ export class AuthService {
     sub: string,
     email: string,
     sessionId: string,
+    role: UserRole,
   ): Promise<TokenDto> {
-    const payload = { email, sub };
+    const payload = { email, sub, role };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: `${this.authTokenValidity}m`,
     });
@@ -104,6 +108,7 @@ export class AuthService {
       sub: session.user.id,
       email: session.user.email,
       sessionId: session.id,
+      role: session.user.role,
     };
   }
 

@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
 import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
 import { AuthService } from './auth.service';
@@ -21,6 +21,7 @@ import { UserSession } from './entities/user-session.entity';
 import { UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common';
+import { UserAuthService } from '../user/user-auth.service';
 
 const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
@@ -33,6 +34,7 @@ describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
   let userService: UserService;
+  let userAuthService: UserAuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -46,6 +48,7 @@ describe('AuthController', () => {
       providers: [
         AuthService,
         UserService,
+        UserAuthService,
         CryptoService,
         {
           provide: ConfigService,
@@ -77,6 +80,7 @@ describe('AuthController', () => {
 
     authController = module.get<AuthController>(AuthController);
     userService = module.get<UserService>(UserService);
+    userAuthService = module.get<UserAuthService>(UserAuthService);
     authService = module.get<AuthService>(AuthService);
   });
 
@@ -86,6 +90,7 @@ describe('AuthController', () => {
       const mockUser: UserIdentifier = {
         sub: 'test',
         email: 'test@gipfeli.io',
+        role: UserRole.USER,
       };
       const mockRequest = httpMocks.createRequest({
         user: mockUser,
@@ -106,6 +111,7 @@ describe('AuthController', () => {
       const mockUser: UserIdentifier = {
         sub: 'test',
         email: 'test@gipfeli.io',
+        role: UserRole.USER,
       };
       const mockSession = 'x-x-x-x';
       const mockRequest = httpMocks.createRequest({
@@ -125,6 +131,7 @@ describe('AuthController', () => {
         mockUser.sub,
         mockUser.email,
         mockSession,
+        mockUser.role,
       );
     });
   });
@@ -137,7 +144,7 @@ describe('AuthController', () => {
         token: 'y',
       } as ActivateUserDto;
       const spy = jest
-        .spyOn(userService, 'activateUser')
+        .spyOn(userAuthService, 'activateUser')
         .mockReturnValue(mockReturn);
 
       await authController.activateUser(mockUser);
@@ -198,7 +205,7 @@ describe('AuthController', () => {
         user: userMock,
       };
       const userServiceSpy = jest
-        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .spyOn(userAuthService, 'createPasswordResetTokenForUser')
         .mockReturnValue(Promise.resolve(mockTokenResponse));
       const notificationServiceSpy = jest
         .spyOn(notificationServiceMock, 'sendPasswordResetRequestMessage')
@@ -212,7 +219,7 @@ describe('AuthController', () => {
 
     it('fails gracefully if the user is not found and does not send a message', async () => {
       jest
-        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .spyOn(userAuthService, 'createPasswordResetTokenForUser')
         .mockImplementation(() => {
           throw new NotFoundException();
         });
@@ -226,7 +233,7 @@ describe('AuthController', () => {
 
     it('throws exceptions other than NotFoundError', async () => {
       jest
-        .spyOn(userService, 'createPasswordResetTokenForUser')
+        .spyOn(userAuthService, 'createPasswordResetTokenForUser')
         .mockImplementation(() => {
           throw new Error();
         });
@@ -242,7 +249,7 @@ describe('AuthController', () => {
   describe('passwordResetSet', () => {
     it('calls userService.resetPassword() with correct params', async () => {
       const serviceSpy = jest
-        .spyOn(userService, 'resetPassword')
+        .spyOn(userAuthService, 'resetPassword')
         .mockReturnValue(Promise.resolve());
       const setNewPasswordDto: SetNewPasswordDto = {
         password: 'x-x-x',

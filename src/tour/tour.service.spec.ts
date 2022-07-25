@@ -16,10 +16,12 @@ import { Image } from '../media/entities/image.entity';
 import { NotFoundException } from '@nestjs/common';
 import { CreateTourDto, UpdateTourDto } from './dto/tour';
 import { SavedImageDto } from '../media/dto/image';
+import { UserRole } from '../user/entities/user.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
   id: 'mocked-id',
+  role: UserRole.USER,
 };
 const mockImages: SavedImageDto[] = [
   { id: 'img-1', identifier: 'ident-1', location: null },

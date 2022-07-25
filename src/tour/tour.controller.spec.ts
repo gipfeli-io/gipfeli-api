@@ -7,10 +7,12 @@ import { AuthenticatedUserDto } from '../user/dto/user';
 import { Image } from '../media/entities/image.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
 import { TourController } from './tour.controller';
+import { UserRole } from '../user/entities/user.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
   id: 'mocked-id',
+  role: UserRole.USER,
 };
 const mockId = 'mocked-tour-id';
 const mockExistingTour: UpdateTourDto = {
@@ -104,7 +106,7 @@ describe('TourService', () => {
       expect(result).toEqual(mockExistingTour);
     }));
 
-  describe('update', () =>
+  describe('delete', () =>
     it('calls tourService.remove() with the correct params and returns void', async () => {
       const spy = jest
         .spyOn(tourService, 'remove')

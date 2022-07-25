@@ -18,6 +18,8 @@ export class UserSession {
   @Column()
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.sessions)
+  @ManyToOne(() => User, (user) => user.sessions, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }
