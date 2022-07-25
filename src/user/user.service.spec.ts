@@ -244,7 +244,7 @@ describe('UserService', () => {
   });
 
   describe('delete', () => {
-    it('deletes an existing user', async () => {
+    it('deletes an existing user and only if it is not an admin', async () => {
       const { id } = defaultUser;
       userRepositoryMock.delete.mockReturnValue({ affected: 1 });
 
@@ -252,6 +252,7 @@ describe('UserService', () => {
 
       const expectedConditions: FindConditions<User> = {
         id: id,
+        role: UserRole.USER,
       };
       expect(userRepositoryMock.delete).toHaveBeenCalledTimes(1);
       expect(userRepositoryMock.delete).toHaveBeenCalledWith(
