@@ -34,8 +34,8 @@ export class AdminGuard implements CanActivate {
       return true;
     } catch (e) {
       /*
-       This could only happen if either the database threw some error or if
-       the user supplied a valid JWT where he was administrator, but his admin
+       This could only happen if either the database threw some error or if the
+       user supplied a valid JWT where he was administrator, but his admin
        rights have been revoked in the meantime.
       */
       return false;

@@ -11,19 +11,25 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
 import { UserService } from '../user/user.service';
-import { PasswordResetRequestDto, SetNewPasswordDto, TokenDto } from './dto/auth';
+import {
+  PasswordResetRequestDto,
+  SetNewPasswordDto,
+  TokenDto,
+} from './dto/auth';
 import {
   NotificationService,
   NotificationServiceInterface,
 } from '../notification/types/notification-service';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { RefreshedToken, UserIdentifier } from './types/auth';
+import { UserAuthService } from '../user/user-auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly userAuthService: UserAuthService,
     @Inject(NotificationServiceInterface)
     private notificationService: NotificationService,
   ) {}
@@ -46,7 +52,7 @@ export class AuthController {
 
   @Post('activate')
   async activateUser(@Body() activateUserDto: ActivateUserDto): Promise<void> {
-    return this.userService.activateUser(activateUserDto);
+    return this.userAuthService.activateUser(activateUserDto);
   }
 
   @UseGuards(RefreshAuthGuard)
@@ -63,7 +69,7 @@ export class AuthController {
   ): Promise<void> {
     try {
       const { user, token } =
-        await this.userService.createPasswordResetTokenForUser(
+        await this.userAuthService.createPasswordResetTokenForUser(
           passwordResetRequestDto,
         );
 
@@ -84,6 +90,6 @@ export class AuthController {
   async passwordResetSet(
     @Body() setNewPasswordDto: SetNewPasswordDto,
   ): Promise<void> {
-    return this.userService.resetPassword(setNewPasswordDto);
+    return this.userAuthService.resetPassword(setNewPasswordDto);
   }
 }
