@@ -18,8 +18,9 @@ const getContextMock = (user?: AuthenticatedUserDto) => {
     }),
   } as ExecutionContext;
 };
+
 /**
- * Because this is a custom guard, some tests are in order.
+ * As this is a custom guard (without Passport.js), this guard is unit-tested.
  */
 describe('AdminGuard', () => {
   let userRepositoryMock: RepositoryMockType<Repository<User>>;

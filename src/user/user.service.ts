@@ -83,6 +83,7 @@ export class UserService {
     const { token, tokenHash } =
       await this.cryptoService.getRandomTokenWithHash();
 
+    // todo: we rely on class-transformer to throw if "role" is in the payload - should we specify fields here explicitly?
     const newUser = this.userRepository.create({
       password: hashedPassword,
       ...user,

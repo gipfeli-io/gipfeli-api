@@ -6,8 +6,8 @@ import { Repository } from 'typeorm';
 /**
  * This guard ensures only users with role === UserRole.ADMINISTRATOR may access
  * a given route. Since JWTs cannot be revoked, we need to check the user's
- * role, as an administrator might be degraded to normal user, which must not be
- * reflected in their active auth tokens.
+ * role, as an administrator might be degraded to normal user, which must not
+ * always be directly reflected in their active auth tokens.
  */
 @Injectable()
 export class AdminGuard implements CanActivate {
