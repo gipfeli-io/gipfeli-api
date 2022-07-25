@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UNIQUE_USER_EMAIL_CONSTRAINT, User } from './entities/user.entity';
+import {
+  UNIQUE_USER_EMAIL_CONSTRAINT,
+  User,
+  UserRole,
+} from './entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { CreateUserDto, UserCreatedDto, UserDto } from './dto/user';
 import { UserAlreadyExistsException } from './user.exceptions';
@@ -116,7 +120,11 @@ export class UserService {
   }
 
   async remove(id: string): Promise<void> {
-    const deleteResult = await this.userRepository.delete({ id });
+    // Currently, we only allow non-admins to be deleted.
+    const deleteResult = await this.userRepository.delete({
+      id,
+      role: UserRole.USER,
+    });
 
     if (deleteResult.affected === 0) {
       throw new NotFoundException();
