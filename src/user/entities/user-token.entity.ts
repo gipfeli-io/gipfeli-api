@@ -30,6 +30,8 @@ export class UserToken {
   @PrimaryColumn()
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.tokens)
+  @ManyToOne(() => User, (user) => user.tokens, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }

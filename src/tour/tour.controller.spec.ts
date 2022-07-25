@@ -106,7 +106,7 @@ describe('TourService', () => {
       expect(result).toEqual(mockExistingTour);
     }));
 
-  describe('update', () =>
+  describe('delete', () =>
     it('calls tourService.remove() with the correct params and returns void', async () => {
       const spy = jest
         .spyOn(tourService, 'remove')

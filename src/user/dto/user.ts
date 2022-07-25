@@ -2,6 +2,7 @@ import { OmitType, PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
+// todo: rework our userdto to properly type it - the role and password are not used everywhere, etc.
 export class UserDto {
   @IsUUID()
   @IsNotEmpty()

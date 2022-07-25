@@ -26,11 +26,11 @@ export class Image {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
-  userId: string;
+  @Column({ nullable: true })
+  userId: string | null;
 
-  @ManyToOne(() => User, (user) => user.images, { onDelete: 'CASCADE' }) // see todo in user
-  user?: User;
+  @ManyToOne(() => User, (user) => user.images, { onDelete: 'SET NULL' })
+  user?: User | null;
 
   @Column({ nullable: true })
   tourId: string | null;

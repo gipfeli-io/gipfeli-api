@@ -8,7 +8,7 @@ import {
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
-import { QueryFailedError, Repository } from 'typeorm';
+import { FindConditions, QueryFailedError, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CreateUserDto } from './dto/user';
@@ -240,6 +240,34 @@ describe('UserService', () => {
       const result = async () => await userService.create(createUserDto);
 
       await expect(result).rejects.toThrow(Error);
+    });
+  });
+
+  describe('delete', () => {
+    it('deletes an existing user', async () => {
+      const { id } = defaultUser;
+      userRepositoryMock.delete.mockReturnValue({ affected: 1 });
+
+      const result = await userService.remove(id);
+
+      const expectedConditions: FindConditions<User> = {
+        id: id,
+      };
+      expect(userRepositoryMock.delete).toHaveBeenCalledTimes(1);
+      expect(userRepositoryMock.delete).toHaveBeenCalledWith(
+        expectedConditions,
+      );
+      // Service returns undefined currently
+      expect(result).toEqual(undefined);
+    });
+
+    it('raises NotFoundException if trying to delete user that does not match selection', async () => {
+      const { id } = defaultUser;
+      userRepositoryMock.delete.mockReturnValue({ affected: 0 });
+
+      const result = async () => await userService.remove(id);
+
+      await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 });

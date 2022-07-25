@@ -4,12 +4,9 @@ import { UserController } from './user.controller';
 import { UserDto } from './dto/user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User, UserRole } from './entities/user.entity';
-import repositoryMockFactory, {
-  RepositoryMockType,
-} from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { UserToken } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
-import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 
 const results: UserDto[] = [
@@ -18,7 +15,6 @@ const results: UserDto[] = [
     firstName: 'Peter',
     lastName: 'Meier',
     email: 'peter@gipfeli.io',
-    password: '1234',
     role: UserRole.USER,
   },
   {
@@ -26,14 +22,13 @@ const results: UserDto[] = [
     firstName: 'Sara',
     lastName: 'Müller',
     email: 'sara@gipfeli.io',
-    password: '5678',
     role: UserRole.USER,
   },
-];
+] as UserDto[];
 
 describe('UserController', () => {
   let userController: UserController;
-  let userRepositoryMock: RepositoryMockType<Repository<User>>;
+  let userService: UserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,25 +46,34 @@ describe('UserController', () => {
           useFactory: repositoryMockFactory,
         },
       ],
-    })
-      .useMocker((token) => {
-        if (token === UserService) {
-          return {
-            findAll: jest.fn().mockResolvedValue(results),
-          };
-        }
-      })
-      .compile();
+    }).compile();
 
     userController = module.get<UserController>(UserController);
-    userRepositoryMock = module.get(getRepositoryToken(User));
+    userService = module.get<UserService>(UserService);
   });
 
-  it('getUsers: should return a list of users', async () => {
-    const controllerSpy = jest.spyOn(userController, 'getUsers');
-    userRepositoryMock.find.mockReturnValue(results);
+  describe('findAll', () => {
+    it('calls userService.findAll() and returns a list of users', async () => {
+      const spy = jest.spyOn(userService, 'findAll').mockResolvedValue(results);
 
-    expect(await userController.getUsers()).toEqual(results);
-    expect(controllerSpy).toHaveBeenCalledTimes(1);
+      const result = await userController.findAll();
+
+      expect(result).toEqual(results);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
   });
+
+  describe('delete', () =>
+    it('calls userService.remove() with the correct params and returns void', async () => {
+      const mockId = 'x-x-x';
+      const spy = jest
+        .spyOn(userService, 'remove')
+        .mockResolvedValue(undefined);
+
+      const result = await userController.remove(mockId);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockId);
+      expect(result).toEqual(undefined);
+    }));
 });

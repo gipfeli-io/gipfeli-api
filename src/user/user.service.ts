@@ -113,4 +113,12 @@ export class UserService {
       }
     }
   }
+
+  async remove(id: string): Promise<void> {
+    const deleteResult = await this.userRepository.delete({ id });
+
+    if (deleteResult.affected === 0) {
+      throw new NotFoundException();
+    }
+  }
 }

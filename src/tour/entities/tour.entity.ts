@@ -47,7 +47,9 @@ export class Tour {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.tours)
+  @ManyToOne(() => User, (user) => user.tours, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 
   @OneToMany(() => Image, (image) => image.tour, {

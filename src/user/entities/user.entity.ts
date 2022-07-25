@@ -53,18 +53,23 @@ export class User {
   })
   role: UserRole;
 
-  @OneToMany(() => Tour, (tour) => tour.user)
+  @OneToMany(() => Tour, (tour) => tour.user, {
+    cascade: true,
+  })
   tours: Tour[];
 
-  @OneToMany(() => UserToken, (userToken) => userToken.user)
+  @OneToMany(() => UserToken, (userToken) => userToken.user, {
+    cascade: true,
+  })
   tokens: UserToken[];
 
-  @OneToMany(() => UserSession, (userSession) => userSession.user)
+  @OneToMany(() => UserSession, (userSession) => userSession.user, {
+    cascade: true,
+  })
   sessions: UserToken[];
 
   @OneToMany(() => Image, (image) => image.user, {
     cascade: true,
-    onDelete: 'CASCADE', // todo: this should be changed so we do not immediately delete images when a user is deleted.
   })
   images: Image[];
 }
