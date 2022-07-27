@@ -10,22 +10,14 @@ export class SetCurrentUsersToActive1654957407315
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const users = await queryRunner.manager.find(User);
-
-    for (const user of users) {
-      user.isActive = true;
-    }
-
-    await queryRunner.manager.save(users);
+    const schema = await queryRunner.getCurrentSchema();
+    const table = queryRunner.manager.getRepository(User).metadata.tableName;
+    await queryRunner.query(`UPDATE ${schema}.${table} SET "isActive" = TRUE`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const users = await queryRunner.manager.find(User);
-
-    for (const user of users) {
-      user.isActive = false;
-    }
-
-    await queryRunner.manager.save(users);
+    const schema = await queryRunner.getCurrentSchema();
+    const table = queryRunner.manager.getRepository(User).metadata.tableName;
+    await queryRunner.query(`UPDATE ${schema}.${table} SET "isActive" = FALSE`);
   }
 }
