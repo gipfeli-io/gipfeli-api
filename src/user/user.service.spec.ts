@@ -36,6 +36,7 @@ const defaultUser: User = {
 const createUserDto: CreateUserDto = {
   email: defaultUser.email,
   password: defaultUser.password,
+  passwordConfirmation: defaultUser.password,
   lastName: defaultUser.lastName,
   firstName: defaultUser.firstName,
 };

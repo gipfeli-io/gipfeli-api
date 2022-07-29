@@ -1,6 +1,7 @@
 import { OmitType, PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
 
 // todo: rework our userdto to properly type it - the role and password are not used everywhere, etc.
 export class UserDto {
@@ -38,7 +39,25 @@ export class AuthenticatedUserDto extends PickType(UserDto, [
   'role',
 ] as const) {}
 
-export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {}
+export class CreateUserDto extends OmitType(UserDto, [
+  'id',
+  'role',
+  'password',
+] as const) {
+  @IsString()
+  @IsNotEmpty()
+  @MatchesOtherProperty('passwordConfirmation', {
+    message: 'Passwords do not match',
+  })
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MatchesOtherProperty('password', {
+    message: 'Passwords do not match',
+  })
+  passwordConfirmation: string;
+}
 
 export class UserCreatedDto {
   user: UserDto;
