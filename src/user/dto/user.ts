@@ -2,6 +2,7 @@ import { OmitType, PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
+import { IsStrongPassword } from './validators/is-strong-password.decorator';
 
 export class UserDto {
   @IsUUID()
@@ -54,6 +55,7 @@ export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {
   @MatchesOtherProperty('passwordConfirmation', {
     message: 'Passwords do not match',
   })
+  @IsStrongPassword()
   password: string;
 
   @IsString()
