@@ -70,16 +70,15 @@ export class TourService {
 
     // We have to manually add our images and then merge the result, because
     // repository.update() does not sync relations.
-    const savedImages = await this.imageRepository.findByIds(
+    existingTour.images = await this.imageRepository.findByIds(
       images.map((image) => image.id),
       { where: { user } },
     );
 
-    existingTour.images = savedImages;
     const mergedTour = this.tourRepository.merge(existingTour, tour);
     await this.tourRepository.save(mergedTour);
 
-    return this.tourRepository.findOne(id, { relations: ['user', 'images'] });
+    return this.tourRepository.findOne(id, { relations: ['images'] });
   }
 
   async remove(id: string, user: AuthenticatedUserDto): Promise<void> {

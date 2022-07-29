@@ -136,7 +136,7 @@ describe('TourService', () => {
       expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockExistingTour);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(2);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
-        relations: ['user', 'images'],
+        relations: ['images'],
       });
       expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
         where: { user: mockUser },
