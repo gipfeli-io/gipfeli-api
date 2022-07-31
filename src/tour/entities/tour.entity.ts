@@ -52,6 +52,9 @@ export class Tour {
   })
   user: User;
 
+  @Column()
+  userId: string;
+
   @OneToMany(() => Image, (image) => image.tour, {
     cascade: true,
     onDelete: 'SET NULL',
