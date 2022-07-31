@@ -36,12 +36,12 @@ export class UserService {
    * @param email
    */
   async findOneForAuth(email: string): Promise<UserWithPasswordDto> {
-    const qb = this.userRepository
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email AND user.isActive = TRUE', { email })
       .addSelect('user.password');
 
-    const user = await qb.getOne();
+    const user = await queryBuilder.getOne();
 
     if (user) {
       return user;
@@ -60,11 +60,11 @@ export class UserService {
    * @param canBeInactive
    */
   async findOne(email: string, canBeInactive = false): Promise<UserDto> {
-    const qb = this.userRepository
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email });
 
-    const user = await qb.getOne();
+    const user = await queryBuilder.getOne();
 
     if (user) {
       if (!canBeInactive && !user.isActive) {
