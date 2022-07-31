@@ -212,6 +212,7 @@ describe('UserAuthService', () => {
         token: tokenValue,
         userId: mockUser.id,
         password: newPassword,
+        passwordConfirmation: newPassword,
       };
 
       const mockHash = 'hashed-pw';
@@ -252,6 +253,7 @@ describe('UserAuthService', () => {
         token: 'wrong-token',
         userId: mockUser.id,
         password: newPassword,
+        passwordConfirmation: newPassword,
       };
 
       const result = async () =>

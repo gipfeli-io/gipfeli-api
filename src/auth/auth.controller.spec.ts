@@ -255,6 +255,7 @@ describe('AuthController', () => {
         password: 'x-x-x',
         token: 'mock-token',
         userId: 'mock-user-id',
+        passwordConfirmation: 'x-x-x',
       };
 
       await authController.passwordResetSet(setNewPasswordDto);

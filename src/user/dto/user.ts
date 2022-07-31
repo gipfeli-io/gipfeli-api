@@ -1,8 +1,9 @@
 import { OmitType, PickType } from '@nestjs/mapped-types';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
+import { IsStrongPassword } from './validators/is-strong-password.decorator';
 
-// todo: rework our userdto to properly type it - the role and password are not used everywhere, etc.
 export class UserDto {
   @IsUUID()
   @IsNotEmpty()
@@ -20,25 +21,50 @@ export class UserDto {
   @IsNotEmpty()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-
   @IsEnum(UserRole)
+  @IsNotEmpty()
   role: UserRole;
 }
 
 /**
- * This DTO is created by the @User decorator and consists of the user's ID and
- * email.
+ * Used in auth checks, contains email, id, role and password.
  */
-export class AuthenticatedUserDto extends PickType(UserDto, [
+export class UserWithPasswordDto extends PickType(UserDto, [
+  'id',
+  'email',
+  'role',
+]) {
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+/**
+ * This DTO is created by the @User decorator and consists of the user's ID and
+ * email and role.
+ */
+export class AuthenticatedUserDto extends PickType(UserWithPasswordDto, [
   'id',
   'email',
   'role',
 ] as const) {}
 
-export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {}
+export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {
+  @IsString()
+  @IsNotEmpty()
+  @MatchesOtherProperty('passwordConfirmation', {
+    message: 'Passwords do not match',
+  })
+  @IsStrongPassword()
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MatchesOtherProperty('password', {
+    message: 'Passwords do not match',
+  })
+  passwordConfirmation: string;
+}
 
 export class UserCreatedDto {
   user: UserDto;

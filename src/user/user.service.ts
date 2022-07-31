@@ -6,7 +6,12 @@ import {
   UserRole,
 } from './entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
-import { CreateUserDto, UserCreatedDto, UserDto } from './dto/user';
+import {
+  CreateUserDto,
+  UserCreatedDto,
+  UserDto,
+  UserWithPasswordDto,
+} from './dto/user';
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
@@ -26,13 +31,23 @@ export class UserService {
   }
 
   /**
-   * Convenience method for calling findOne() with the correct params to also
-   * expose the password. Only works for active users.
+   * Looks for an active user by email and returns the object with password.
    *
    * @param email
    */
-  async findOneForAuth(email: string): Promise<UserDto> {
-    return this.findOne(email, false, true);
+  async findOneForAuth(email: string): Promise<UserWithPasswordDto> {
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email AND user.isActive = TRUE', { email })
+      .addSelect('user.password');
+
+    const user = await queryBuilder.getOne();
+
+    if (user) {
+      return user;
+    }
+
+    throw new NotFoundException();
   }
 
   /**
@@ -41,26 +56,15 @@ export class UserService {
    * false so we always scope this to the active users only and throw a
    * UserNotActivatedException.
    *
-   * If exposePassword is set to true, it will explicitly select the password
-   * and add it to the User object.
-   *
    * @param email
    * @param canBeInactive
-   * @param exposePassword
    */
-  async findOne(
-    email: string,
-    canBeInactive = false,
-    exposePassword = false,
-  ): Promise<UserDto> {
-    const qb = this.userRepository
+  async findOne(email: string, canBeInactive = false): Promise<UserDto> {
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email });
-    if (exposePassword) {
-      qb.addSelect('user.password');
-    }
 
-    const user = await qb.getOne();
+    const user = await queryBuilder.getOne();
 
     if (user) {
       if (!canBeInactive && !user.isActive) {

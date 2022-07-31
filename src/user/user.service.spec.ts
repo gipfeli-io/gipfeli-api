@@ -36,6 +36,7 @@ const defaultUser: User = {
 const createUserDto: CreateUserDto = {
   email: defaultUser.email,
   password: defaultUser.password,
+  passwordConfirmation: defaultUser.password,
   lastName: defaultUser.lastName,
   firstName: defaultUser.firstName,
 };
@@ -80,19 +81,20 @@ describe('UserService', () => {
   });
 
   describe('findOne', () => {
-    it('returns a user without password', async () => {
-      const addSelectMock = jest.fn();
+    it('returns a user that is inactive', async () => {
+      const whereMock = jest.fn().mockReturnThis();
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
-          where: jest.fn().mockReturnThis(),
-          addSelect: addSelectMock,
+          where: whereMock,
           getOne: jest.fn().mockReturnValueOnce(defaultUser),
         };
       });
 
       const result = await userService.findOne(defaultUser.email);
       expect(result).toEqual(defaultUser);
-      expect(addSelectMock).not.toHaveBeenCalled();
+      expect(whereMock).toHaveBeenCalledWith('user.email = :email', {
+        email: defaultUser.email,
+      });
     });
 
     it('raises NotFoundException if user is inactive and canBeInactive is not set', async () => {
@@ -121,26 +123,23 @@ describe('UserService', () => {
       expect(await userService.findOne(mockUser.email, true)).toEqual(mockUser);
     });
 
-    it('adds password if exposePassword is true', async () => {
-      const addSelectMock = jest.fn();
+    it('raises NotFoundException if inactive user exists but canBeInactive is false', async () => {
+      mockUser.isActive = false;
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
           where: jest.fn().mockReturnThis(),
-          addSelect: addSelectMock,
-          getOne: jest.fn().mockReturnValueOnce(defaultUser),
+          getOne: jest.fn().mockReturnValueOnce(mockUser),
         };
       });
 
-      await userService.findOne(defaultUser.email, false, true);
+      const result = async () => await userService.findOne(mockUser.email);
 
-      expect(addSelectMock).toHaveBeenCalledTimes(1);
-      expect(addSelectMock).toHaveBeenCalledWith('user.password');
+      await expect(result).rejects.toThrow(NotFoundException);
     });
 
     it('raises NotFoundException if user does not exist', async () => {
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
-          addSelect: jest.fn().mockReturnThis(),
           where: jest.fn().mockReturnThis(),
           getOne: jest.fn().mockReturnValueOnce(null),
         };
@@ -154,15 +153,40 @@ describe('UserService', () => {
   });
 
   describe('findOneForAuthentication', () => {
-    it('calls findOne() with correct params to choose active users only and expose the password', async () => {
-      const findOneSpy = jest
-        .spyOn(userService, 'findOne')
-        .mockReturnValue(Promise.resolve(defaultUser));
-      const { email } = defaultUser;
+    it('explicitly selects password', async () => {
+      const addSelectMock = jest.fn().mockReturnThis();
+      const whereMock = jest.fn().mockReturnThis();
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: whereMock,
+          addSelect: addSelectMock,
+          getOne: jest.fn().mockReturnValueOnce(defaultUser),
+        };
+      });
 
-      await userService.findOneForAuth(email);
+      const result = await userService.findOneForAuth(defaultUser.email);
 
-      expect(findOneSpy).toHaveBeenCalledWith(email, false, true);
+      expect(whereMock).toHaveBeenCalledWith(
+        'user.email = :email AND user.isActive = TRUE',
+        { email: defaultUser.email },
+      );
+      expect(addSelectMock).toHaveBeenCalledWith('user.password');
+      expect(result).toEqual(defaultUser);
+    });
+
+    it('raises NotFoundException if user does not exist', async () => {
+      userRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          where: jest.fn().mockReturnThis(),
+          addSelect: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockReturnValueOnce(null),
+        };
+      });
+      const email = 'does-not-exist@gipfeli.io';
+
+      const result = async () => await userService.findOneForAuth(email);
+
+      await expect(result).rejects.toThrow(NotFoundException);
     });
   });
 

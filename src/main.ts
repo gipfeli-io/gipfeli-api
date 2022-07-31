@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { SentryInterceptor } from './shared/interceptors/SentryInterceptor';
 import { ConfigService } from '@nestjs/config';
+import GroupedExceptionFactory from './shared/validation/GroupedExceptionFactory';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,7 @@ async function bootstrap() {
   // Setup global pipe to enforce type validation on all routes
   app.useGlobalPipes(
     new ValidationPipe({
+      exceptionFactory: GroupedExceptionFactory,
       validationError: { target: true, value: true },
       whitelist: true,
       forbidNonWhitelisted: true,
