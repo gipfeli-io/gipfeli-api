@@ -4,11 +4,11 @@ import { TourService } from './tour.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tour } from './entities/tour.entity';
 import { Image } from '../media/entities/image.entity';
+import { GpxFile } from '../media/entities/gpx-file.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tour, Image])],
+  imports: [TypeOrmModule.forFeature([Tour, Image, GpxFile])],
   providers: [TourService],
   controllers: [TourController],
 })
 export class TourModule {}
-

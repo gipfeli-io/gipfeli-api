@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Tour } from '../../tour/entities/tour.entity';
-import { UserToken, UserTokenType } from './user-token.entity';
+import { UserToken } from './user-token.entity';
 import { UserSession } from '../../auth/entities/user-session.entity';
 import { Image } from '../../media/entities/image.entity';
+import { GpxFile } from '../../media/entities/gpx-file.entity';
 
 export const UNIQUE_USER_EMAIL_CONSTRAINT = 'unique_user_email_constraint';
 
@@ -72,4 +73,9 @@ export class User {
     cascade: true,
   })
   images: Image[];
+
+  @OneToMany(() => GpxFile, (gpxFile) => gpxFile.user, {
+    cascade: true,
+  })
+  gpxFiles: GpxFile[];
 }

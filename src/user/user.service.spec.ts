@@ -32,6 +32,7 @@ const defaultUser: User = {
   isActive: true,
   sessions: [],
   images: [],
+  gpxFiles: [],
 };
 const createUserDto: CreateUserDto = {
   email: defaultUser.email,

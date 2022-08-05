@@ -5,12 +5,14 @@ import {
   Index,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Point } from 'geojson';
 import { User } from '../../user/entities/user.entity';
 import { Image } from '../../media/entities/image.entity';
+import { GpxFile } from '../../media/entities/gpx-file.entity';
 
 @Entity()
 export class Tour {
@@ -60,4 +62,10 @@ export class Tour {
     onDelete: 'SET NULL',
   })
   images: Image[];
+
+  @OneToOne(() => GpxFile, (gpxFile) => gpxFile.tour, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  gpxFile: GpxFile;
 }
