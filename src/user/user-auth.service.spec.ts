@@ -33,6 +33,7 @@ const defaultUser: User = {
   isActive: true,
   sessions: [],
   images: [],
+  gpxFiles: [],
 };
 
 const tokenValue = 'x-x-x';
