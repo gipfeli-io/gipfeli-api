@@ -107,7 +107,7 @@ export class MediaService {
     dateCondition: FindOperator<Date>,
   ): Promise<CleanUpResultDto> {
     const gpxFilesToClean = await this.gpxFileRepository.find({
-      where: [{ tourId: null, createdAt: dateCondition }, { userId: null }],
+      where: [{ tour: null, createdAt: dateCondition }, { user: null }],
     });
     const gpxFileIdentifiers = gpxFilesToClean.map(
       (gpxFile) => gpxFile.identifier,
