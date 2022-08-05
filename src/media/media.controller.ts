@@ -39,10 +39,10 @@ export class MediaController {
     return this.mediaService.uploadImage(user, file);
   }
 
-  @Get('clean-up-images')
+  @Get('clean-up-media')
   @UseGuards(TokenBearerAuthGuard)
-  async cleanUpImages(): Promise<void> {
-    const result = await this.mediaService.cleanUpImages();
+  async cleanUpMedia(): Promise<void> {
+    const result = await this.mediaService.cleanUpMedia();
     await this.notificationService.sendCleanUpResults(result);
   }
 }
