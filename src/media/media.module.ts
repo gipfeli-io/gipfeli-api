@@ -11,6 +11,7 @@ import { Image } from './entities/image.entity';
 import { GeoReferenceProviderInterface } from './providers/types/geo-reference-provider';
 import { ExifrProvider } from './providers/exifr/exifr-provider';
 import { NotificationModule } from '../notification/notification.module';
+import { GpxFile } from './entities/gpx-file.entity';
 
 const StorageProvider: Provider = {
   provide: StorageProviderInterface,
@@ -24,7 +25,7 @@ const GeoReferenceProvider: Provider = {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Image]),
+    TypeOrmModule.forFeature([Image, GpxFile]),
     ConfigModule,
     NotificationModule,
     MulterModule.registerAsync({
