@@ -55,7 +55,7 @@ export class MediaService {
     user: AuthenticatedUserDto,
     file: UploadFileDto,
   ): Promise<SavedGpxDto> {
-    const filePath = this.getStoragePath(FilePath.GPX, user.id);
+    const filePath = this.getStoragePath(FilePath.GPX_FILES, user.id);
     const storedFile = await this.storageProvider.put(filePath, file);
 
     const gpxFileEntity = this.gpxFileRepository.create({

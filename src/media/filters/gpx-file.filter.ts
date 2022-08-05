@@ -7,7 +7,7 @@ import { BadRequestException } from '@nestjs/common';
  * @param callback
  */
 const gpxFileFilter = (_req, file, callback) => {
-  return file.mimetype.match(/gpx=application\/gpx\+xml$/)
+  return file.mimetype.match(/application\/gpx\+xml$/)
     ? callback(null, true)
     : callback(new BadRequestException('Only gpx files are allowed'), false);
 };

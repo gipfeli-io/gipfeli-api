@@ -155,7 +155,7 @@ describe('MediaService', () => {
 
         await mediaService.uploadGpxFile(userMock, fileMock);
 
-        const expectedPath = `${FilePath.GPX}/${userMock.id}`;
+        const expectedPath = `${FilePath.GPX_FILES}/${userMock.id}`;
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith(expectedPath, fileMock);
       });

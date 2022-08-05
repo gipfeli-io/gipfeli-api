@@ -1,4 +1,4 @@
 export enum FilePath {
   IMAGE = 'images',
-  GPX = 'gpxFiles',
+  GPX_FILES = 'gpx-files',
 }
