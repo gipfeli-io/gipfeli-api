@@ -9,7 +9,8 @@ import { UserRole } from '../user/entities/user.entity';
 
 const mediaServiceMock = {
   uploadImage: jest.fn(),
-  cleanUpImages: jest.fn(),
+  cleanUpMedia: jest.fn(),
+  uploadGpxFile: jest.fn(),
 };
 
 const notificationServiceMock = {
@@ -61,15 +62,34 @@ describe('MediaController', () => {
     });
   });
 
-  describe('cleanUpImages', () => {
-    it('calls mediaService.uploadimage with the file and the usersession', async () => {
-      const mediaServiceSpy = jest.spyOn(mediaService, 'cleanUpImages');
+  describe('uploadGpxFile', () => {
+    it('calls mediaService.uploadGpxFile with the file and the usersession', async () => {
+      const spy = jest.spyOn(mediaService, 'uploadGpxFile');
+      const userMock: AuthenticatedUserDto = {
+        id: 'test',
+        email: 'test@gipfeli.io',
+        role: UserRole.USER,
+      };
+      const fileMock = {
+        mockedFileType: 'this-is-a-mock',
+      } as unknown as UploadFileDto;
+
+      await mediaController.uploadGpxFile(userMock, fileMock);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(userMock, fileMock);
+    });
+  });
+
+  describe('cleanUpMedia', () => {
+    it('calls mediaService.cleanUpMedia ', async () => {
+      const mediaServiceSpy = jest.spyOn(mediaService, 'cleanUpMedia');
       const notificationProviderSpy = jest.spyOn(
         notificationServiceMock,
         'sendCleanUpResults',
       );
 
-      await mediaController.cleanUpImages();
+      await mediaController.cleanUpMedia();
 
       expect(mediaServiceSpy).toHaveBeenCalledTimes(1);
       expect(notificationProviderSpy).toHaveBeenCalledTimes(1);

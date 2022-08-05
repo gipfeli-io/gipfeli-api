@@ -20,6 +20,8 @@ import {
   NotificationService,
   NotificationServiceInterface,
 } from '../notification/types/notification-service';
+import { SavedGpxDto } from './dto/gpx-file';
+import gpxFileFilter from './filters/gpx-file.filter';
 
 @Controller('media')
 export class MediaController {
@@ -37,6 +39,16 @@ export class MediaController {
     @UploadedFile() file: UploadFileDto,
   ): Promise<SavedImageDto> {
     return this.mediaService.uploadImage(user, file);
+  }
+
+  @Post('upload-gpx')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('gpxFile', { fileFilter: gpxFileFilter }))
+  async uploadGpxFile(
+    @User() user: AuthenticatedUserDto,
+    @UploadedFile() file: UploadFileDto,
+  ): Promise<SavedGpxDto> {
+    return this.mediaService.uploadGpxFile(user, file);
   }
 
   @Get('clean-up-media')
