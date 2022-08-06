@@ -1,8 +1,16 @@
 import { Point } from 'geojson';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { IsArray, IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { IsPoint } from './validators/is-point.decorator';
 import { SavedImageDto } from '../../media/dto/image';
+import { SavedGpxDto } from '../../media/dto/gpx-file';
 
 export class TourDto {
   @IsUUID()
@@ -38,6 +46,9 @@ export class TourDto {
 
   @IsArray()
   images: SavedImageDto[];
+
+  @IsOptional()
+  gpxFile: SavedGpxDto;
 }
 
 export class UpdateTourDto extends PartialType(

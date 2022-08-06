@@ -5,6 +5,7 @@ import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { Image } from '../media/entities/image.entity';
+import { GpxFile } from '../media/entities/gpx-file.entity';
 
 @Injectable()
 export class TourService {
@@ -13,21 +14,31 @@ export class TourService {
     private readonly tourRepository: Repository<Tour>,
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
+    @InjectRepository(GpxFile)
+    private readonly gpxFileRepository: Repository<GpxFile>,
   ) {}
 
   async create(
     createTourDto: CreateTourDto,
     user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const { images, ...tour } = createTourDto;
+    const { images, gpxFile, ...tour } = createTourDto;
     const savedImages = await this.imageRepository.findByIds(
       images.map((image) => image.id),
       { where: { user } },
     );
 
+    let savedGpxFile;
+    if (gpxFile) {
+      savedGpxFile = await this.gpxFileRepository.findOne(gpxFile.id, {
+        where: { user },
+      });
+    }
+
     const newTour = this.tourRepository.create({
       user,
       images: savedImages,
+      gpxFile: savedGpxFile,
       ...tour,
     });
 
@@ -43,7 +54,7 @@ export class TourService {
   async findOne(id: string, user: AuthenticatedUserDto): Promise<TourDto> {
     const result = await this.tourRepository.findOne(id, {
       where: { user },
-      relations: ['images'],
+      relations: ['images', 'gpxFile'],
     });
 
     if (!result) {
@@ -58,7 +69,7 @@ export class TourService {
     updateTourDto: UpdateTourDto,
     user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const { images, ...tour } = updateTourDto;
+    const { images, gpxFile, ...tour } = updateTourDto;
 
     const existingTour = await this.tourRepository.findOne(id, {
       where: { user },
@@ -75,10 +86,18 @@ export class TourService {
       { where: { user } },
     );
 
+    existingTour.gpxFile = gpxFile
+      ? await this.gpxFileRepository.findOne(gpxFile.id, {
+          where: { user },
+        })
+      : null;
+
     const mergedTour = this.tourRepository.merge(existingTour, tour);
     await this.tourRepository.save(mergedTour);
 
-    return this.tourRepository.findOne(id, { relations: ['images'] });
+    return this.tourRepository.findOne(id, {
+      relations: ['images', 'gpxFile'],
+    });
   }
 
   async remove(id: string, user: AuthenticatedUserDto): Promise<void> {
