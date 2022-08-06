@@ -38,17 +38,13 @@ const mockGpxFile: SavedGpxDto = {
 
 const mockId = 'mocked-tour-id';
 
-const mockNewTour: CreateTourDto = {
-  description: 'test',
-  images: mockImages,
-} as CreateTourDto;
-
 describe('TourService', () => {
   let tourService: TourService;
   let tourRepositoryMock: RepositoryMockType<Repository<Tour>>;
   let imageRepositoryMock: RepositoryMockType<Repository<Image>>;
   let gpxRepositoryMock: RepositoryMockType<Repository<GpxFile>>;
   let mockExistingTour: UpdateTourDto;
+  let mockNewTour: CreateTourDto;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -75,6 +71,12 @@ describe('TourService', () => {
       images: mockImages,
       gpxFile: mockGpxFile,
     } as UpdateTourDto;
+
+    mockNewTour = {
+      description: 'test',
+      images: mockImages,
+      gpxFile: mockGpxFile,
+    } as CreateTourDto;
 
     tourService = module.get<TourService>(TourService);
     tourRepositoryMock = module.get(getRepositoryToken(Tour));
@@ -288,6 +290,89 @@ describe('TourService', () => {
     });
   });
 
+  describe('create', () => {
+    it('creates a tour with assigned images and returns it', async () => {
+      tourRepositoryMock.create.mockReturnValue(mockNewTour);
+      tourRepositoryMock.save.mockReturnValue(mockNewTour);
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+
+      const { images, gpxFile, ...tourData } = mockNewTour;
+
+      const result = await tourService.create(mockNewTour, mockUser);
+
+      const expectedConditions = {
+        user: mockUser,
+        images: mockImages,
+        gpxFile: mockGpxFile,
+        ...tourData,
+      };
+      expect(tourRepositoryMock.create).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.create).toHaveBeenCalledWith(
+        expectedConditions,
+      );
+      expect(tourRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockNewTour);
+      expect(result).toEqual(mockNewTour);
+    });
+
+    it('creates a tour with assigned gpx file and returns it', async () => {
+      tourRepositoryMock.create.mockReturnValue(mockNewTour);
+      tourRepositoryMock.save.mockReturnValue(mockNewTour);
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      const { images, gpxFile, ...tourData } = mockNewTour;
+
+      const result = await tourService.create(mockNewTour, mockUser);
+
+      const expectedConditions = {
+        user: mockUser,
+        images: mockImages,
+        gpxFile: mockGpxFile,
+        ...tourData,
+      };
+      expect(tourRepositoryMock.create).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.create).toHaveBeenCalledWith(
+        expectedConditions,
+      );
+      expect(tourRepositoryMock.save).toHaveBeenCalledTimes(1);
+      expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockNewTour);
+      expect(result).toEqual(mockNewTour);
+    });
+
+    it('calls the image repository with correct IDs and user scope', async () => {
+      imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+
+      await tourService.create(mockNewTour, mockUser);
+
+      const expectedIds = mockImages.map((image) => image.id);
+      const expectedConditions: FindManyOptions<Image> = {
+        where: { user: mockUser },
+      };
+
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
+      expect(imageRepositoryMock.findByIds).toHaveBeenCalledWith(
+        expectedIds,
+        expectedConditions,
+      );
+    });
+
+    it('calls the gpx file repository with the correct id and user scope', async () => {
+      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+
+      await tourService.create(mockNewTour, mockUser);
+
+      const expectedConditions: FindManyOptions<GpxFile> = {
+        where: { user: mockUser },
+      };
+
+      expect(gpxRepositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(gpxRepositoryMock.findOne).toHaveBeenCalledWith(
+        mockGpxFile.id,
+        expectedConditions,
+      );
+    });
+  });
   describe('delete', () => {
     it('deletes an existing tour scoped to the user', async () => {
       tourRepositoryMock.delete.mockReturnValue({ affected: 1 });
