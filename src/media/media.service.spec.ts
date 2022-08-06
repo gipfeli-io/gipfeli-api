@@ -59,9 +59,17 @@ const imageMocks: Image[] = [
 ] as Image[];
 
 const gpxFileMocks: GpxFile[] = [
-  { id: 'mocked-id-gpx-1', identifier: 'mocked-gpx-identifier-1' },
-  { id: 'mocked-id-gpx-2', identifier: 'mocked-gpx-identifier-2' },
-] as Image[];
+  {
+    id: 'mocked-id-gpx-1',
+    identifier: 'mocked-gpx-identifier-1',
+    name: 'mocked-gpx-name-1',
+  },
+  {
+    id: 'mocked-id-gpx-2',
+    identifier: 'mocked-gpx-identifier-2',
+    name: 'mocked-gpx-name-2',
+  },
+] as GpxFile[];
 
 describe('MediaService', () => {
   let mediaService: MediaService;
