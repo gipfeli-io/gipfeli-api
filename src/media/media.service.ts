@@ -60,11 +60,14 @@ export class MediaService {
 
     const gpxFileEntity = this.gpxFileRepository.create({
       identifier: storedFile.identifier,
+      name: file.filename,
       user: { id: user.id },
     });
-    const { id, identifier } = await this.gpxFileRepository.save(gpxFileEntity);
+    const { id, identifier, name } = await this.gpxFileRepository.save(
+      gpxFileEntity,
+    );
 
-    return { id, identifier };
+    return { id, identifier, name };
   }
 
   public async cleanUpMedia(): Promise<CleanUpResultDto> {

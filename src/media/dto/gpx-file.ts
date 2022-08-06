@@ -8,4 +8,8 @@ export class SavedGpxDto {
   @IsString()
   @IsNotEmpty()
   identifier: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 }
