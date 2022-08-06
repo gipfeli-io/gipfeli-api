@@ -8,6 +8,7 @@ import { Image } from '../media/entities/image.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
 import { TourController } from './tour.controller';
 import { UserRole } from '../user/entities/user.entity';
+import { GpxFile } from '../media/entities/gpx-file.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
@@ -41,6 +42,10 @@ describe('TourService', () => {
         },
         {
           provide: getRepositoryToken(Image),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(GpxFile),
           useFactory: repositoryMockFactory,
         },
       ],

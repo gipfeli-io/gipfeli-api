@@ -57,14 +57,16 @@ export class MediaService {
   ): Promise<SavedGpxDto> {
     const filePath = this.getStoragePath(FilePath.GPX_FILES, user.id);
     const storedFile = await this.storageProvider.put(filePath, file);
-
     const gpxFileEntity = this.gpxFileRepository.create({
       identifier: storedFile.identifier,
+      name: file.originalname,
       user: { id: user.id },
     });
-    const { id, identifier } = await this.gpxFileRepository.save(gpxFileEntity);
+    const { id, identifier, name } = await this.gpxFileRepository.save(
+      gpxFileEntity,
+    );
 
-    return { id, identifier };
+    return { id, identifier, name };
   }
 
   public async cleanUpMedia(): Promise<CleanUpResultDto> {

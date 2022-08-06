@@ -19,6 +19,9 @@ export class GpxFile {
   @Column()
   identifier: string;
 
+  @Column()
+  name: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
