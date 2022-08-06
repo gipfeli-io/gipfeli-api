@@ -14,7 +14,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { Image } from '../media/entities/image.entity';
 import { NotFoundException } from '@nestjs/common';
-import { UpdateTourDto } from './dto/tour';
+import { CreateTourDto, UpdateTourDto } from './dto/tour';
 import { SavedImageDto } from '../media/dto/image';
 import { UserRole } from '../user/entities/user.entity';
 import { SavedGpxDto } from '../media/dto/gpx-file';
@@ -37,6 +37,11 @@ const mockGpxFile: SavedGpxDto = {
 };
 
 const mockId = 'mocked-tour-id';
+
+const mockNewTour: CreateTourDto = {
+  description: 'test',
+  images: mockImages,
+} as CreateTourDto;
 
 describe('TourService', () => {
   let tourService: TourService;
@@ -119,8 +124,6 @@ describe('TourService', () => {
   });
 
   describe('update', () => {
-    afterEach(() => jest.clearAllMocks());
-
     it('calls the image repository with correct IDs and user scope', async () => {
       tourRepositoryMock.findOne.mockReturnValue(mockExistingTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
