@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -67,5 +68,6 @@ export class Tour {
     cascade: true,
     onDelete: 'SET NULL',
   })
+  @JoinColumn()
   gpxFile: GpxFile;
 }

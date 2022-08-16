@@ -32,6 +32,5 @@ export class GpxFile {
   user?: User | null;
 
   @OneToOne(() => Tour, (tour) => tour.gpxFile, { onDelete: 'SET NULL' })
-  @JoinColumn()
   tour?: Tour | null;
 }
