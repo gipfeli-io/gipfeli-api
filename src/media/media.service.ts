@@ -109,16 +109,15 @@ export class MediaService {
     dateCondition: FindOperator<Date>,
   ): Promise<CleanUpResultDto> {
     // todo: add integration test for this
+    const unusedGpxFilesCondition = new Brackets((qb) => {
+      qb.where('tour.gpxFileId IS NULL').andWhere({
+        createdAt: dateCondition,
+      });
+    });
     const gpxFilesToClean = await this.gpxFileRepository
       .createQueryBuilder('gpxFile')
       .leftJoinAndSelect('gpxFile.tour', 'tour')
-      .where(
-        new Brackets((qb) => {
-          qb.where('tour.gpxFileId IS NULL').andWhere({
-            createdAt: dateCondition,
-          });
-        }),
-      )
+      .where(unusedGpxFilesCondition)
       .orWhere({ user: null })
       .getMany();
 
