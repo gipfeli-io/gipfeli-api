@@ -21,7 +21,10 @@ const repositoryMockFactory: () => RepositoryMockType<Repository<any>> =
     merge: jest.fn((entity) => entity),
     createQueryBuilder: jest.fn(() => ({
       innerJoinAndSelect: jest.fn().mockReturnThis(),
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
+      orWhere: jest.fn().mockReturnThis(),
+      getMany: jest.fn((entity) => [entity]),
       getOneOrFail: jest.fn((entity) => entity),
       addSelect: jest.fn().mockReturnThis(),
       getOne: jest.fn((entity) => entity),
