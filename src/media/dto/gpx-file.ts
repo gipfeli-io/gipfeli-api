@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class SavedGpxDto {
+export class SavedGpxFileDto {
   @IsUUID()
   @IsNotEmpty()
   id: string;

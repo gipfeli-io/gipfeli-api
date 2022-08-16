@@ -17,7 +17,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CreateTourDto, UpdateTourDto } from './dto/tour';
 import { SavedImageDto } from '../media/dto/image';
 import { UserRole } from '../user/entities/user.entity';
-import { SavedGpxDto } from '../media/dto/gpx-file';
+import { SavedGpxFileDto } from '../media/dto/gpx-file';
 import { GpxFile } from '../media/entities/gpx-file.entity';
 
 const mockUser: AuthenticatedUserDto = {
@@ -30,7 +30,7 @@ const mockImages: SavedImageDto[] = [
   { id: 'img-2', identifier: 'ident-2', location: null },
 ];
 
-const mockGpxFile: SavedGpxDto = {
+const mockGpxFile: SavedGpxFileDto = {
   id: 'gpx-file',
   identifier: 'gxp-identifier',
   name: 'gpx-name',
