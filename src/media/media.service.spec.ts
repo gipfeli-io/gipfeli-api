@@ -206,7 +206,14 @@ describe('MediaService', () => {
     };
 
     const spyOnGxpFileRepositoryMock = (deleteResponseDb: DeleteResult) => {
-      jest.spyOn(gpxFileRepositoryMock, 'find').mockReturnValue(gpxFileMocks);
+      gpxFileRepositoryMock.createQueryBuilder.mockImplementation(() => {
+        return {
+          leftJoinAndSelect: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          orWhere: jest.fn().mockReturnThis(),
+          getMany: jest.fn().mockReturnValueOnce(gpxFileMocks),
+        };
+      });
       jest
         .spyOn(gpxFileRepositoryMock, 'delete')
         .mockReturnValue(deleteResponseDb);

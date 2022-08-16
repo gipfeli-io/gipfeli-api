@@ -7,7 +7,7 @@ import { UploadFileDto } from './dto/file';
 import { AuthenticatedUserDto } from '../user/dto/user';
 import { FilePath } from './enums/file-path';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOperator, LessThan, Repository } from 'typeorm';
+import { Brackets, FindOperator, LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image';
 import {
@@ -76,7 +76,7 @@ export class MediaService {
      This does only apply for the tour conditions; media without a user is
      immediately deleted.
     */
-    const bufferDate = dayjs().subtract(1, 'day').toDate();
+    const bufferDate = dayjs().toDate();
     const dateCondition = LessThan(bufferDate);
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
@@ -108,9 +108,19 @@ export class MediaService {
   private async cleanUpGpxFiles(
     dateCondition: FindOperator<Date>,
   ): Promise<CleanUpResultDto> {
-    const gpxFilesToClean = await this.gpxFileRepository.find({
-      where: [{ tour: null, createdAt: dateCondition }, { user: null }],
+    // todo: add integration test for this
+    const unusedGpxFilesCondition = new Brackets((qb) => {
+      qb.where('tour.gpxFileId IS NULL').andWhere({
+        createdAt: dateCondition,
+      });
     });
+    const gpxFilesToClean = await this.gpxFileRepository
+      .createQueryBuilder('gpxFile')
+      .leftJoinAndSelect('gpxFile.tour', 'tour')
+      .where(unusedGpxFilesCondition)
+      .orWhere({ user: null })
+      .getMany();
+
     const gpxFileIdentifiers = gpxFilesToClean.map(
       (gpxFile) => gpxFile.identifier,
     );
