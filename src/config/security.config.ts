@@ -7,5 +7,5 @@ export default registerAs('security', () => ({
   refreshTokenValidity: parseInt(process.env.REFRESH_TOKEN_VALIDITY),
   jwtSecret: process.env.JWT_SECRET,
   throttleTtl: parseInt(process.env.THROTTLE_TTL) || 60,
-  throttleLimit: parseInt(process.env.THROTTLE_LIMIT) || 20,
+  throttleLimit: parseInt(process.env.THROTTLE_LIMIT) || 30,
 }));
