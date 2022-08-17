@@ -23,6 +23,7 @@ import {
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { UserAuthService } from '../user/user-auth.service';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,7 @@ export class AuthController {
     private notificationService: NotificationService,
   ) {}
 
+  @Throttle(10, 60)
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req): Promise<TokenDto> {
@@ -63,6 +65,7 @@ export class AuthController {
     return this.authService.createTokenResponse(sub, email, sessionId, role);
   }
 
+  @Throttle(10, 60)
   @Post('password-reset-request')
   async passwordResetRequest(
     @Body() passwordResetRequestDto: PasswordResetRequestDto,

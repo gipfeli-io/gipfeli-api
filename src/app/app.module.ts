@@ -11,6 +11,8 @@ import integrationsConfig from '../config/integrations.config';
 import { NotificationModule } from '../notification/notification.module';
 import { MediaModule } from '../media/media.module';
 import mediaConfig from '../config/media.config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -32,7 +34,23 @@ import mediaConfig from '../config/media.config';
         configService.get('database'),
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          ttl: configService.get<number>('security.throttleTtl'),
+          limit: configService.get<number>('security.throttleLimit'),
+        };
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

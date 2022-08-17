@@ -22,6 +22,7 @@ import {
 } from '../notification/types/notification-service';
 import { SavedGpxDto } from './dto/gpx-file';
 import gpxFileFilter from './filters/gpx-file.filter';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('media')
 export class MediaController {
@@ -31,6 +32,7 @@ export class MediaController {
     private notificationService: NotificationService,
   ) {}
 
+  @SkipThrottle() // Because a lot of images may be uploaded at once
   @Post('upload-image')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image', { fileFilter: imageFilter }))

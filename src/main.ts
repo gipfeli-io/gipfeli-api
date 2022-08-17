@@ -6,11 +6,17 @@ import * as Tracing from '@sentry/tracing';
 import { SentryInterceptor } from './shared/interceptors/SentryInterceptor';
 import { ConfigService } from '@nestjs/config';
 import GroupedExceptionFactory from './shared/validation/GroupedExceptionFactory';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('environment.port');
+
+  // enable helmet protection for adding various security-related headers
+  app.use(helmet());
+
+  // enable CORS for specific resources only
   app.enableCors({
     origin: configService.get<string>('security.corsOrigin'),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
