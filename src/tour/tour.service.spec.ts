@@ -11,13 +11,13 @@ import {
 import { Tour } from './entities/tour.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AuthenticatedUserDto } from '../user/dto/user';
+import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { Image } from '../media/entities/image.entity';
 import { NotFoundException } from '@nestjs/common';
-import { CreateTourDto, UpdateTourDto } from './dto/tour';
-import { SavedImageDto } from '../media/dto/image';
+import { CreateTourDto, UpdateTourDto } from './dto/tour.dto';
+import { SavedImageDto } from '../media/dto/image.dto';
 import { UserRole } from '../user/entities/user.entity';
-import { SavedGpxDto } from '../media/dto/gpx-file';
+import { SavedGpxDto } from '../media/dto/gpx-file.dto';
 import { GpxFile } from '../media/entities/gpx-file.entity';
 
 const mockUser: AuthenticatedUserDto = {

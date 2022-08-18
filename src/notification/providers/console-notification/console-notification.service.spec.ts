@@ -2,10 +2,10 @@ import { ConsoleNotificationService } from './console-notification.service';
 import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result.dto';
 import { TokenizedMessage } from '../../enums/tokenized-message';
 import { UserRole } from '../../../user/entities/user.entity';
-import { UserDto } from '../../../user/dto/user';
+import { UserDto } from '../../../user/dto/user.dto';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 const token = 'xyz';

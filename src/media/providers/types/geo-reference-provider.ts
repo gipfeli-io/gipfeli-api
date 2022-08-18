@@ -1,4 +1,4 @@
-import { UploadFileDto } from '../../dto/file';
+import { UploadFileDto } from '../../dto/file.dto';
 import { Point } from 'geojson';
 
 /**

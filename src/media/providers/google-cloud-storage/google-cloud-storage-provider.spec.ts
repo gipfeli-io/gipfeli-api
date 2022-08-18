@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { GoogleCloudStorageProvider } from './google-cloud-storage-provider';
-import { UploadFileDto } from '../../dto/file';
+import { UploadFileDto } from '../../dto/file.dto';
 import * as crypto from 'crypto';
 import { UploadedFileHandle } from '../types/storage-provider';
 import { GoogleCloudStorageException } from './google-cloud-storage-provider.exceptions';

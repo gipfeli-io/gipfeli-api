@@ -5,7 +5,7 @@ import { UserToken, UserTokenType } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
 import { Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ActivateUserDto } from './dto/user';
+import { ActivateUserDto } from './dto/user.dto';
 import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';
@@ -14,7 +14,7 @@ import {
   PasswordResetRequestCreatedDto,
   PasswordResetRequestDto,
   SetNewPasswordDto,
-} from '../auth/dto/auth';
+} from '../auth/dto/auth.dto';
 import { RandomTokenContainer } from '../utils/types/random-token';
 import { UserAuthService } from './user-auth.service';
 

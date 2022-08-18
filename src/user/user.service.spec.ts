@@ -11,7 +11,7 @@ import { CryptoService } from '../utils/crypto.service';
 import { FindConditions, QueryFailedError, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { UserAlreadyExistsException } from './user.exceptions';
-import { CreateUserDto } from './dto/user';
+import { CreateUserDto } from './dto/user.dto';
 import repositoryMockFactory, {
   RepositoryMockType,
 } from '../utils/mock-utils/repository-mock.factory';

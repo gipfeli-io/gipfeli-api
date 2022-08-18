@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { UserDto } from './dto/user';
+import { UserDto } from './dto/user.dto';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User, UserRole } from './entities/user.entity';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';

@@ -1,5 +1,5 @@
 import { Point } from 'geojson';
-import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/swagger';
 import {
   IsArray,
   IsDate,
@@ -9,8 +9,8 @@ import {
   IsUUID,
 } from 'class-validator';
 import { IsPoint } from './validators/is-point.decorator';
-import { SavedImageDto } from '../../media/dto/image';
-import { SavedGpxDto } from '../../media/dto/gpx-file';
+import { SavedImageDto } from '../../media/dto/image.dto';
+import { SavedGpxDto } from '../../media/dto/gpx-file.dto';
 
 export class TourDto {
   @IsUUID()
@@ -53,11 +53,13 @@ export class TourDto {
 
 export class UpdateTourDto extends PartialType(
   OmitType(TourDto, ['createdAt', 'updatedAt', 'userId']),
-) {}
+) {
+}
 
 export class CreateTourDto extends OmitType(TourDto, [
   'id',
   'createdAt',
   'updatedAt',
   'userId',
-] as const) {}
+] as const) {
+}

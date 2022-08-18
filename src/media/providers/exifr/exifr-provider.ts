@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UploadFileDto } from '../../dto/file';
+import { UploadFileDto } from '../../dto/file.dto';
 import { GeoReferenceProvider } from '../types/geo-reference-provider';
 import { Point } from 'geojson';
 import exifr from 'exifr';
