@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { ActivateUserDto, CreateUserDto } from '../user/dto/user';
+import { ActivateUserDto, CreateUserDto } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import {
+  LoginDto,
   PasswordResetRequestDto,
   SetNewPasswordDto,
   TokenDto,
-} from './dto/auth';
+} from './dto/auth.dto';
 import {
   NotificationService,
   NotificationServiceInterface,
@@ -23,7 +24,10 @@ import {
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { UserAuthService } from '../user/user-auth.service';
+import { Throttle } from '@nestjs/throttler';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -34,6 +38,13 @@ export class AuthController {
     private notificationService: NotificationService,
   ) {}
 
+  /**
+   * Takes an email address and a password and, if successful, creates a user
+   * session and returns an access and refresh token.
+   * @param req
+   */
+  @ApiBody({ type: LoginDto })
+  @Throttle(10, 60)
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req): Promise<TokenDto> {
@@ -44,17 +55,30 @@ export class AuthController {
     return this.authService.createTokenResponse(sub, email, sessionId, role);
   }
 
+  /**
+   * Creates a new user and notifies the user via their provided email.
+   * @param createUserDto
+   */
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto): Promise<void> {
     const { token, user } = await this.userService.create(createUserDto);
     await this.notificationService.sendSignUpMessage(token, user);
   }
 
+  /**
+   * Activates a new user account.
+   * @param activateUserDto
+   */
   @Post('activate')
   async activateUser(@Body() activateUserDto: ActivateUserDto): Promise<void> {
     return this.userAuthService.activateUser(activateUserDto);
   }
 
+  /**
+   * Returns a new refresh token for a given session.
+   * @param req
+   */
+  @ApiBearerAuth()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   async refreshToken(@Request() req): Promise<TokenDto> {
@@ -63,6 +87,13 @@ export class AuthController {
     return this.authService.createTokenResponse(sub, email, sessionId, role);
   }
 
+  /**
+   * Starts a password reset flow for a given user. If a request is made for a
+   * user that does not exists, returns a succesful response nonetheless to
+   * avoid enumeration attacks.
+   * @param passwordResetRequestDto
+   */
+  @Throttle(10, 60)
   @Post('password-reset-request')
   async passwordResetRequest(
     @Body() passwordResetRequestDto: PasswordResetRequestDto,
@@ -86,6 +117,10 @@ export class AuthController {
     }
   }
 
+  /**
+   * Resets a user's password if they provide a valid reset request token.
+   * @param setNewPasswordDto
+   */
   @Post('password-reset-set')
   async passwordResetSet(
     @Body() setNewPasswordDto: SetNewPasswordDto,

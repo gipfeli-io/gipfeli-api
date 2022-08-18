@@ -6,11 +6,18 @@ import * as Tracing from '@sentry/tracing';
 import { SentryInterceptor } from './shared/interceptors/SentryInterceptor';
 import { ConfigService } from '@nestjs/config';
 import GroupedExceptionFactory from './shared/validation/GroupedExceptionFactory';
+import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('environment.port');
+
+  // enable helmet protection for adding various security-related headers
+  app.use(helmet());
+
+  // enable CORS for specific resources only
   app.enableCors({
     origin: configService.get<string>('security.corsOrigin'),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -46,6 +53,22 @@ async function bootstrap() {
     app.use(Sentry.Handlers.tracingHandler());
     app.useGlobalInterceptors(new SentryInterceptor());
   }
+
+  // Setup swagger. Todo: do we want this in production and staging?
+  const config = new DocumentBuilder()
+    .setTitle('gipfeli.io')
+    .setDescription('API Documentation for the gipfeli.io backend API.')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
+    customSiteTitle: 'gipfeli.io API Documentation',
+    swaggerOptions: {
+      operationsSorter: 'alpha',
+      tagsSorter: 'alpha',
+    },
+  });
 
   await app.listen(port);
 }

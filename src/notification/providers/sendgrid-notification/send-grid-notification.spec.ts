@@ -2,12 +2,12 @@ import { SendGridNotificationService } from './send-grid-notification.service';
 import * as SendGrid from '@sendgrid/mail';
 import DebugMessage from './messages/debug.message';
 import SignUpMessage from './messages/sign-up.message';
-import { UserDto } from '../../../user/dto/user';
+import { UserDto } from '../../../user/dto/user.dto';
 import { EmailNotSentException } from '../../notification.exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
-import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result.dto';
 import { NotificationRecipient } from '../../types/notification-service';
 import PasswordResetRequestMessage from './messages/password-reset-request.message';
 

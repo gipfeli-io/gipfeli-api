@@ -1,4 +1,4 @@
-import { OmitType, PickType } from '@nestjs/mapped-types';
+import { OmitType, PickType } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 import { MatchesOtherProperty } from './validators/matches-other-property.decorator';

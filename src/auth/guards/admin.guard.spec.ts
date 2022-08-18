@@ -7,7 +7,7 @@ import { User, UserRole } from '../../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AdminGuard } from './admin.guard';
 import { ExecutionContext } from '@nestjs/common';
-import { AuthenticatedUserDto } from '../../user/dto/user';
+import { AuthenticatedUserDto } from '../../user/dto/user.dto';
 
 const getContextMock = (user?: AuthenticatedUserDto) => {
   return {

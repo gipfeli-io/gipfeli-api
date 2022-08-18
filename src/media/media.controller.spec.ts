@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 import { StorageProviderInterface } from './providers/types/storage-provider';
-import { AuthenticatedUserDto } from '../user/dto/user';
-import { UploadFileDto } from './dto/file';
+import { AuthenticatedUserDto } from '../user/dto/user.dto';
+import { UploadFileDto } from './dto/file.dto';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserRole } from '../user/entities/user.entity';
 

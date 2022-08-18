@@ -6,14 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EntityNotFoundError, Repository } from 'typeorm';
-import { ActivateUserDto } from './dto/user';
+import { ActivateUserDto } from './dto/user.dto';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';
 import {
   PasswordResetRequestCreatedDto,
   PasswordResetRequestDto,
   SetNewPasswordDto,
-} from '../auth/dto/auth';
+} from '../auth/dto/auth.dto';
 import * as dayjs from 'dayjs';
 
 @Injectable()

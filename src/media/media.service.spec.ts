@@ -6,8 +6,8 @@ import {
   StorageProviderInterface,
   UploadedFileHandle,
 } from './providers/types/storage-provider';
-import { AuthenticatedUserDto } from '../user/dto/user';
-import { UploadFileDto } from './dto/file';
+import { AuthenticatedUserDto } from '../user/dto/user.dto';
+import { UploadFileDto } from './dto/file.dto';
 import { FilePath } from './enums/file-path';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory, {
@@ -20,7 +20,7 @@ import {
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
 import { Point } from 'geojson';
-import { CleanUpResultDto } from './dto/clean-up-result';
+import { CleanUpResultDto } from './dto/clean-up-result.dto';
 import { UserRole } from '../user/entities/user.entity';
 import { GpxFile } from './entities/gpx-file.entity';
 
