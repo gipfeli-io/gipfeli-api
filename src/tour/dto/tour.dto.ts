@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { IsPoint } from './validators/is-point.decorator';
 import { SavedImageDto } from '../../media/dto/image.dto';
-import { SavedGpxDto } from '../../media/dto/gpx-file.dto';
+import { SavedGpxFileDto } from '../../media/dto/gpx-file.dto';
 
 export class TourDto {
   @IsUUID()
@@ -48,7 +48,7 @@ export class TourDto {
   images: SavedImageDto[];
 
   @IsOptional()
-  gpxFile: SavedGpxDto;
+  gpxFile: SavedGpxFileDto;
 }
 
 export class UpdateTourDto extends PartialType(

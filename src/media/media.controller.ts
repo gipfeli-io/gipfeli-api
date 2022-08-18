@@ -20,7 +20,7 @@ import {
   NotificationService,
   NotificationServiceInterface,
 } from '../notification/types/notification-service';
-import { SavedGpxDto } from './dto/gpx-file.dto';
+import { SavedGpxFileDto } from './dto/gpx-file.dto';
 import gpxFileFilter from './filters/gpx-file.filter';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -58,13 +58,13 @@ export class MediaController {
    * @param user
    * @param file
    */
-  @Post('upload-gpx')
+  @Post('upload-gpx-file')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('gpxFile', { fileFilter: gpxFileFilter }))
   async uploadGpxFile(
     @User() user: AuthenticatedUserDto,
     @UploadedFile() file: UploadFileDto,
-  ): Promise<SavedGpxDto> {
+  ): Promise<SavedGpxFileDto> {
     return this.mediaService.uploadGpxFile(user, file);
   }
 

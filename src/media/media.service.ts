@@ -16,7 +16,7 @@ import {
 } from './providers/types/geo-reference-provider';
 import { CleanUpResultDto } from './dto/clean-up-result.dto';
 import * as dayjs from 'dayjs';
-import { SavedGpxDto } from './dto/gpx-file.dto';
+import { SavedGpxFileDto } from './dto/gpx-file.dto';
 import { GpxFile } from './entities/gpx-file.entity';
 
 @Injectable()
@@ -54,7 +54,7 @@ export class MediaService {
   public async uploadGpxFile(
     user: AuthenticatedUserDto,
     file: UploadFileDto,
-  ): Promise<SavedGpxDto> {
+  ): Promise<SavedGpxFileDto> {
     const filePath = this.getStoragePath(FilePath.GPX_FILES, user.id);
     const storedFile = await this.storageProvider.put(filePath, file);
     const gpxFileEntity = this.gpxFileRepository.create({
