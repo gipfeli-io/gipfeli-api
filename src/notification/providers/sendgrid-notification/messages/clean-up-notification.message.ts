@@ -1,5 +1,5 @@
 import { SendGridMessageInterface } from './send-grid-message.interface';
-import { CleanUpResultDto } from '../../../../media/dto/clean-up-result';
+import { CleanUpResultDto } from '../../../../media/dto/clean-up-result.dto';
 
 class CleanUpNotificationMessage {
   public static getMessage(

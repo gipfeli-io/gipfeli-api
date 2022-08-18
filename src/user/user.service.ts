@@ -11,7 +11,7 @@ import {
   UserCreatedDto,
   UserDto,
   UserWithPasswordDto,
-} from './dto/user';
+} from './dto/user.dto';
 import { UserAlreadyExistsException } from './user.exceptions';
 import { CryptoService } from '../utils/crypto.service';
 import { UserToken, UserTokenType } from './entities/user-token.entity';

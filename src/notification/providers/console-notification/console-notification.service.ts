@@ -3,10 +3,10 @@ import {
   NotificationRecipient,
   NotificationService,
 } from '../../types/notification-service';
-import { UserDto } from '../../../user/dto/user';
+import { UserDto } from '../../../user/dto/user.dto';
 import { getTokenizedLinkForUser } from '../utils/message.helpers';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResultDto } from 'src/media/dto/clean-up-result';
+import { CleanUpResultDto } from 'src/media/dto/clean-up-result.dto';
 import { TokenizedMessage } from '../../enums/tokenized-message';
 
 @Injectable()

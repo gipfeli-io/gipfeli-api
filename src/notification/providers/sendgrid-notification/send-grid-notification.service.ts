@@ -3,13 +3,13 @@ import {
   NotificationRecipient,
   NotificationService,
 } from '../../types/notification-service';
-import { UserDto } from '../../../user/dto/user';
+import { UserDto } from '../../../user/dto/user.dto';
 import * as SendGrid from '@sendgrid/mail';
 import DebugMessage from './messages/debug.message';
 import { EmailNotSentException } from '../../notification.exceptions';
 import SignUpMessage from './messages/sign-up.message';
 import { ConfigService } from '@nestjs/config';
-import { CleanUpResultDto } from '../../../media/dto/clean-up-result';
+import { CleanUpResultDto } from '../../../media/dto/clean-up-result.dto';
 import CleanUpNotificationMessage from './messages/clean-up-notification.message';
 import { SendGridMessageInterface } from './messages/send-grid-message.interface';
 import PasswordResetRequestMessage from './messages/password-reset-request.message';

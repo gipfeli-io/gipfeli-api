@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
-import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour';
-import { AuthenticatedUserDto } from '../user/dto/user';
+import { CreateTourDto, TourDto} from './dto/tour.dto';
+import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { Image } from '../media/entities/image.entity';
 import { GpxFile } from '../media/entities/gpx-file.entity';
+import { UpdateTourDto } from './dto/tour.dto';
 
 @Injectable()
 export class TourService {

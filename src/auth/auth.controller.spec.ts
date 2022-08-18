@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
-import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user';
+import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user.dto';
 import { User, UserRole } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
@@ -13,7 +13,7 @@ import {
   PasswordResetRequestDto,
   SetNewPasswordDto,
   TokenDto,
-} from './dto/auth';
+} from './dto/auth.dto';
 import { JwtModule } from '@nestjs/jwt';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';

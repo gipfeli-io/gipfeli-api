@@ -1,5 +1,5 @@
-import { UserDto } from '../../user/dto/user';
-import { CleanUpResultDto } from '../../media/dto/clean-up-result';
+import { UserDto } from '../../user/dto/user.dto';
+import { CleanUpResultDto } from '../../media/dto/clean-up-result.dto';
 
 export interface NotificationRecipient {
   name?: string;

@@ -3,20 +3,20 @@ import {
   StorageProvider,
   StorageProviderInterface,
 } from './providers/types/storage-provider';
-import { UploadFileDto } from './dto/file';
-import { AuthenticatedUserDto } from '../user/dto/user';
+import { UploadFileDto } from './dto/file.dto';
+import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { FilePath } from './enums/file-path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, FindOperator, LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
-import { SavedImageDto } from './dto/image';
+import { SavedImageDto } from './dto/image.dto';
 import {
   GeoReferenceProvider,
   GeoReferenceProviderInterface,
 } from './providers/types/geo-reference-provider';
-import { CleanUpResultDto } from './dto/clean-up-result';
+import { CleanUpResultDto } from './dto/clean-up-result.dto';
 import * as dayjs from 'dayjs';
-import { SavedGpxDto } from './dto/gpx-file';
+import { SavedGpxDto } from './dto/gpx-file.dto';
 import { GpxFile } from './entities/gpx-file.entity';
 
 @Injectable()

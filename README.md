@@ -51,3 +51,18 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 ```
+
+## Working with Swagger documentation
+
+We are using the official [nest integration](https://docs.nestjs.com/openapi/introduction) for our documentation. The
+documentation can be found by accessing `/api`. It is generated on the fly and we're also
+using [the nest CLI option](https://docs.nestjs.com/openapi/cli-plugin) to avoid a lot of boilerplate. For this to work,
+some things have to be kept in mind when developing:
+
+* DTOs must **always** be in a file ending in `.dto.ts`. If this is done, they will be automatically inspected and added
+  to the docs.
+* Sometimes, the docs are not updated. If that happens, run `rimraf dist` and force nest to build the whole directory
+  from scratch.
+* Parameter inspection does not work - use `@ApiParam()` for that.
+* Add comments to add more information. They are inspected automatically and add more depth to the documentation. You
+  can also use things link `@example` which are then used in the API documentation as well.

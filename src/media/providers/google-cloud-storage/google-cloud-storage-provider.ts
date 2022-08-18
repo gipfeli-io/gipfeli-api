@@ -6,7 +6,7 @@ import {
 } from '../types/storage-provider';
 import { Bucket, Storage } from '@google-cloud/storage';
 import { ConfigService } from '@nestjs/config';
-import { UploadFileDto } from '../../dto/file';
+import { UploadFileDto } from '../../dto/file.dto';
 import { randomUUID } from 'crypto';
 import slugify from 'slugify';
 import { GoogleCloudStorageException } from './google-cloud-storage-provider.exceptions';
