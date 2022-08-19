@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tour } from './entities/tour.entity';
 import { Image } from '../media/entities/image.entity';
 import { GpxFile } from '../media/entities/gpx-file.entity';
+import { TourCategory } from './entities/tour-category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tour, Image, GpxFile])],
+  imports: [TypeOrmModule.forFeature([Tour, Image, GpxFile, TourCategory])],
   providers: [TourService],
   controllers: [TourController],
 })
