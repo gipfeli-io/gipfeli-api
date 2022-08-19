@@ -13,12 +13,14 @@ import { MediaModule } from '../media/media.module';
 import mediaConfig from '../config/media.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { LookupModule } from '../lookup/lookup.module';
 
 @Module({
   imports: [
     MediaModule,
     AuthModule,
     TourModule,
+    LookupModule,
     NotificationModule,
     ConfigModule.forRoot({
       load: [
