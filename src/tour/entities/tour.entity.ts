@@ -4,6 +4,8 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -14,6 +16,7 @@ import { Point } from 'geojson';
 import { User } from '../../user/entities/user.entity';
 import { Image } from '../../media/entities/image.entity';
 import { GpxFile } from '../../media/entities/gpx-file.entity';
+import { TourCategory } from './tour-category.entity';
 
 @Entity()
 export class Tour {
@@ -70,4 +73,10 @@ export class Tour {
   })
   @JoinColumn()
   gpxFile: GpxFile;
+
+  @ManyToMany(() => TourCategory, (category) => category.tours, {
+    cascade: true,
+  })
+  @JoinTable()
+  categories: TourCategory[];
 }
