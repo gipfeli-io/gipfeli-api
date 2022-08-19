@@ -9,22 +9,38 @@ import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour.dto';
 import { TourController } from './tour.controller';
 import { UserRole } from '../user/entities/user.entity';
 import { GpxFile } from '../media/entities/gpx-file.entity';
+import { TourCategoryDto } from './dto/tour-category.dto';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
   id: 'mocked-id',
   role: UserRole.USER,
 };
+
+const mockCategories: TourCategoryDto[] = [
+  {
+    id: 'cat-1',
+    name: 'Cat 1',
+  },
+  {
+    id: 'cat-2',
+    name: 'Cat 2',
+  },
+];
+
 const mockId = 'mocked-tour-id';
 const mockExistingTour: UpdateTourDto = {
   id: mockId,
   description: 'testExisting',
+  categories: mockCategories,
 } as UpdateTourDto;
 const mockNewTour: CreateTourDto = {
   description: 'testNew',
+  categories: mockCategories,
 } as CreateTourDto;
 const mockTour: TourDto = {
   description: 'testMock',
+  categories: mockCategories,
 } as TourDto;
 
 describe('TourService', () => {

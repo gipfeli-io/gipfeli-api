@@ -19,6 +19,7 @@ import { SavedImageDto } from '../media/dto/image.dto';
 import { UserRole } from '../user/entities/user.entity';
 import { SavedGpxFileDto } from '../media/dto/gpx-file.dto';
 import { GpxFile } from '../media/entities/gpx-file.entity';
+import { TourCategoryDto } from './dto/tour-category.dto';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
@@ -35,6 +36,17 @@ const mockGpxFile: SavedGpxFileDto = {
   identifier: 'gxp-identifier',
   name: 'gpx-name',
 };
+
+const mockCategories: TourCategoryDto[] = [
+  {
+    id: 'cat-1',
+    name: 'Cat 1',
+  },
+  {
+    id: 'cat-2',
+    name: 'Cat 2',
+  },
+];
 
 const mockId = 'mocked-tour-id';
 
@@ -70,12 +82,14 @@ describe('TourService', () => {
       description: 'test',
       images: mockImages,
       gpxFile: mockGpxFile,
+      categories: mockCategories,
     } as UpdateTourDto;
 
     mockNewTour = {
       description: 'test',
       images: mockImages,
       gpxFile: mockGpxFile,
+      categories: mockCategories,
     } as CreateTourDto;
 
     tourService = module.get<TourService>(TourService);
@@ -106,7 +120,7 @@ describe('TourService', () => {
       const result = await tourService.findOne(mockId, mockUser);
 
       const expectedConditions: FindOneOptions<Tour> = {
-        relations: ['images', 'gpxFile'],
+        relations: ['images', 'gpxFile', 'categories'],
         where: { user: mockUser },
       };
       expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
@@ -175,7 +189,7 @@ describe('TourService', () => {
       expect(tourRepositoryMock.save).toHaveBeenCalledWith(mockExistingTour);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(2);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
-        relations: ['images', 'gpxFile'],
+        relations: ['images', 'gpxFile', 'categories'],
       });
       expect(tourRepositoryMock.findOne).toHaveBeenCalledWith(mockId, {
         where: { user: mockUser },
@@ -206,6 +220,7 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutImage.description,
         id: mockTourWithoutImage.id,
+        categories: mockCategories,
       };
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
       expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
@@ -237,6 +252,7 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutGxpFile.description,
         id: mockTourWithoutGxpFile.id,
+        categories: mockCategories,
       };
 
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
@@ -269,6 +285,7 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutGpxFile.description,
         id: mockTourWithoutGpxFile.id,
+        categories: mockCategories,
       };
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
       expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
