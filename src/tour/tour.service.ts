@@ -48,6 +48,7 @@ export class TourService {
   findAll(user: AuthenticatedUserDto): Promise<TourDto[]> {
     return this.tourRepository.find({
       where: { user },
+      relations: ['categories'],
     });
   }
 
