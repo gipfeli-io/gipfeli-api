@@ -107,6 +107,7 @@ describe('TourService', () => {
 
       const expectedConditions: FindManyOptions<Tour> = {
         where: { user: mockUser },
+        relations: ['categories'],
       };
       expect(tourRepositoryMock.find).toHaveBeenCalledTimes(1);
       expect(tourRepositoryMock.find).toHaveBeenCalledWith(expectedConditions);
