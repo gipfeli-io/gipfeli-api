@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 
 /**
  * Wraps the Multer File so we do not have to pass down 3rd party dependencies
- * in our app.
+ * in our app. Only used internally.
  */
 export class UploadFileDto implements Express.Multer.File {
   buffer: Buffer;

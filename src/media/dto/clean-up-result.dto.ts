@@ -12,6 +12,9 @@ const emptyStorageCleanUp: BatchStorageOperationStatistics = {
   successfulOperations: 0,
 };
 
+/**
+ * Only used internally, exposed only indirectly via notification provider.
+ */
 export class CleanUpResultDto {
   database: DeleteResult;
   storage: BatchStorageOperationStatistics;
