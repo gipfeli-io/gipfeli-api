@@ -7,11 +7,7 @@ import { SentryInterceptor } from './shared/interceptors/SentryInterceptor';
 import { ConfigService } from '@nestjs/config';
 import GroupedExceptionFactory from './shared/validation/GroupedExceptionFactory';
 import helmet from 'helmet';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import {
-  GenericStatusResponseWithContent,
-  ValidationError,
-} from './utils/types/response';
+import swaggerSetup from './shared/swagger-setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -59,24 +55,7 @@ async function bootstrap() {
   }
 
   // Setup swagger. Todo: do we want this in production and staging?
-  const config = new DocumentBuilder()
-    .setTitle('gipfeli.io')
-    .setDescription(
-      'API Documentation for the gipfeli.io backend API.\n\nPlase note that error codes 429 (too many request) and 500 are not displayed, since they apply to all.',
-    )
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [GenericStatusResponseWithContent, ValidationError],
-  });
-  SwaggerModule.setup('api', app, document, {
-    customSiteTitle: 'gipfeli.io API Documentation',
-    swaggerOptions: {
-      operationsSorter: 'alpha',
-      tagsSorter: 'alpha',
-    },
-  });
+  swaggerSetup(app);
 
   await app.listen(port);
 }
