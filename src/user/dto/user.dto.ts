@@ -1,26 +1,50 @@
 import { OmitType, PickType } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInstance,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
 import { IsStrongPassword } from './validators/is-strong-password.decorator';
 
 export class UserDto {
+  /**
+   * Must be a valid UUID.
+   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
+   */
   @IsUUID()
   @IsNotEmpty()
   id: string;
 
+  /**
+   * @example Anne
+   */
   @IsString()
   @IsNotEmpty()
   firstName: string;
 
+  /**
+   * @example Thompson
+   */
   @IsString()
   @IsNotEmpty()
   lastName: string;
 
+  /**
+   * Must be a valid email address.
+   * @example anne.thompson@gipfeli.io
+   */
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  /**
+   * @example USER
+   */
   @IsEnum(UserRole)
   @IsNotEmpty()
   role: UserRole;
@@ -34,6 +58,9 @@ export class UserWithPasswordDto extends PickType(UserDto, [
   'email',
   'role',
 ]) {
+  /**
+   * @example gIpfeli!@weSome
+   */
   @IsString()
   @IsNotEmpty()
   password: string;
@@ -50,6 +77,10 @@ export class AuthenticatedUserDto extends PickType(UserWithPasswordDto, [
 ] as const) {}
 
 export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {
+  /**
+   * Must contain at least 1 uppercase, 1 lowercase and 1 of !@#$%^&*()-_+.; and at least 8 characters long.
+   * @example gIpfeli!@weSome
+   */
   @IsString()
   @IsNotEmpty()
   @MatchesOtherProperty('passwordConfirmation', {
@@ -58,6 +89,10 @@ export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {
   @IsStrongPassword()
   password: string;
 
+  /**
+   * Must match the string given in the 'password' property.
+   * @example gIpfeli!@weSome
+   */
   @IsString()
   @IsNotEmpty()
   @MatchesOtherProperty('password', {
@@ -66,16 +101,39 @@ export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {
   passwordConfirmation: string;
 }
 
+/**
+ * Internally used DTO for transporting the newly created user with its
+ * activation token to other services.
+ */
 export class UserCreatedDto {
+  /**
+   * The newly created user object.
+   */
+  @IsNotEmpty()
+  @IsInstance(UserDto)
   user: UserDto;
+
+  /**
+   * The user's unhashed activation token.
+   * @example 16d07b8f478b11f563e2df3959f7b3a9c1038ac50e27b6e1cf
+   */
+  @IsNotEmpty()
   token: string;
 }
 
 export class ActivateUserDto {
+  /**
+   * Must be a valid UUID.
+   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
+   */
   @IsUUID()
   @IsNotEmpty()
   userId: string;
 
+  /**
+   * Unhashed activation token.
+   * @example 16d07b8f478b11f563e2df3959f7b3a9c1038ac50e27b6e1cf
+   */
   @IsString()
   @IsNotEmpty()
   token: string;
