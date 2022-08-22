@@ -15,11 +15,20 @@ import { CreateTourDto, TourDto } from './dto/tour.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { User } from '../utils/decorators/user.decorator';
 import { UpdateTourDto } from './dto/tour.dto';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { GenericStatusResponseWithContent } from '../utils/types/response';
 
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @ApiTags('tours')
 @Controller('tours')
+@ApiUnauthorizedResponse({ description: 'Thrown if user is not logged in.' })
 @UseGuards(JwtAuthGuard)
 export class TourController {
   constructor(private readonly tourService: TourService) {}
@@ -29,6 +38,11 @@ export class TourController {
    * @param createTourDto
    * @param user
    */
+  @ApiBadRequestResponse({
+    description:
+      'Thrown if there are validation errors or otherwise bad requests.',
+    type: GenericStatusResponseWithContent,
+  })
   @Post()
   async create(
     @Body() createTourDto: CreateTourDto,
@@ -51,6 +65,7 @@ export class TourController {
    * @param id
    * @param user
    */
+  @ApiNotFoundResponse({ description: 'Thrown if tour could not be found.' })
   @ApiParam({ name: 'id', description: 'Tour identifier' })
   @Get(':id')
   findOne(
@@ -63,8 +78,15 @@ export class TourController {
   /**
    * Updates a specific tour for a given user.
    * @param id
+   * @param updateTourDto
    * @param user
    */
+  @ApiBadRequestResponse({
+    description:
+      'Thrown if there are validation errors or otherwise bad requests.',
+    type: GenericStatusResponseWithContent,
+  })
+  @ApiNotFoundResponse({ description: 'Thrown if tour could not be found.' })
   @ApiParam({ name: 'id', description: 'Tour identifier' })
   @Patch(':id')
   update(
@@ -80,6 +102,7 @@ export class TourController {
    * @param id
    * @param user
    */
+  @ApiNotFoundResponse({ description: 'Thrown if tour could not be found.' })
   @ApiParam({ name: 'id', description: 'Tour identifier' })
   @Delete(':id')
   remove(

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadFileDto } from './dto/file.dto';
+import { SingleFileUploadDto, UploadFileDto } from './dto/file.dto';
 import imageFilter from './filters/image.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../utils/decorators/user.decorator';
@@ -23,9 +23,12 @@ import {
 import { SavedGpxFileDto } from './dto/gpx-file.dto';
 import gpxFileFilter from './filters/gpx-file.filter';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth, ApiBody, ApiConsumes,
+  ApiPayloadTooLargeResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@ApiBearerAuth()
 @ApiTags('media')
 @Controller('media')
 export class MediaController {
@@ -41,10 +44,19 @@ export class MediaController {
    * @param user
    * @param file
    */
+  @ApiBearerAuth('default')
+  @ApiPayloadTooLargeResponse({
+    description: 'Thrown if the file exceeds the configured filesize limit.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File to be uploaded',
+    type: SingleFileUploadDto,
+  })
   @SkipThrottle() // Because a lot of images may be uploaded at once
   @Post('upload-image')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('image', { fileFilter: imageFilter }))
+  @UseInterceptors(FileInterceptor('file', { fileFilter: imageFilter }))
   async uploadImage(
     @User() user: AuthenticatedUserDto,
     @UploadedFile() file: UploadFileDto,
@@ -58,9 +70,19 @@ export class MediaController {
    * @param user
    * @param file
    */
+  @ApiBearerAuth('default')
+  @ApiPayloadTooLargeResponse({
+    description: 'Thrown if the file exceeds the configured filesize limit.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File to be uploaded',
+    type: SingleFileUploadDto,
+  })
+  @ApiConsumes('multipart/form-data')
   @Post('upload-gpx-file')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('gpxFile', { fileFilter: gpxFileFilter }))
+  @UseInterceptors(FileInterceptor('file', { fileFilter: gpxFileFilter }))
   async uploadGpxFile(
     @User() user: AuthenticatedUserDto,
     @UploadedFile() file: UploadFileDto,
@@ -72,6 +94,7 @@ export class MediaController {
    * Starts a media clean up process which removes orphaned media files from the
    * database and the storage. Takes a secret key as Bearer token.
    */
+  @ApiBearerAuth('maintenance')
   @Get('clean-up-media')
   @UseGuards(TokenBearerAuthGuard)
   async cleanUpMedia(): Promise<void> {
