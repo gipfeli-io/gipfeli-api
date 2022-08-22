@@ -1,11 +1,21 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TourCategoryDto } from '../tour/dto/tour-category.dto';
 import { LookupService } from './lookup.service';
+import { GenericStatusResponseWithContent } from '../utils/types/response';
 
 @ApiBearerAuth()
 @ApiTags('lookup')
+@ApiUnauthorizedResponse({
+  description:
+    'Thrown if there are validation errors or otherwise bad requests.',
+  type: GenericStatusResponseWithContent,
+})
 @Controller('lookup')
 @UseGuards(JwtAuthGuard)
 export class LookupController {

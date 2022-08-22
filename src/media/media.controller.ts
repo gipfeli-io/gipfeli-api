@@ -23,7 +23,14 @@ import {
 import { SavedGpxFileDto } from './dto/gpx-file.dto';
 import gpxFileFilter from './filters/gpx-file.filter';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiPayloadTooLargeResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { GenericStatusResponseWithContent } from '../utils/types/response';
+import { ContentObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 @ApiBearerAuth()
 @ApiTags('media')
@@ -42,6 +49,9 @@ export class MediaController {
    * @param file
    */
   @SkipThrottle() // Because a lot of images may be uploaded at once
+  @ApiPayloadTooLargeResponse({
+    description: 'Thrown if the file exceeds the configured filesize limit.',
+  })
   @Post('upload-image')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image', { fileFilter: imageFilter }))
@@ -58,6 +68,9 @@ export class MediaController {
    * @param user
    * @param file
    */
+  @ApiPayloadTooLargeResponse({
+    description: 'Thrown if the file exceeds the configured filesize limit.',
+  })
   @Post('upload-gpx-file')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('gpxFile', { fileFilter: gpxFileFilter }))

@@ -25,9 +25,22 @@ import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { UserAuthService } from '../user/user-auth.service';
 import { Throttle } from '@nestjs/throttler';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { GenericStatusResponseWithContent } from '../utils/types/response';
 
 @ApiTags('auth')
+@ApiBadRequestResponse({
+  description:
+    'Thrown if there are validation errors or otherwise bad requests.',
+  type: GenericStatusResponseWithContent,
+})
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -44,6 +57,14 @@ export class AuthController {
    * @param req
    */
   @ApiBody({ type: LoginDto })
+  @ApiNotFoundResponse({
+    description:
+      'Thrown if the user cannot be found, so we prevent enumeration attacks at least a bit.',
+  })
+  @ApiUnauthorizedResponse({
+    type: GenericStatusResponseWithContent,
+    description: 'Thrown if either email or password is missing.',
+  })
   @Throttle(10, 60)
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -59,6 +80,10 @@ export class AuthController {
    * Creates a new user and notifies the user via their provided email.
    * @param createUserDto
    */
+  @ApiBadRequestResponse({
+    description: 'Thrown if there are validation errors.',
+    type: LoginDto,
+  })
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto): Promise<void> {
     const { token, user } = await this.userService.create(createUserDto);
@@ -79,6 +104,9 @@ export class AuthController {
    * @param req
    */
   @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Thrown if not logged-in or supplying invalid tokens.',
+  })
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   async refreshToken(@Request() req): Promise<TokenDto> {

@@ -11,10 +11,19 @@ import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @ApiTags('users')
+@ApiUnauthorizedResponse({
+  description: 'Thrown if user is not logged in or is not an administrator.',
+})
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
@@ -33,6 +42,7 @@ export class UserController {
    * Deletes a given user. Requires an admin account.
    * @param id
    */
+  @ApiNotFoundResponse({ description: 'Thrown if user could not be found.' })
   @ApiParam({ name: 'id', description: 'User identifier' })
   @Delete(':id')
   @UseGuards(AdminGuard)
