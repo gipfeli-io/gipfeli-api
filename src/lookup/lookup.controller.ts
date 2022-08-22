@@ -9,7 +9,7 @@ import { TourCategoryDto } from '../tour/dto/tour-category.dto';
 import { LookupService } from './lookup.service';
 import { GenericStatusResponseWithContent } from '../utils/types/response';
 
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @ApiTags('lookup')
 @ApiUnauthorizedResponse({
   description:

@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { GenericStatusResponseWithContent } from '../utils/types/response';
 
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @ApiTags('tours')
 @Controller('tours')
 @ApiUnauthorizedResponse({ description: 'Thrown if user is not logged in.' })
@@ -78,6 +78,7 @@ export class TourController {
   /**
    * Updates a specific tour for a given user.
    * @param id
+   * @param updateTourDto
    * @param user
    */
   @ApiBadRequestResponse({

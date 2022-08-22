@@ -19,7 +19,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @ApiTags('users')
 @ApiUnauthorizedResponse({
   description: 'Thrown if user is not logged in or is not an administrator.',

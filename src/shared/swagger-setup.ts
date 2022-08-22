@@ -20,7 +20,22 @@ const swaggerSetup = (app: INestApplication) => {
     .setDescription(API_DESCRIPTION)
     .setLicense(API_LICENSE.name, API_LICENSE.url)
     .setVersion(API_VERSION)
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        bearerFormat: 'JWT',
+        description: 'Used for endpoints that require a valid user.',
+      },
+      'default',
+    )
+    .addBearerAuth(
+      {
+        type: 'http',
+        description:
+          'User for endpoints that perform maintenance jobs. Require the secret as defined in CLEAN_UP_TOKEN environment variable.',
+      },
+      'maintenance',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

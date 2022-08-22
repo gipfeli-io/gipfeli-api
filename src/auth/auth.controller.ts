@@ -103,7 +103,7 @@ export class AuthController {
    * Returns a new refresh token for a given session.
    * @param req
    */
-  @ApiBearerAuth()
+  @ApiBearerAuth('default')
   @ApiUnauthorizedResponse({
     description: 'Thrown if not logged-in or supplying invalid tokens.',
   })
