@@ -1,13 +1,13 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { IsPoint } from '../../tour/dto/validators/is-point.decorator';
 import { Point } from 'geojson';
-import IsPointApiPropertyDecorator from '../../tour/IsPointApiProperty.decorator';
+import {
+  IsUUIDApiProperty,
+  IsPointApiProperty,
+} from '../../utils/decorators/custom-api-propertes.decorator';
 
 export class SavedImageDto {
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsUUID()
   @IsNotEmpty()
   id: string;
@@ -20,7 +20,7 @@ export class SavedImageDto {
   @IsNotEmpty()
   identifier: string;
 
-  @IsPointApiPropertyDecorator(
+  @IsPointApiProperty(
     'Location of the tour - may be null if no coordinates were found.',
   )
   @IsPoint()

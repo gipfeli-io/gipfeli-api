@@ -10,12 +10,10 @@ import {
 import { UserRole } from '../entities/user.entity';
 import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
 import { IsStrongPassword } from './validators/is-strong-password.decorator';
+import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-propertes.decorator';
 
 export class UserDto {
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsUUID()
   @IsNotEmpty()
   id: string;
@@ -122,10 +120,7 @@ export class UserCreatedDto {
 }
 
 export class ActivateUserDto {
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsUUID()
   @IsNotEmpty()
   userId: string;

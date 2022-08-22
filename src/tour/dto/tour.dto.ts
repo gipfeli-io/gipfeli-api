@@ -15,13 +15,13 @@ import { SavedImageDto } from '../../media/dto/image.dto';
 import { SavedGpxFileDto } from '../../media/dto/gpx-file.dto';
 import { TourCategoryDto } from './tour-category.dto';
 import { Type } from 'class-transformer';
-import IsPointApiPropertyDecorator from '../IsPointApiProperty.decorator';
+import {
+  IsPointApiProperty,
+  IsUUIDApiProperty,
+} from '../../utils/decorators/custom-api-propertes.decorator';
 
 export class TourDto {
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsUUID()
   @IsNotEmpty()
   id: string;
@@ -33,12 +33,12 @@ export class TourDto {
   @IsNotEmpty()
   name: string;
 
-  @IsPointApiPropertyDecorator('Start location of the tour.')
+  @IsPointApiProperty('Start location of the tour.')
   @IsPoint()
   @IsNotEmpty()
   startLocation: Point;
 
-  @IsPointApiPropertyDecorator('End location of the tour.')
+  @IsPointApiProperty('End location of the tour.')
   @IsPoint()
   @IsNotEmpty()
   endLocation: Point;
@@ -64,10 +64,7 @@ export class TourDto {
   @IsNotEmpty()
   updatedAt: Date;
 
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsString()
   userId: string;
 

@@ -1,5 +1,6 @@
 import { ApiPropertyOptions } from '@nestjs/swagger';
 import { createApiPropertyDecorator } from '@nestjs/swagger/dist/decorators/api-property.decorator';
+import { randomUUID } from 'crypto';
 
 /**
  * Since we are using the GeoJSON Point interface as a typehint, nestjs/swagger
@@ -9,9 +10,7 @@ import { createApiPropertyDecorator } from '@nestjs/swagger/dist/decorators/api-
  * It takes a description and, as a convenience, adds the GeoJSON type, which
  * currently is Point.
  */
-const IsPointApiPropertyDecorator = (
-  description: string,
-): PropertyDecorator => {
+const IsPointApiProperty = (description: string): PropertyDecorator => {
   const options: ApiPropertyOptions = {
     type: 'object',
     description: `${description} (GeoJSON Point)`,
@@ -30,4 +29,17 @@ const IsPointApiPropertyDecorator = (
   return createApiPropertyDecorator(options);
 };
 
-export default IsPointApiPropertyDecorator;
+/**
+ * Convenience decorator for annotating UUID paramerts to avoid having to repeat
+ * @ApiProperty many times.
+ */
+const IsUUIDApiProperty = (): PropertyDecorator => {
+  const options: ApiPropertyOptions = {
+    description: 'Must be a valid UUID.',
+    example: randomUUID(),
+  };
+
+  return createApiPropertyDecorator(options);
+};
+
+export { IsPointApiProperty, IsUUIDApiProperty };

@@ -3,6 +3,7 @@ import { UserDto, UserWithPasswordDto } from '../../user/dto/user.dto';
 import { MatchesOtherProperty } from '../../user/dto/validators/matches-other-property.decorator';
 import { IsStrongPassword } from '../../user/dto/validators/is-strong-password.decorator';
 import { PickType } from '@nestjs/swagger';
+import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-propertes.decorator';
 
 /**
  * Contains both a user's access as well as refresh token.
@@ -48,10 +49,7 @@ export class PasswordResetRequestCreatedDto {
 }
 
 export class SetNewPasswordDto {
-  /**
-   * Must be a valid UUID.
-   * @example 08926b86-5f8e-48dc-9039-eb8206d8f529
-   */
+  @IsUUIDApiProperty()
   @IsUUID()
   @IsNotEmpty()
   userId: string;
