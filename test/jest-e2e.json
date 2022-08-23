@@ -12,5 +12,6 @@
   ],
   "setupFilesAfterEnv": [
     "./set-up-db.ts"
-  ]
+  ],
+  "coverageDirectory": "../coverage/e2e"
 }
