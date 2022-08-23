@@ -74,9 +74,7 @@ export class Tour {
   @JoinColumn()
   gpxFile: GpxFile;
 
-  @ManyToMany(() => TourCategory, (category) => category.tours, {
-    cascade: true,
-  })
+  @ManyToMany(() => TourCategory, (category) => category.tours)
   @JoinTable()
   categories: TourCategory[];
 }
