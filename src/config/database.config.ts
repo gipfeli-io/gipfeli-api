@@ -2,8 +2,8 @@ import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export default registerAs('database', (): TypeOrmModuleOptions => {
-  const rootDir =
-    process.env.NODE_ENV && process.env.NODE_ENV !== 'test' ? 'dist/' : './';
+  const nodeEnv = process.env.NODE_ENV;
+  const rootDir = nodeEnv && nodeEnv !== 'test' ? 'dist/' : './';
 
   return {
     type: 'postgres',
@@ -12,8 +12,9 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     host: process.env.TYPEORM_HOST,
-    synchronize: false,
+    synchronize: nodeEnv === 'test',
     entities: [rootDir + '**/*.entity{.ts,.js}'],
     autoLoadEntities: true,
+    mi
   };
 });

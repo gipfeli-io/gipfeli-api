@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiParam,
   ApiTags,
@@ -21,7 +22,7 @@ import {
 
 @ApiBearerAuth('default')
 @ApiTags('users')
-@ApiUnauthorizedResponse({
+@ApiForbiddenResponse({
   description: 'Thrown if user is not logged in or is not an administrator.',
 })
 @UseGuards(JwtAuthGuard)
