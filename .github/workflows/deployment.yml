@@ -23,6 +23,7 @@ jobs:
         run: |
           npm ci
           npm run test:cov
+          npm run test:e2e
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

@@ -15,6 +15,5 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     synchronize: nodeEnv === 'test',
     entities: [rootDir + '**/*.entity{.ts,.js}'],
     autoLoadEntities: true,
-    mi
   };
 });

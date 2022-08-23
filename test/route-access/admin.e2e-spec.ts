@@ -20,18 +20,17 @@ import { Repository } from 'typeorm';
 import { Tour } from '../../src/tour/entities/tour.entity';
 import { Seeder } from '../utils/seeder';
 import { EntityCreator } from '../utils/entity-creator';
+import { User, UserRole } from '../../src/user/entities/user.entity';
 
-const AUTH_ROUTE_PREFIX = '/auth';
 const USER_ROUTE_PREFIX = '/users';
-const TOUR_ROUTE_PREFIX = '/tours';
-const LOOKUP_ROUTE_PREFIX = '/lookup';
-const MEDIA_ROUTE_PREFIX = '/media';
 
-describe('Authenticated user routes can be accessed by a logged-in user', () => {
+describe('Admin Routes can be accessed by an admin user', () => {
   let app: INestApplication;
-  let tourRepository: Repository<Tour>;
+  let userRepository: Repository<User>;
 
-  const userToCheckAgainst = Seeder.getSeeds().users[0];
+  const userToCheckAgainst = Seeder.getSeeds().users.find(
+    (user) => user.role === UserRole.ADMINISTRATOR,
+  );
   const authenticatedUser: AuthenticatedUserDto = userToCheckAgainst;
 
   beforeAll(async () => {
@@ -55,11 +54,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
             mediaConfig,
           ],
         }),
-        AuthModule,
         UserModule,
-        TourModule,
-        LookupModule,
-        MediaModule,
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -73,80 +68,26 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
       .compile();
 
     app = moduleFixture.createNestApplication();
-    tourRepository = moduleFixture.get('TourRepository');
+    userRepository = moduleFixture.get('UserRepository');
 
     await app.init();
   });
 
-  describe('Protected routes may be accessed by logged in users', () => {
-    describe('Lookup', () => {
-      it('/tour-categories (POST)', () => {
-        return request(app.getHttpServer())
-          .get(`${LOOKUP_ROUTE_PREFIX}/tour-categories`)
-          .expect(200);
-      });
-    });
-
-    describe('Tours', () => {
-      it('/ (GET)', () => {
-        return request(app.getHttpServer())
-          .get(`${TOUR_ROUTE_PREFIX}/`)
-          .expect(200);
-      });
-
-      it('/ (POST)', () => {
-        const tour = EntityCreator.createTour(userToCheckAgainst);
-        return request(app.getHttpServer())
-          .post(`${TOUR_ROUTE_PREFIX}/`)
-          .send({ ...tour })
-          .expect(201);
-      });
-
-      it('/:id (GET)', async () => {
-        const tour = await tourRepository.findOne({
-          where: { userId: userToCheckAgainst.id },
-        });
-
-        return request(app.getHttpServer())
-          .get(`${TOUR_ROUTE_PREFIX}/${tour.id}`)
-          .expect(200);
-      });
-
-      it('/:id (PATCH)', async () => {
-        const tour = EntityCreator.createTour(userToCheckAgainst);
-        const newTour = await tourRepository.create(tour);
-        await tourRepository.save(newTour);
-
-        return request(app.getHttpServer())
-          .patch(`${TOUR_ROUTE_PREFIX}/${newTour.id}`)
-          .send({ name: 'Changing the name', images: [] })
-          .expect(200);
-      });
-
-      it('/:id (DELETE)', async () => {
-        const tour = EntityCreator.createTour(userToCheckAgainst);
-        const newTour = await tourRepository.create(tour);
-        await tourRepository.save(newTour);
-
-        return request(app.getHttpServer())
-          .delete(`${TOUR_ROUTE_PREFIX}/${newTour.id}`)
-          .expect(200);
-      });
-    });
-  });
-
-  describe('User routes throw 403 as admin is required', () => {
+  describe('User', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
         .get(`${USER_ROUTE_PREFIX}/`)
-        .expect(403);
+        .expect(200);
     });
 
-    it('/:id (DELETE)', () => {
-      const uuid = randomUUID();
+    it('/:id (DELETE)', async () => {
+      const user = EntityCreator.createUser();
+      const newUser = await userRepository.create(user);
+      await userRepository.save(newUser);
+
       return request(app.getHttpServer())
-        .delete(`${USER_ROUTE_PREFIX}/${uuid}`)
-        .expect(403);
+        .delete(`${USER_ROUTE_PREFIX}/${newUser.id}`)
+        .expect(200);
     });
   });
 
