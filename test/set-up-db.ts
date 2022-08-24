@@ -1,8 +1,11 @@
-import { createConnection, getConnection } from 'typeorm';
+import { createConnection } from 'typeorm';
 import { Seeder } from './utils/seeder';
 /**
  * Ran before each of the testsuites is starting. Assures that we always have a
  * clean database for each testsuite.
+ *
+ * Because we are using dropSchema, migrationsRun and synchronize, there is no
+ * need for having a afterAll() method that does cleanup tasks for the database.
  */
 beforeAll(async () => {
   const connection = await createConnection({
@@ -21,21 +24,5 @@ beforeAll(async () => {
 
   const seeder = new Seeder(connection);
   await seeder.seedData();
-  await connection.close();
-});
-
-/**
- * Ran after each testsuite - make sure we clear all our databases.
- */
-afterAll(async () => {
-  const connection = getConnection();
-  const entities = connection.entityMetadatas;
-  for (const entity of entities) {
-    const repository = connection.getRepository(entity.name);
-    await repository.query(
-      `TRUNCATE ${entity.tableName} RESTART IDENTITY CASCADE;`,
-    );
-  }
-
   await connection.close();
 });
