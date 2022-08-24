@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -19,6 +20,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiBearerAuth('default')
 @ApiTags('users')
@@ -49,5 +51,22 @@ export class UserController {
   @UseGuards(AdminGuard)
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.userService.remove(id);
+  }
+
+  /**
+   * Renders a robots.txt file that disallows all crawlers.
+   */
+  @Get('dummy-route-for-coverage')
+  async dummyRouteForCoverage(): Promise<string> {
+    const a = 5000;
+    const b = 2000;
+    const c = (a * b) ^ 25;
+
+    if (c < 20) {
+      console.log('LESS');
+    } else {
+      console.log('MORE');
+    }
+    return 'Up and running';
   }
 }

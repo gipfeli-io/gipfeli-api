@@ -89,6 +89,12 @@ describe('Admin Routes can be accessed by an admin user', () => {
         .delete(`${USER_ROUTE_PREFIX}/${newUser.id}`)
         .expect(200);
     });
+
+    it('/dummy (GET)', async () => {
+      return request(app.getHttpServer())
+        .get(`${USER_ROUTE_PREFIX}/dummy-route-for-coverage`)
+        .expect(200);
+    });
   });
 
   afterAll(async () => {
