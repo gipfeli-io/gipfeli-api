@@ -13,5 +13,6 @@
     "**/*.(t|j)s"
   ],
   "coverageDirectory": "../coverage/unit",
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "silent": true
 }
