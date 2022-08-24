@@ -1,6 +1,6 @@
-import { User } from '../../src/user/entities/user.entity';
+import { User } from '../../../src/user/entities/user.entity';
 import { Connection } from 'typeorm';
-import { Tour } from '../../src/tour/entities/tour.entity';
+import { Tour } from '../../../src/tour/entities/tour.entity';
 import { Seeds, SEEDS } from './seeds';
 
 export class Seeder {

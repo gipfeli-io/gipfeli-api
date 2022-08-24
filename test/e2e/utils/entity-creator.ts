@@ -1,5 +1,5 @@
-import { User, UserRole } from '../../src/user/entities/user.entity';
-import { Tour } from '../../src/tour/entities/tour.entity';
+import { User, UserRole } from '../../../src/user/entities/user.entity';
+import { Tour } from '../../../src/tour/entities/tour.entity';
 import { faker } from '@faker-js/faker';
 
 export class EntityCreator {

@@ -14,12 +14,12 @@
     "start:debug": "nest build && cross-env NODE_ENV=dev nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=prod node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test": "jest --config jest-unit.json",
+    "test:watch": "jest --config jest-unit.json --watch",
+    "test:cov": "jest --config jest-unit.json --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json",
-    "test:e2e:cov": "jest --runInBand --config ./test/jest-e2e.json --coverage",
+    "test:e2e": "jest --runInBand --config jest-e2e.json",
+    "test:e2e:cov": "jest --runInBand --config jest-e2e.json --coverage",
     "coverage:merge": "nyc merge ./coverage ./coverage/merged-coverage.json",
     "coverage:generate": "nyc report -t coverage --reporter=lcov",
     "typeorm": "npx ts-node ./node_modules/typeorm/cli.js --config src/config/orm.config.ts -n",
@@ -95,22 +95,5 @@
     "ts-node": "^10.7.0",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage/unit",
-    "testEnvironment": "node"
   }
 }
