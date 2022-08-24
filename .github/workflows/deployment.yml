@@ -13,16 +13,51 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    services:
+      postgres:
+        image: postgis/postgis
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Run tests
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
         run: |
-          npm ci
           npm run test:cov
+          mv coverage/unit/coverage-final.json coverage/unit.json
+
+      - name: Run e2e tests
+        run: |
+          npm run test:e2e:cov
+          mv coverage/e2e/coverage-final.json coverage/e2e.json
+        env:
+          TYPEORM_HOST: "localhost"
+          TYPEORM_USERNAME: "postgres"
+          TYPEORM_PASSWORD: "postgres"
+          TYPEORM_DATABASE: "postgres"
+          TYPEORM_PORT: "5432"
+          GCS_BUCKET: dummyBucket
+          JWT_SECRET: jwtSecret
+          CLEAN_UP_TOKEN: cleanUpToken
+
+      - name: Merge coverage reports
+        run : |
+          npm run coverage:merge
+          npm run coverage:generate
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

@@ -47,10 +47,48 @@ $ npm run start:prod
 
 ## Test
 
+### Unit tests
+
+Unit tests should not rely on any third party services and are mocked accordingly. No database connection is required.
+
 ```bash
 # unit tests
 $ npm run test
+
+# with coverage
+$ npm run test:cov
 ```
+
+### e2e tests
+
+These tests require an existing database. You can create a `.env.testing` file and specify configuration values that you
+want to override from your normal `.env` file, most notably the database name. Notice that both env files are loaded,
+which allows you to not define configuration values multiple times - you just override those that differ from your
+development environment.
+
+```bash
+# e2e tests
+$ npm run test:e2e
+
+# with coverage
+$npm run test:e2e:cov
+```
+
+#### Merging coverage
+
+Both test types create their own directory in the `./coverage` folder. If you need the combined JSON output as if it was
+one test run, move both JSON outputs from their directory to the `./coverage` folder and run the following commands:
+
+```bash
+# merge the files
+$ npm run coverage:merge
+
+# generate the merged .lcov file
+$npm run coverage:generate
+```
+
+This is also used in our pipeline so SonarCloud gets the full coverage report from both test runs. See the CI file for
+how it's done there.
 
 ## Working with Swagger documentation
 
