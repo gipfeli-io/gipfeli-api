@@ -12,7 +12,7 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     host: process.env.TYPEORM_HOST,
-    synchronize: nodeEnv === 'test',
+    synchronize: false,
     entities: [rootDir + '**/*.entity{.ts,.js}'],
     autoLoadEntities: true,
   };
