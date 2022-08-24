@@ -30,9 +30,15 @@ export interface SessionIdentifier {
 export interface RefreshedToken extends UserIdentifier, SessionIdentifier {}
 
 /**
- * RefreshToken contains a session ID that maps to a UserSession object.
+ * RefreshTokenRequest contains a session ID that maps to a UserSession object.
+ * If a user sends another JWT (e.g. accesstoken), the sessionId is undefined
+ * and we can act accordingly.
  */
-export interface RefreshToken extends JwtTokenPayloadBase, SessionIdentifier {}
+export interface RefreshTokenRequest
+  extends JwtTokenPayloadBase,
+    SessionIdentifier {
+  sessionId: string | undefined;
+}
 
 /**
  * The main authtoken.
