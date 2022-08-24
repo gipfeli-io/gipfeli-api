@@ -9,7 +9,7 @@
   },
   "testTimeout": 20000,
   "setupFiles": [
-    "dotenv/config"
+    "../test/e2e/dotenv-config.js"
   ],
   "setupFilesAfterEnv": [
     "../test/e2e/set-up-db.ts"

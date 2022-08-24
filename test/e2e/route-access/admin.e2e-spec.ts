@@ -47,6 +47,7 @@ describe('Admin Routes can be accessed by an admin user', () => {
           inject: [ConfigService],
         }),
         ConfigModule.forRoot({
+
           load: [
             securityConfig,
             environmentConfig,

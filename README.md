@@ -47,6 +47,8 @@ $ npm run start:prod
 
 ## Test
 
+Create a `.env.testing` file which will be used to run the tests. This will override anything from the normal .env file.
+
 ```bash
 # unit tests
 $ npm run test
