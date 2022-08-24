@@ -103,14 +103,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
 
   describe('Protected routes may be accessed by logged in users', () => {
     describe('Auth', () => {
-      it('/refresh (POST) fails with auth token', () => {
-        return request(app.getHttpServer())
-          .post(`${AUTH_ROUTE_PREFIX}/refresh`)
-          .set('Authorization', 'Bearer ' + tokens.accessToken)
-          .expect(401);
-      });
-
-      it('/refresh (POST) works with refresh token', () => {
+      it('/refresh (POST)', () => {
         return request(app.getHttpServer())
           .post(`${AUTH_ROUTE_PREFIX}/refresh`)
           .set('Authorization', 'Bearer ' + tokens.refreshToken)

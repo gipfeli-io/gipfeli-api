@@ -52,6 +52,7 @@ jobs:
           TYPEORM_PORT: "5432"
           GCS_BUCKET: dummyBucket
           JWT_SECRET: jwtSecret
+          CLEAN_UP_TOKEN: cleanUpToken
 
       - name: Merge coverage reports
         run : |

@@ -31,8 +31,8 @@ export interface RefreshedToken extends UserIdentifier, SessionIdentifier {}
 
 /**
  * RefreshTokenRequest contains a session ID that maps to a UserSession object.
- * If a user sends another JWT (e.g. accesstoken), the sessionId is undefined
- * and we can act accordingly.
+ * If a user sends an access token by mistake, the sessionId is undefined and we
+ * can act accordingly.
  */
 export interface RefreshTokenRequest
   extends JwtTokenPayloadBase,
@@ -41,6 +41,12 @@ export interface RefreshTokenRequest
 }
 
 /**
- * The main authtoken.
+ * The login request as JWT. Contains the user id, email and role. If a user
+ * sends a refresh token by mistake, these values are undefined and we can act
+ * accordingly.
  */
-export interface AuthToken extends JwtTokenPayloadBase, UserIdentifier {}
+export interface LoginRequest extends JwtTokenPayloadBase, UserIdentifier {
+  sub: string | undefined;
+  email: string | undefined;
+  role: UserRole | undefined;
+}
