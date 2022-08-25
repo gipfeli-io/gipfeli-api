@@ -6,6 +6,10 @@ import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { Image } from '../media/entities/image.entity';
 import { GpxFile } from '../media/entities/gpx-file.entity';
+import { TourCategory } from './entities/tour-category.entity';
+import { SavedImageDto } from '../media/dto/image.dto';
+import { SavedGpxFileDto } from '../media/dto/gpx-file.dto';
+import { TourCategoryDto } from './dto/tour-category.dto';
 
 @Injectable()
 export class TourService {
@@ -16,29 +20,24 @@ export class TourService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(GpxFile)
     private readonly gpxFileRepository: Repository<GpxFile>,
+    @InjectRepository(TourCategory)
+    private readonly tourCategoryRepository: Repository<TourCategory>,
   ) {}
 
   async create(
     createTourDto: CreateTourDto,
     user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const { images, gpxFile, ...tour } = createTourDto;
-    const savedImages = await this.imageRepository.findByIds(
-      images.map((image) => image.id),
-      { where: { user } },
-    );
-
-    let savedGpxFile;
-    if (gpxFile) {
-      savedGpxFile = await this.gpxFileRepository.findOne(gpxFile.id, {
-        where: { user },
-      });
-    }
+    const { images, gpxFile, categories, ...tour } = createTourDto;
+    const savedImages = await this.getImagesFromDatabase(images, user);
+    const savedGpxFile = await this.getGpxFileFromDatabase(gpxFile, user);
+    const categoryList = await this.getCategoryListFromDatabase(categories);
 
     const newTour = this.tourRepository.create({
       user,
       images: savedImages,
       gpxFile: savedGpxFile,
+      categories: categoryList,
       ...tour,
     });
 
@@ -70,7 +69,7 @@ export class TourService {
     updateTourDto: UpdateTourDto,
     user: AuthenticatedUserDto,
   ): Promise<Tour> {
-    const { images, gpxFile, ...tour } = updateTourDto;
+    const { images, gpxFile, categories, ...tour } = updateTourDto;
 
     const existingTour = await this.tourRepository.findOne(id, {
       where: { user },
@@ -82,16 +81,11 @@ export class TourService {
 
     // We have to manually add our images and then merge the result, because
     // repository.update() does not sync relations.
-    existingTour.images = await this.imageRepository.findByIds(
-      images.map((image) => image.id),
-      { where: { user } },
+    existingTour.images = await this.getImagesFromDatabase(images, user);
+    existingTour.gpxFile = await this.getGpxFileFromDatabase(gpxFile, user);
+    existingTour.categories = await this.getCategoryListFromDatabase(
+      categories,
     );
-
-    existingTour.gpxFile = gpxFile
-      ? await this.gpxFileRepository.findOne(gpxFile.id, {
-          where: { user },
-        })
-      : null;
 
     const mergedTour = this.tourRepository.merge(existingTour, tour);
     await this.tourRepository.save(mergedTour);
@@ -107,5 +101,34 @@ export class TourService {
     if (deleteResult.affected === 0) {
       throw new NotFoundException();
     }
+  }
+
+  private async getImagesFromDatabase(
+    imagesToSave: SavedImageDto[],
+    user: AuthenticatedUserDto,
+  ): Promise<Image[]> {
+    return this.imageRepository.findByIds(
+      imagesToSave.map((image) => image.id),
+      { where: { user } },
+    );
+  }
+
+  private async getGpxFileFromDatabase(
+    gpxFileToSave: SavedGpxFileDto,
+    user: AuthenticatedUserDto,
+  ): Promise<GpxFile> {
+    return gpxFileToSave
+      ? this.gpxFileRepository.findOne(gpxFileToSave.id, {
+          where: { user },
+        })
+      : null;
+  }
+
+  private async getCategoryListFromDatabase(
+    categories: TourCategoryDto[],
+  ): Promise<TourCategory[]> {
+    return this.tourCategoryRepository.findByIds(
+      categories.map((category) => category.id),
+    );
   }
 }

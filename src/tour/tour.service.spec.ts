@@ -20,6 +20,7 @@ import { UserRole } from '../user/entities/user.entity';
 import { SavedGpxFileDto } from '../media/dto/gpx-file.dto';
 import { GpxFile } from '../media/entities/gpx-file.entity';
 import { TourCategoryDto } from './dto/tour-category.dto';
+import { TourCategory } from './entities/tour-category.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
@@ -55,6 +56,7 @@ describe('TourService', () => {
   let tourRepositoryMock: RepositoryMockType<Repository<Tour>>;
   let imageRepositoryMock: RepositoryMockType<Repository<Image>>;
   let gpxRepositoryMock: RepositoryMockType<Repository<GpxFile>>;
+  let categoryRepositoryMock: RepositoryMockType<Repository<TourCategory>>;
   let mockExistingTour: UpdateTourDto;
   let mockNewTour: CreateTourDto;
 
@@ -72,6 +74,10 @@ describe('TourService', () => {
         },
         {
           provide: getRepositoryToken(GpxFile),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(TourCategory),
           useFactory: repositoryMockFactory,
         },
       ],
@@ -96,6 +102,7 @@ describe('TourService', () => {
     tourRepositoryMock = module.get(getRepositoryToken(Tour));
     imageRepositoryMock = module.get(getRepositoryToken(Image));
     gpxRepositoryMock = module.get(getRepositoryToken(GpxFile));
+    categoryRepositoryMock = module.get(getRepositoryToken(TourCategory));
   });
 
   describe('findAll', () =>
@@ -206,6 +213,7 @@ describe('TourService', () => {
       );
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
       const result = await tourService.update(
         mockId,
@@ -221,7 +229,6 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutImage.description,
         id: mockTourWithoutImage.id,
-        categories: mockCategories,
       };
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
       expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
@@ -239,6 +246,7 @@ describe('TourService', () => {
       );
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+      categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
       const result = await tourService.update(
         mockId,
@@ -253,7 +261,6 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutGxpFile.description,
         id: mockTourWithoutGxpFile.id,
-        categories: mockCategories,
       };
 
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
@@ -272,6 +279,7 @@ describe('TourService', () => {
       );
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
+      categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
       const result = await tourService.update(
         mockId,
@@ -286,7 +294,6 @@ describe('TourService', () => {
       const expectedDto = {
         description: mockTourWithoutGpxFile.description,
         id: mockTourWithoutGpxFile.id,
-        categories: mockCategories,
       };
       expect(tourRepositoryMock.merge).toHaveBeenCalledTimes(1);
       expect(tourRepositoryMock.merge).toHaveBeenCalledWith(
@@ -314,8 +321,9 @@ describe('TourService', () => {
       tourRepositoryMock.save.mockReturnValue(mockNewTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
-      const { images, gpxFile, ...tourData } = mockNewTour;
+      const { images, gpxFile, categories, ...tourData } = mockNewTour;
 
       const result = await tourService.create(mockNewTour, mockUser);
 
@@ -323,6 +331,7 @@ describe('TourService', () => {
         user: mockUser,
         images: mockImages,
         gpxFile: mockGpxFile,
+        categories: mockCategories,
         ...tourData,
       };
       expect(tourRepositoryMock.create).toHaveBeenCalledTimes(1);
@@ -339,7 +348,9 @@ describe('TourService', () => {
       tourRepositoryMock.save.mockReturnValue(mockNewTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
-      const { images, gpxFile, ...tourData } = mockNewTour;
+      categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
+
+      const { images, gpxFile, categories, ...tourData } = mockNewTour;
 
       const result = await tourService.create(mockNewTour, mockUser);
 
@@ -347,6 +358,7 @@ describe('TourService', () => {
         user: mockUser,
         images: mockImages,
         gpxFile: mockGpxFile,
+        categories: mockCategories,
         ...tourData,
       };
       expect(tourRepositoryMock.create).toHaveBeenCalledTimes(1);

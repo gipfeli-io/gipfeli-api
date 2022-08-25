@@ -10,6 +10,7 @@ import { TourController } from './tour.controller';
 import { UserRole } from '../user/entities/user.entity';
 import { GpxFile } from '../media/entities/gpx-file.entity';
 import { TourCategoryDto } from './dto/tour-category.dto';
+import { TourCategory } from './entities/tour-category.entity';
 
 const mockUser: AuthenticatedUserDto = {
   email: 'test@gipfeli.io',
@@ -62,6 +63,10 @@ describe('TourService', () => {
         },
         {
           provide: getRepositoryToken(GpxFile),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(TourCategory),
           useFactory: repositoryMockFactory,
         },
       ],
