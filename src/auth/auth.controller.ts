@@ -9,7 +9,11 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { ActivateUserDto, CreateUserDto } from '../user/dto/user.dto';
+import {
+  ActivateUserDto,
+  CreateUserDto,
+  LogOutDto,
+} from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
 import {
   LoginDto,
@@ -74,6 +78,15 @@ export class AuthController {
     const sessionId = await this.authService.createSession(sub);
 
     return this.authService.createTokenResponse(sub, email, sessionId, role);
+  }
+
+  /**
+   * Logs a user out by removing its session ID.
+   * @param logoutDto
+   */
+  @Post('logout')
+  async logout(@Body() logoutDto: LogOutDto): Promise<void> {
+    await this.authService.logOut(logoutDto);
   }
 
   /**
