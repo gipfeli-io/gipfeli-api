@@ -10,7 +10,6 @@ import * as dayjs from 'dayjs';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '../user/entities/user.entity';
-import { LogOutDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -53,6 +52,7 @@ export class AuthService {
    * @param sub
    * @param email
    * @param sessionId
+   * @param role
    */
   async createTokenResponse(
     sub: string,
@@ -113,10 +113,9 @@ export class AuthService {
     };
   }
 
-  async logOut(logoutDto: LogOutDto) {
+  async deleteSession(sessionId: string) {
     // Since we do not care if invalid session ids are sent, we just fire and
     // forget the delete request.
-    const { sessionId } = logoutDto;
     await this.sessionRepository.delete(sessionId);
   }
 

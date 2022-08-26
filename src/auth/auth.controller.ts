@@ -86,7 +86,7 @@ export class AuthController {
    */
   @Post('logout')
   async logout(@Body() logoutDto: LogOutDto): Promise<void> {
-    await this.authService.logOut(logoutDto);
+    await this.authService.deleteSession(logoutDto.sessionId);
   }
 
   /**

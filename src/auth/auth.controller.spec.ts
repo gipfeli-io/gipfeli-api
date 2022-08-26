@@ -148,12 +148,14 @@ describe('AuthController', () => {
       const mockLogout = {
         sessionId: randomUUID(),
       } as LogOutDto;
-      const spy = jest.spyOn(authService, 'logOut').mockReturnValue(mockReturn);
+      const spy = jest
+        .spyOn(authService, 'deleteSession')
+        .mockReturnValue(mockReturn);
 
       await authController.logout(mockLogout);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(mockLogout);
+      expect(spy).toHaveBeenCalledWith(mockLogout.sessionId);
     });
   });
 
