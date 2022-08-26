@@ -133,3 +133,10 @@ export class ActivateUserDto {
   @IsNotEmpty()
   token: string;
 }
+
+export class LogOutDto {
+  @IsUUIDApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  sessionId: string;
+}

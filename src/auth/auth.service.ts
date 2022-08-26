@@ -52,6 +52,7 @@ export class AuthService {
    * @param sub
    * @param email
    * @param sessionId
+   * @param role
    */
   async createTokenResponse(
     sub: string,
@@ -110,6 +111,12 @@ export class AuthService {
       sessionId: session.id,
       role: session.user.role,
     };
+  }
+
+  async deleteSession(sessionId: string) {
+    // Since we do not care if invalid session ids are sent, we just fire and
+    // forget the delete request.
+    await this.sessionRepository.delete(sessionId);
   }
 
   /**

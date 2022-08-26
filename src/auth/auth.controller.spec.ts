@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { CryptoService } from '../utils/crypto.service';
-import { ActivateUserDto, CreateUserDto, UserDto } from '../user/dto/user.dto';
+import {
+  ActivateUserDto,
+  CreateUserDto,
+  LogOutDto,
+  UserDto,
+} from '../user/dto/user.dto';
 import { User, UserRole } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { UserToken } from '../user/entities/user-token.entity';
@@ -22,6 +27,7 @@ import { UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common';
 import { UserAuthService } from '../user/user-auth.service';
+import { randomUUID } from 'crypto';
 
 const defaultToken = 'insecure-jwt-token-used-for-testing-only';
 
@@ -133,6 +139,23 @@ describe('AuthController', () => {
         mockSession,
         mockUser.role,
       );
+    });
+  });
+
+  describe('logout', () => {
+    it('calls userService.logout() with the body object', async () => {
+      const mockReturn = Promise.resolve(undefined);
+      const mockLogout = {
+        sessionId: randomUUID(),
+      } as LogOutDto;
+      const spy = jest
+        .spyOn(authService, 'deleteSession')
+        .mockReturnValue(mockReturn);
+
+      await authController.logout(mockLogout);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(mockLogout.sessionId);
     });
   });
 

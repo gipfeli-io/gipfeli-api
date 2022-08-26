@@ -182,7 +182,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         return request(app.getHttpServer())
           .patch(`${TOUR_ROUTE_PREFIX}/${newTour.id}`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
-          .send({ name: 'Changing the name', images: [] })
+          .send({ name: 'Changing the name', images: [], categories: [] })
           .expect(200);
       });
 

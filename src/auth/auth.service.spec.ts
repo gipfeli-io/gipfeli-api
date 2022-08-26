@@ -9,12 +9,15 @@ import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
 import { UserToken } from '../user/entities/user-token.entity';
-import repositoryMockFactory, { RepositoryMockType, } from '../utils/mock-utils/repository-mock.factory';
+import repositoryMockFactory, {
+  RepositoryMockType,
+} from '../utils/mock-utils/repository-mock.factory';
 import { Repository } from 'typeorm';
 import { UserSession } from './entities/user-session.entity';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
 const defaultRefreshTokenValidity = 1000;
 const defaultToken = 'insecure-jwt-token-used-for-testing-only';
@@ -152,6 +155,18 @@ describe('AuthService', () => {
       await expect(await authService.createSession(userId)).toEqual(
         mockSession.id,
       );
+    });
+  });
+
+  describe('logOut', () => {
+    it('deletes a given session from the database', async () => {
+      const mockSessionId = randomUUID();
+      sessionRepositoryMock.delete.mockReturnValue(null);
+
+      await authService.deleteSession(mockSessionId);
+
+      expect(sessionRepositoryMock.delete).toHaveBeenCalledTimes(1);
+      expect(sessionRepositoryMock.delete).toHaveBeenCalledWith(mockSessionId);
     });
   });
 
