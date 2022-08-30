@@ -3,9 +3,14 @@ import { Tour } from '../../../src/tour/entities/tour.entity';
 import { Image } from '../../../src/media/entities/image.entity';
 
 import { faker } from '@faker-js/faker';
+import { GpxFile } from '../../../src/media/entities/gpx-file.entity';
 
 export class EntityCreator {
-  public static createTour(user: User, images: Image[] = []): Tour {
+  public static createTour(
+    user: User,
+    images: Image[] = [],
+    gpxFile: GpxFile = null,
+  ): Tour {
     return {
       id: faker.datatype.uuid(),
       name: faker.lorem.sentence(2),
@@ -17,7 +22,7 @@ export class EntityCreator {
       description: faker.lorem.sentences(10),
       endLocation: null,
       startLocation: null,
-      gpxFile: null,
+      gpxFile: gpxFile,
       userId: user.id,
     };
   }
@@ -33,6 +38,17 @@ export class EntityCreator {
       userId: user?.id,
       tour: tour,
       tourId: tour?.id,
+    };
+  }
+
+  public static createGpxFile(user: User = null): GpxFile {
+    return {
+      id: faker.datatype.uuid(),
+      identifier: faker.lorem.sentence(1),
+      name: faker.system.commonFileName('gpx'),
+      createdAt: faker.date.past(),
+      updatedAt: faker.date.past(),
+      user: user,
     };
   }
 

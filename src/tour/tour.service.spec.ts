@@ -157,7 +157,10 @@ describe('TourService', () => {
 
       const expectedIds = mockImages.map((image) => image.id);
       const expectedConditions: FindManyOptions<Image> = {
-        where: { user: mockUser },
+        where: [
+          { userId: mockUser.id, tourId: null },
+          { userId: mockUser.id, tourId: mockExistingTour.id },
+        ],
       };
 
       expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
@@ -175,6 +178,7 @@ describe('TourService', () => {
 
       const expectedConditions: FindManyOptions<GpxFile> = {
         where: { user: mockUser },
+        relations: ['tour'],
       };
 
       expect(gpxRepositoryMock.findOne).toHaveBeenCalledTimes(1);
@@ -212,7 +216,7 @@ describe('TourService', () => {
         Object.assign({}, mockTourWithoutImage),
       );
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
-      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      gpxRepositoryMock.findOne.mockReturnValue(null);
       categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
       const result = await tourService.update(
@@ -224,6 +228,7 @@ describe('TourService', () => {
       // Merge is called with the entity (added with images) and the DTO (without images)
       const expectedEntity = {
         ...mockTourWithoutImage,
+        gpxFile: null,
         images: mockImages,
       };
       const expectedDto = {
@@ -239,6 +244,8 @@ describe('TourService', () => {
     });
 
     it('sets the gpx file property on the tour and merges the entity with the DTO', async () => {
+      // @ts-ignore => Mock an empty gpx file which can be assigned
+      mockGpxFile.tour = null;
       const mockTourWithoutGxpFile = Object.assign({}, mockExistingTour);
       mockTourWithoutGxpFile.gpxFile = null;
       tourRepositoryMock.findOne.mockReturnValue(
@@ -320,7 +327,7 @@ describe('TourService', () => {
       tourRepositoryMock.create.mockReturnValue(mockNewTour);
       tourRepositoryMock.save.mockReturnValue(mockNewTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
-      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      gpxRepositoryMock.findOne.mockReturnValue(null);
       categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
       const { images, gpxFile, categories, ...tourData } = mockNewTour;
@@ -330,7 +337,7 @@ describe('TourService', () => {
       const expectedConditions = {
         user: mockUser,
         images: mockImages,
-        gpxFile: mockGpxFile,
+        gpxFile: null,
         categories: mockCategories,
         ...tourData,
       };
@@ -344,6 +351,8 @@ describe('TourService', () => {
     });
 
     it('creates a tour with assigned gpx file and returns it', async () => {
+      // @ts-ignore => Mock an empty gpx file which can be assigned
+      mockGpxFile.tour = null;
       tourRepositoryMock.create.mockReturnValue(mockNewTour);
       tourRepositoryMock.save.mockReturnValue(mockNewTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
@@ -377,7 +386,7 @@ describe('TourService', () => {
 
       const expectedIds = mockImages.map((image) => image.id);
       const expectedConditions: FindManyOptions<Image> = {
-        where: { user: mockUser },
+        where: { userId: mockUser.id, tourId: null },
       };
 
       expect(imageRepositoryMock.findByIds).toHaveBeenCalledTimes(1);
@@ -388,12 +397,15 @@ describe('TourService', () => {
     });
 
     it('calls the gpx file repository with the correct id and user scope', async () => {
+      // @ts-ignore => Mock an empty gpx file which can be assigned
+      mockGpxFile.tour = null;
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
 
       await tourService.create(mockNewTour, mockUser);
 
       const expectedConditions: FindManyOptions<GpxFile> = {
         where: { user: mockUser },
+        relations: ['tour'],
       };
 
       expect(gpxRepositoryMock.findOne).toHaveBeenCalledTimes(1);
@@ -403,6 +415,7 @@ describe('TourService', () => {
       );
     });
   });
+
   describe('delete', () => {
     it('deletes an existing tour scoped to the user', async () => {
       tourRepositoryMock.delete.mockReturnValue({ affected: 1 });

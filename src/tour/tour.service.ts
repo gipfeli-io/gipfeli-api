@@ -86,7 +86,11 @@ export class TourService {
       user,
       existingTour,
     );
-    existingTour.gpxFile = await this.getGpxFileFromDatabase(gpxFile, user);
+    existingTour.gpxFile = await this.getGpxFileFromDatabase(
+      gpxFile,
+      user,
+      existingTour,
+    );
     existingTour.categories = await this.getCategoryListFromDatabase(
       categories,
     );
@@ -110,13 +114,13 @@ export class TourService {
   private async getImagesFromDatabase(
     imagesToSave: SavedImageDto[],
     user: AuthenticatedUserDto,
-    tour: Tour = null,
+    existingTour: Tour = null,
   ): Promise<Image[]> {
     // We only want images by the user and, if a tour is supplied e.g. in the
     // case of an update, where tour id is either the current tour or null. This
     // prevents the possibility of overriding tour relations of existing images.
     let whereCondition: FindOneOptions<Image>;
-    if (tour) {
+    if (existingTour) {
       whereCondition = {
         where: [
           {
@@ -125,7 +129,7 @@ export class TourService {
           },
           {
             userId: user.id,
-            tourId: tour.id,
+            tourId: existingTour.id,
           },
         ],
       };
@@ -147,11 +151,32 @@ export class TourService {
   private async getGpxFileFromDatabase(
     gpxFileToSave: SavedGpxFileDto,
     user: AuthenticatedUserDto,
+    existingTour: Tour = null,
   ): Promise<GpxFile> {
-    return gpxFileToSave
-      ? this.gpxFileRepository.findOne(gpxFileToSave.id, {
-          where: { user },
-        })
+    if (!gpxFileToSave) {
+      return null;
+    }
+
+    const gpxFile = await this.gpxFileRepository.findOne(gpxFileToSave.id, {
+      where: { user },
+      relations: ['tour'],
+    });
+
+    if (!gpxFile) {
+      return null;
+    }
+
+    // If no existing tour, we only return the file if it is not already
+    // assigned to another tour.
+    if (!existingTour) {
+      return gpxFile.tour === null ? gpxFile : null;
+    }
+
+    // If an existing tour, we only return the file if it is either not yet
+    // assigned to a tour or if it is already assigned to the existing tour.
+    return gpxFile.tour === null ||
+      (gpxFile.tour && gpxFile.tour.id === existingTour.id)
+      ? gpxFile
       : null;
   }
 
