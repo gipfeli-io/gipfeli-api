@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
@@ -81,7 +81,11 @@ export class TourService {
 
     // We have to manually add our images and then merge the result, because
     // repository.update() does not sync relations.
-    existingTour.images = await this.getImagesFromDatabase(images, user);
+    existingTour.images = await this.getImagesFromDatabase(
+      images,
+      user,
+      existingTour,
+    );
     existingTour.gpxFile = await this.getGpxFileFromDatabase(gpxFile, user);
     existingTour.categories = await this.getCategoryListFromDatabase(
       categories,
@@ -106,10 +110,37 @@ export class TourService {
   private async getImagesFromDatabase(
     imagesToSave: SavedImageDto[],
     user: AuthenticatedUserDto,
+    tour: Tour = null,
   ): Promise<Image[]> {
+    // We only want images by the user and, if a tour is supplied e.g. in the
+    // case of an update, where tour id is either the current tour or null. This
+    // prevents the possibility of overriding tour relations of existing images.
+    let whereCondition: FindOneOptions<Image>;
+    if (tour) {
+      whereCondition = {
+        where: [
+          {
+            userId: user.id,
+            tourId: null,
+          },
+          {
+            userId: user.id,
+            tourId: tour.id,
+          },
+        ],
+      };
+    } else {
+      whereCondition = {
+        where: {
+          userId: user.id,
+          tourId: null,
+        },
+      };
+    }
+
     return this.imageRepository.findByIds(
       imagesToSave.map((image) => image.id),
-      { where: { user } },
+      whereCondition,
     );
   }
 

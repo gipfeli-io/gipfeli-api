@@ -21,7 +21,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../../src/utils/crypto.service';
 import { UserSession } from '../../../src/auth/entities/user-session.entity';
 import { TokenDto } from '../../../src/auth/dto/auth.dto';
-import { UserRole } from '../../../src/user/entities/user.entity';
+import { User, UserRole } from '../../../src/user/entities/user.entity';
 import createLogin from '../utils/create-login';
 import { EntityCreator } from '../utils/entity-creator';
 import { CreateTourDto, UpdateTourDto } from '../../../src/tour/dto/tour.dto';
@@ -39,6 +39,7 @@ describe('Tour', () => {
   let app: INestApplication;
   let tourRepository: Repository<Tour>;
   let imageRepository: Repository<Image>;
+  let userRepository: Repository<User>;
   let authService: AuthService;
   let tokens: TokenDto;
   const userToCheckAgainst = Seeder.getSeeds().users.find(
@@ -79,6 +80,7 @@ describe('Tour', () => {
     app = moduleFixture.createNestApplication();
     tourRepository = moduleFixture.get('TourRepository');
     imageRepository = moduleFixture.get('ImageRepository');
+    userRepository = moduleFixture.get('UserRepository');
     authService = moduleFixture.get(AuthService);
     tokens = await createLogin(authService, userToCheckAgainst);
 
@@ -196,7 +198,9 @@ describe('Tour', () => {
       expect(updatedImages.length).toEqual(0);
     });
 
-    it('cannot assign an image that does not exist in the database', async () => {
+    it('assigning an image that does not exist in the database fails silently', async () => {
+      // Note: this test is only checked against the update route; the create
+      // route uses the same flow.
       const tour = await tourRepository.save(
         EntityCreator.createTour(userToCheckAgainst),
       );
@@ -207,11 +211,80 @@ describe('Tour', () => {
         categories: [],
       };
 
-      return request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .patch(`${RoutePrefix.TOUR}/${tour.id}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
-        .send({ ...updateTour })
-        .expect(401);
+        .send({ ...updateTour });
+      const images = await imageRepository.find({ tourId: tour.id });
+
+      expect(response.statusCode).toEqual(200);
+      expect(images.length).toEqual(0);
+    });
+
+    it('assigning an image that belongs to another user fails silently', async () => {
+      // Note: this test is only checked against the update route; the create
+      // route uses the same flow.
+      const tour = await tourRepository.save(
+        EntityCreator.createTour(userToCheckAgainst),
+      );
+
+      const otherUser = await userRepository.save(EntityCreator.createUser());
+      const otherUserTour = await tourRepository.save(
+        EntityCreator.createTour(otherUser),
+      );
+      const image = await imageRepository.save(
+        EntityCreator.createImage(otherUser, otherUserTour),
+      );
+
+      const updateTour: UpdateTourDto = {
+        images: [{ ...image }],
+        categories: [],
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`${RoutePrefix.TOUR}/${tour.id}`)
+        .set('Authorization', 'Bearer ' + tokens.accessToken)
+        .send({ ...updateTour });
+
+      const tourImagesCount = await imageRepository.count({ tourId: tour.id });
+      const refreshedImage = await imageRepository.findOne(image.id);
+
+      expect(response.statusCode).toEqual(200);
+      expect(tourImagesCount).toEqual(0);
+      expect(refreshedImage.userId).toEqual(otherUser.id);
+      expect(refreshedImage.tourId).toEqual(otherUserTour.id);
+    });
+
+    it('assigning an image that belongs to another tour already fails silently', async () => {
+      // Note: this test is only checked against the update route; the
+      // create route uses the same flow.
+      const tour = await tourRepository.save(
+        EntityCreator.createTour(userToCheckAgainst),
+      );
+
+      const otherTour = await tourRepository.save(
+        EntityCreator.createTour(userToCheckAgainst),
+      );
+      const image = await imageRepository.save(
+        EntityCreator.createImage(userToCheckAgainst, otherTour),
+      );
+
+      const updateTour: UpdateTourDto = {
+        images: [{ ...image }],
+        categories: [],
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`${RoutePrefix.TOUR}/${tour.id}`)
+        .set('Authorization', 'Bearer ' + tokens.accessToken)
+        .send({ ...updateTour });
+
+      const tourImagesCount = await imageRepository.count({ tourId: tour.id });
+      const refreshedImage = await imageRepository.findOne(image.id);
+
+      expect(response.statusCode).toEqual(200);
+      expect(tourImagesCount).toEqual(0);
+      expect(refreshedImage.tourId).toEqual(otherTour.id);
     });
   });
 
