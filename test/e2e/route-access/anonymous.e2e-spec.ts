@@ -14,12 +14,7 @@ import { randomUUID } from 'crypto';
 import { TourModule } from '../../../src/tour/tour.module';
 import { LookupModule } from '../../../src/lookup/lookup.module';
 import { MediaModule } from '../../../src/media/media.module';
-
-const AUTH_ROUTE_PREFIX = '/auth';
-const USER_ROUTE_PREFIX = '/users';
-const TOUR_ROUTE_PREFIX = '/tours';
-const LOOKUP_ROUTE_PREFIX = '/lookup';
-const MEDIA_ROUTE_PREFIX = '/media';
+import { RoutePrefix } from '../utils/route-prefix';
 
 describe('Anonymous route access on protected routes throws 401', () => {
   let app: INestApplication;
@@ -60,7 +55,7 @@ describe('Anonymous route access on protected routes throws 401', () => {
   describe('Auth', () => {
     it('/refresh (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${AUTH_ROUTE_PREFIX}/refresh`)
+        .post(`${RoutePrefix.AUTH}/refresh`)
         .expect(401);
     });
   });
@@ -68,7 +63,7 @@ describe('Anonymous route access on protected routes throws 401', () => {
   describe('Lookup', () => {
     it('/tour-categories (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${LOOKUP_ROUTE_PREFIX}/tour-categories`)
+        .get(`${RoutePrefix.LOOKUP}/tour-categories`)
         .expect(401);
     });
   });
@@ -76,19 +71,19 @@ describe('Anonymous route access on protected routes throws 401', () => {
   describe('Media', () => {
     it('/upload-image (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${MEDIA_ROUTE_PREFIX}/upload-image`)
+        .post(`${RoutePrefix.MEDIA}/upload-image`)
         .expect(401);
     });
 
     it('/upload-gpx-file (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${MEDIA_ROUTE_PREFIX}/upload-gpx-file`)
+        .post(`${RoutePrefix.MEDIA}/upload-gpx-file`)
         .expect(401);
     });
 
     it('/clean-up-media (GET)', () => {
       return request(app.getHttpServer())
-        .get(`${MEDIA_ROUTE_PREFIX}/clean-up-media`)
+        .get(`${RoutePrefix.MEDIA}/clean-up-media`)
         .expect(401);
     });
   });
@@ -96,14 +91,14 @@ describe('Anonymous route access on protected routes throws 401', () => {
   describe('Users', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${USER_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.USER}/`)
         .expect(401);
     });
 
     it('/:id (DELETE)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .delete(`${USER_ROUTE_PREFIX}/${uuid}`)
+        .delete(`${RoutePrefix.USER}/${uuid}`)
         .expect(401);
     });
   });
@@ -111,34 +106,34 @@ describe('Anonymous route access on protected routes throws 401', () => {
   describe('Tours', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.TOUR}/`)
         .expect(401);
     });
 
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${TOUR_ROUTE_PREFIX}/`)
+        .post(`${RoutePrefix.TOUR}/`)
         .expect(401);
     });
 
     it('/:id (GET)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .get(`${RoutePrefix.TOUR}/${uuid}`)
         .expect(401);
     });
 
     it('/:id (PATCH)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .patch(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .patch(`${RoutePrefix.TOUR}/${uuid}`)
         .expect(401);
     });
 
     it('/:id (DELETE)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .delete(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .delete(`${RoutePrefix.TOUR}/${uuid}`)
         .expect(401);
     });
   });

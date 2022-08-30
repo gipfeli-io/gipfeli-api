@@ -15,33 +15,16 @@ import { LookupModule } from '../../../src/lookup/lookup.module';
 import { MediaModule } from '../../../src/media/media.module';
 import { Repository } from 'typeorm';
 import { Tour } from '../../../src/tour/entities/tour.entity';
-import { Seeder } from '../utils/seeder';
-import {
-  StorageProvider,
-  StorageProviderInterface,
-  UploadedFileHandle,
-} from '../../../src/media/providers/types/storage-provider';
+import { StorageProviderInterface } from '../../../src/media/providers/types/storage-provider';
 import { AuthService } from '../../../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../../src/utils/crypto.service';
 import { UserSession } from '../../../src/auth/entities/user-session.entity';
 import { TokenDto } from '../../../src/auth/dto/auth.dto';
-import { User, UserRole } from '../../../src/user/entities/user.entity';
+import { User } from '../../../src/user/entities/user.entity';
 import createLogin from '../utils/create-login';
 import { EntityCreator } from '../utils/entity-creator';
-import { TourDto } from '../../../src/tour/dto/tour.dto';
-
-const TOUR_ROUTE_PREFIX = '/tours';
-
-const fileResponseMock: UploadedFileHandle = {
-  identifier: 'mocked-identifier',
-  metadata: {},
-};
-
-const storageProviderMock: StorageProvider = {
-  put: jest.fn().mockReturnValue(fileResponseMock),
-  deleteMany: jest.fn(),
-};
+import { RoutePrefix } from '../utils/route-prefix';
 
 /**
  * Creates two users with one tour each and returns them and their tour. Also
@@ -109,10 +92,7 @@ describe('Tour', () => {
         MediaModule,
       ],
       providers: [AuthService, JwtService, CryptoService],
-    })
-      .overrideProvider(StorageProviderInterface)
-      .useValue(storageProviderMock)
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     tourRepository = moduleFixture.get('TourRepository');
@@ -131,7 +111,7 @@ describe('Tour', () => {
       );
 
       const response = await request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.TOUR}/`)
         .set('Authorization', 'Bearer ' + tokens.accessToken);
 
       expect(response.body.length).toEqual(1);
@@ -146,7 +126,7 @@ describe('Tour', () => {
       );
 
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/${otherUserTour.id}`)
+        .get(`${RoutePrefix.TOUR}/${otherUserTour.id}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(404);
     });
@@ -159,7 +139,7 @@ describe('Tour', () => {
       );
 
       return request(app.getHttpServer())
-        .patch(`${TOUR_ROUTE_PREFIX}/${otherUserTour.id}`)
+        .patch(`${RoutePrefix.TOUR}/${otherUserTour.id}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .send({ name: 'Changing the name', images: [], categories: [] })
         .expect(404);
@@ -173,7 +153,7 @@ describe('Tour', () => {
       );
 
       return request(app.getHttpServer())
-        .delete(`${TOUR_ROUTE_PREFIX}/${otherUserTour.id}`)
+        .delete(`${RoutePrefix.TOUR}/${otherUserTour.id}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(404);
     });

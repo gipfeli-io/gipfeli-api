@@ -32,12 +32,7 @@ import { UserSession } from '../../../src/auth/entities/user-session.entity';
 import { TokenDto } from '../../../src/auth/dto/auth.dto';
 import { UserRole } from '../../../src/user/entities/user.entity';
 import createLogin from '../utils/create-login';
-
-const AUTH_ROUTE_PREFIX = '/auth';
-const USER_ROUTE_PREFIX = '/users';
-const TOUR_ROUTE_PREFIX = '/tours';
-const LOOKUP_ROUTE_PREFIX = '/lookup';
-const MEDIA_ROUTE_PREFIX = '/media';
+import { RoutePrefix } from '../utils/route-prefix';
 
 const fileResponseMock: UploadedFileHandle = {
   identifier: 'mocked-identifier',
@@ -105,7 +100,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
     describe('Auth', () => {
       it('/refresh (POST)', () => {
         return request(app.getHttpServer())
-          .post(`${AUTH_ROUTE_PREFIX}/refresh`)
+          .post(`${RoutePrefix.AUTH}/refresh`)
           .set('Authorization', 'Bearer ' + tokens.refreshToken)
           .expect(201);
       });
@@ -114,7 +109,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
     describe('Lookup', () => {
       it('/tour-categories (POST)', () => {
         return request(app.getHttpServer())
-          .get(`${LOOKUP_ROUTE_PREFIX}/tour-categories`)
+          .get(`${RoutePrefix.LOOKUP}/tour-categories`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .expect(200);
       });
@@ -125,7 +120,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         const mockFile = path.join(__dirname, '../../mocks/image_with_gps.jpg');
 
         return request(app.getHttpServer())
-          .post(`${MEDIA_ROUTE_PREFIX}/upload-image`)
+          .post(`${RoutePrefix.MEDIA}/upload-image`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .attach('file', mockFile)
           .expect(201);
@@ -136,7 +131,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         const buffer = fs.readFileSync(mockFile);
 
         return request(app.getHttpServer())
-          .post(`${MEDIA_ROUTE_PREFIX}/upload-gpx-file`)
+          .post(`${RoutePrefix.MEDIA}/upload-gpx-file`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .attach('file', mockFile, {
             filename: 'test.gpx',
@@ -149,7 +144,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
     describe('Tours', () => {
       it('/ (GET)', () => {
         return request(app.getHttpServer())
-          .get(`${TOUR_ROUTE_PREFIX}/`)
+          .get(`${RoutePrefix.TOUR}/`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .expect(200);
       });
@@ -157,7 +152,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
       it('/ (POST)', () => {
         const tour = EntityCreator.createTour(userToCheckAgainst);
         return request(app.getHttpServer())
-          .post(`${TOUR_ROUTE_PREFIX}/`)
+          .post(`${RoutePrefix.TOUR}/`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .send({ ...tour })
           .expect(201);
@@ -169,7 +164,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         });
 
         return request(app.getHttpServer())
-          .get(`${TOUR_ROUTE_PREFIX}/${tour.id}`)
+          .get(`${RoutePrefix.TOUR}/${tour.id}`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .expect(200);
       });
@@ -180,7 +175,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         await tourRepository.save(newTour);
 
         return request(app.getHttpServer())
-          .patch(`${TOUR_ROUTE_PREFIX}/${newTour.id}`)
+          .patch(`${RoutePrefix.TOUR}/${newTour.id}`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .send({ name: 'Changing the name', images: [], categories: [] })
           .expect(200);
@@ -192,7 +187,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
         await tourRepository.save(newTour);
 
         return request(app.getHttpServer())
-          .delete(`${TOUR_ROUTE_PREFIX}/${newTour.id}`)
+          .delete(`${RoutePrefix.TOUR}/${newTour.id}`)
           .set('Authorization', 'Bearer ' + tokens.accessToken)
           .expect(200);
       });
@@ -202,7 +197,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
   describe('User routes throw 403 as admin is required', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${USER_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.USER}/`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(403);
     });
@@ -210,7 +205,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
     it('/:id (DELETE)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .delete(`${USER_ROUTE_PREFIX}/${uuid}`)
+        .delete(`${RoutePrefix.USER}/${uuid}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(403);
     });
@@ -219,7 +214,7 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
   describe('cleanUpMedia throws 401 as different token is required', () => {
     it('/clean-up-media (GET)', () => {
       return request(app.getHttpServer())
-        .get(`${MEDIA_ROUTE_PREFIX}/clean-up-media`)
+        .get(`${RoutePrefix.MEDIA}/clean-up-media`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(401);
     });
