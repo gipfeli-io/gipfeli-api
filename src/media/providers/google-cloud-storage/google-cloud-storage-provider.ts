@@ -8,8 +8,8 @@ import { Bucket, Storage } from '@google-cloud/storage';
 import { ConfigService } from '@nestjs/config';
 import { UploadFileDto } from '../../dto/file.dto';
 import { randomUUID } from 'crypto';
-import slugify from 'slugify';
 import { GoogleCloudStorageException } from './google-cloud-storage-provider.exceptions';
+import { slugifyFilename } from '../../utils/slugify-filename';
 
 @Injectable()
 export class GoogleCloudStorageProvider implements StorageProvider {
@@ -80,7 +80,7 @@ export class GoogleCloudStorageProvider implements StorageProvider {
    */
   private getFileName(fileName: string): string {
     const uuid = randomUUID();
-    const slugifiedFileName = slugify(fileName, { lower: true, strict: true });
+    const slugifiedFileName = slugifyFilename(fileName);
 
     return `${uuid}_${slugifiedFileName}`;
   }
