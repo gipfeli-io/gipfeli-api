@@ -21,9 +21,7 @@ import { CryptoService } from '../../../src/utils/crypto.service';
 import { UserSession } from '../../../src/auth/entities/user-session.entity';
 import { AuthModule } from '../../../src/auth/auth.module';
 import { MediaModule } from '../../../src/media/media.module';
-
-const USER_ROUTE_PREFIX = '/users';
-const MEDIA_ROUTE_PREFIX = '/media';
+import { RoutePrefix } from '../utils/route-prefix';
 
 describe('Admin Routes can be accessed by an admin user', () => {
   let app: INestApplication;
@@ -75,7 +73,7 @@ describe('Admin Routes can be accessed by an admin user', () => {
   describe('User', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${USER_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.USER}/`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(200);
     });
@@ -86,7 +84,7 @@ describe('Admin Routes can be accessed by an admin user', () => {
       await userRepository.save(newUser);
 
       return request(app.getHttpServer())
-        .delete(`${USER_ROUTE_PREFIX}/${newUser.id}`)
+        .delete(`${RoutePrefix.USER}/${newUser.id}`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(200);
     });
@@ -95,7 +93,7 @@ describe('Admin Routes can be accessed by an admin user', () => {
   describe('cleanUpMedia throws 401 as different token is required', () => {
     it('/clean-up-media (GET)', () => {
       return request(app.getHttpServer())
-        .get(`${MEDIA_ROUTE_PREFIX}/clean-up-media`)
+        .get(`${RoutePrefix.MEDIA}/clean-up-media`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(401);
     });

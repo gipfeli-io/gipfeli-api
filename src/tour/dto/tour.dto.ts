@@ -69,7 +69,6 @@ export class TourDto {
   userId: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
   @Type(() => SavedImageDto)
   images: SavedImageDto[];
 

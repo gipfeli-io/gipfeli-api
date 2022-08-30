@@ -19,9 +19,7 @@ import { TokenDto } from '../../../src/auth/dto/auth.dto';
 import { UserRole } from '../../../src/user/entities/user.entity';
 import createLogin from '../utils/create-login';
 import { TourModule } from '../../../src/tour/tour.module';
-
-const AUTH_ROUTE_PREFIX = '/auth';
-const TOUR_ROUTE_PREFIX = '/tours';
+import { RoutePrefix } from '../utils/route-prefix';
 
 describe('Check that guards check for the correct token', () => {
   let app: INestApplication;
@@ -71,14 +69,14 @@ describe('Check that guards check for the correct token', () => {
   describe('RefreshTokenGuard', () => {
     it('it fails if an access token is sent', () => {
       return request(app.getHttpServer())
-        .post(`${AUTH_ROUTE_PREFIX}/refresh`)
+        .post(`${RoutePrefix.AUTH}/refresh`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(401);
     });
 
     it('it succeeds if a refresh token is sent', () => {
       return request(app.getHttpServer())
-        .post(`${AUTH_ROUTE_PREFIX}/refresh`)
+        .post(`${RoutePrefix.AUTH}/refresh`)
         .set('Authorization', 'Bearer ' + tokens.refreshToken)
         .expect(201);
     });
@@ -87,14 +85,14 @@ describe('Check that guards check for the correct token', () => {
   describe('JwtAuthGuard', () => {
     it('it fails if a refresh token is sent', () => {
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.TOUR}/`)
         .set('Authorization', 'Bearer ' + tokens.refreshToken)
         .expect(401);
     });
 
     it('it succeeds if an access token is sent', () => {
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.TOUR}/`)
         .set('Authorization', 'Bearer ' + tokens.accessToken)
         .expect(200);
     });

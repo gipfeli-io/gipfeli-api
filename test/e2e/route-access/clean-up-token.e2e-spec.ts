@@ -14,16 +14,11 @@ import { randomUUID } from 'crypto';
 import { TourModule } from '../../../src/tour/tour.module';
 import { LookupModule } from '../../../src/lookup/lookup.module';
 import { MediaModule } from '../../../src/media/media.module';
-
-const AUTH_ROUTE_PREFIX = '/auth';
-const USER_ROUTE_PREFIX = '/users';
-const TOUR_ROUTE_PREFIX = '/tours';
-const LOOKUP_ROUTE_PREFIX = '/lookup';
-const MEDIA_ROUTE_PREFIX = '/media';
+import { RoutePrefix } from '../utils/route-prefix';
 
 describe('Cleanup token only allows access to cleanUpMedia, but not to any other route', () => {
   let app: INestApplication;
-  const cleanUpToken = process.env.CLEAN_UP_TOKEN
+  const cleanUpToken = process.env.CLEAN_UP_TOKEN;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -61,7 +56,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
   describe('Auth', () => {
     it('/refresh (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${AUTH_ROUTE_PREFIX}/refresh`)
+        .post(`${RoutePrefix.AUTH}/refresh`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -70,7 +65,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
   describe('Lookup', () => {
     it('/tour-categories (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${LOOKUP_ROUTE_PREFIX}/tour-categories`)
+        .get(`${RoutePrefix.LOOKUP}/tour-categories`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -79,21 +74,21 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
   describe('Media', () => {
     it('/upload-image (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${MEDIA_ROUTE_PREFIX}/upload-image`)
+        .post(`${RoutePrefix.MEDIA}/upload-image`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
 
     it('/upload-gpx-file (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${MEDIA_ROUTE_PREFIX}/upload-gpx-file`)
+        .post(`${RoutePrefix.MEDIA}/upload-gpx-file`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
 
     it('/clean-up-media (GET)', () => {
       return request(app.getHttpServer())
-        .get(`${MEDIA_ROUTE_PREFIX}/clean-up-media`)
+        .get(`${RoutePrefix.MEDIA}/clean-up-media`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(200);
     });
@@ -102,7 +97,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
   describe('Users', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${USER_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.USER}/`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -110,7 +105,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
     it('/:id (DELETE)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .delete(`${USER_ROUTE_PREFIX}/${uuid}`)
+        .delete(`${RoutePrefix.USER}/${uuid}`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -119,14 +114,14 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
   describe('Tours', () => {
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/`)
+        .get(`${RoutePrefix.TOUR}/`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
 
     it('/ (POST)', () => {
       return request(app.getHttpServer())
-        .post(`${TOUR_ROUTE_PREFIX}/`)
+        .post(`${RoutePrefix.TOUR}/`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -134,7 +129,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
     it('/:id (GET)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .get(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .get(`${RoutePrefix.TOUR}/${uuid}`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -142,7 +137,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
     it('/:id (PATCH)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .patch(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .patch(`${RoutePrefix.TOUR}/${uuid}`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });
@@ -150,7 +145,7 @@ describe('Cleanup token only allows access to cleanUpMedia, but not to any other
     it('/:id (DELETE)', () => {
       const uuid = randomUUID();
       return request(app.getHttpServer())
-        .delete(`${TOUR_ROUTE_PREFIX}/${uuid}`)
+        .delete(`${RoutePrefix.TOUR}/${uuid}`)
         .set('Authorization', 'Bearer ' + cleanUpToken)
         .expect(401);
     });

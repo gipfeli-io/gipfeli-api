@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { Tour } from './entities/tour.entity';
 import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
@@ -81,8 +81,16 @@ export class TourService {
 
     // We have to manually add our images and then merge the result, because
     // repository.update() does not sync relations.
-    existingTour.images = await this.getImagesFromDatabase(images, user);
-    existingTour.gpxFile = await this.getGpxFileFromDatabase(gpxFile, user);
+    existingTour.images = await this.getImagesFromDatabase(
+      images,
+      user,
+      existingTour,
+    );
+    existingTour.gpxFile = await this.getGpxFileFromDatabase(
+      gpxFile,
+      user,
+      existingTour,
+    );
     existingTour.categories = await this.getCategoryListFromDatabase(
       categories,
     );
@@ -106,21 +114,69 @@ export class TourService {
   private async getImagesFromDatabase(
     imagesToSave: SavedImageDto[],
     user: AuthenticatedUserDto,
+    existingTour: Tour = null,
   ): Promise<Image[]> {
+    // We only want images by the user and, if a tour is supplied e.g. in the
+    // case of an update, where tour id is either the current tour or null. This
+    // prevents the possibility of overriding tour relations of existing images.
+    let whereCondition: FindOneOptions<Image>;
+    if (existingTour) {
+      whereCondition = {
+        where: [
+          {
+            userId: user.id,
+            tourId: null,
+          },
+          {
+            userId: user.id,
+            tourId: existingTour.id,
+          },
+        ],
+      };
+    } else {
+      whereCondition = {
+        where: {
+          userId: user.id,
+          tourId: null,
+        },
+      };
+    }
+
     return this.imageRepository.findByIds(
       imagesToSave.map((image) => image.id),
-      { where: { user } },
+      whereCondition,
     );
   }
 
   private async getGpxFileFromDatabase(
     gpxFileToSave: SavedGpxFileDto,
     user: AuthenticatedUserDto,
+    existingTour: Tour = null,
   ): Promise<GpxFile> {
-    return gpxFileToSave
-      ? this.gpxFileRepository.findOne(gpxFileToSave.id, {
-          where: { user },
-        })
+    if (!gpxFileToSave) {
+      return null;
+    }
+
+    const gpxFile = await this.gpxFileRepository.findOne(gpxFileToSave.id, {
+      where: { user },
+      relations: ['tour'],
+    });
+
+    if (!gpxFile) {
+      return null;
+    }
+
+    // If no existing tour, we only return the file if it is not already
+    // assigned to another tour.
+    if (!existingTour) {
+      return gpxFile.tour === null ? gpxFile : null;
+    }
+
+    // If an existing tour, we only return the file if it is either not yet
+    // assigned to a tour or if it is already assigned to the existing tour.
+    return gpxFile.tour === null ||
+      (gpxFile.tour && gpxFile.tour.id === existingTour.id)
+      ? gpxFile
       : null;
   }
 
