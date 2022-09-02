@@ -14,7 +14,7 @@ const createLogin: (
 ) => Promise<TokenDto> = async (authService: AuthService, user: UserDto) => {
   const sessionId = await authService.createSession(user.id);
 
-  return await authService.createTokenResponse(
+  return authService.createTokenResponse(
     user.id,
     user.email,
     sessionId,

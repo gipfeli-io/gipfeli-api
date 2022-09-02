@@ -13,7 +13,6 @@ import { Point } from 'geojson';
 
 @Entity()
 export class Image {
-  //Todo: should we save the provider as well? a bit overkill, but...
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

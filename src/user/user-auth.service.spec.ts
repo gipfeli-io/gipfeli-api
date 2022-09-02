@@ -140,7 +140,7 @@ describe('UserAuthService', () => {
       });
 
       const result = async () =>
-        await userAuthService.activateUser(activateUserDto);
+        userAuthService.activateUser(activateUserDto);
 
       await expect(result).rejects.toThrow(BadRequestException);
     });
@@ -152,7 +152,7 @@ describe('UserAuthService', () => {
       userRepositoryMock.findOne.mockReturnValue(null);
 
       const result = async () =>
-        await userAuthService.createPasswordResetTokenForUser(user);
+        userAuthService.createPasswordResetTokenForUser(user);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -258,7 +258,7 @@ describe('UserAuthService', () => {
       };
 
       const result = async () =>
-        await userAuthService.resetPassword(setNewPasswordDto);
+        userAuthService.resetPassword(setNewPasswordDto);
 
       await expect(result).rejects.toThrow(BadRequestException);
     });

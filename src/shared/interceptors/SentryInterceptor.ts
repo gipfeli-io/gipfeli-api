@@ -19,7 +19,7 @@ export class SentryInterceptor implements NestInterceptor {
       catchError((error: any) => {
         Sentry.captureException(error);
 
-        return throwError(error);
+        return throwError(() => error);
       }),
     );
   }

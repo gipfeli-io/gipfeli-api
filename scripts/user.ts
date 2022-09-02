@@ -79,8 +79,7 @@ const createUser = async () => {
 };
 
 const argv = yargs(process.argv.splice(2))
-  .command('create', 'Create a new user (interactively)', () => {
-  }, createUser)
+  .command('create', 'Create a new user (interactively)', {}, createUser)
   .demandCommand(1, 1, 'choose a command')
   .strict()
   .help('h').argv;
