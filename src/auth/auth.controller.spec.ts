@@ -59,7 +59,7 @@ describe('AuthController', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key: string) => {
+            get: jest.fn((_key: string) => {
               // We only need dummy values, and all of the called config values are numbers
               return 10;
             }),
@@ -248,10 +248,9 @@ describe('AuthController', () => {
         });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () =>
-        await authController.passwordResetRequest({ email });
+      const result = async () => authController.passwordResetRequest({ email });
 
-      await expect(result).not.toThrow();
+      expect(result).not.toThrow();
     });
 
     it('throws exceptions other than NotFoundError', async () => {
@@ -262,8 +261,7 @@ describe('AuthController', () => {
         });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () =>
-        await authController.passwordResetRequest({ email });
+      const result = async () => authController.passwordResetRequest({ email });
 
       await expect(result).rejects.toThrow(Error);
     });

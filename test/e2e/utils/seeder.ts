@@ -17,14 +17,14 @@ export class Seeder {
 
   public async seedData() {
     const users = await this.seedUsers();
-    const tours = await this.seedTours(users);
+    await this.seedTours(users);
   }
 
   private async seedUsers(): Promise<User[]> {
     const userRepository = this.connection.getRepository<User>(User);
 
     const entities = userRepository.create(Seeder.seeds.users);
-    return await userRepository.save(entities);
+    return userRepository.save(entities);
   }
 
   private async seedTours(users: User[]) {
@@ -34,6 +34,6 @@ export class Seeder {
     entities[0].userId = users[0].id;
     entities[1].userId = users[1].id;
 
-    return await tourRepository.save(entities);
+    return tourRepository.save(entities);
   }
 }

@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -17,7 +16,6 @@ import {
   ApiNotFoundResponse,
   ApiParam,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 @ApiBearerAuth('default')

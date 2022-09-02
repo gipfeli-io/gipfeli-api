@@ -139,7 +139,7 @@ describe('AuthService', () => {
         throw new NotFoundException();
       });
 
-      const call = async () => await authService.validateUser(email, password);
+      const call = async () => authService.validateUser(email, password);
 
       await expect(call).rejects.toThrow(NotFoundException);
     });
@@ -152,9 +152,7 @@ describe('AuthService', () => {
       sessionRepositoryMock.create.mockReturnValue(mockSession);
       sessionRepositoryMock.save.mockReturnValue(mockSession);
 
-      await expect(await authService.createSession(userId)).toEqual(
-        mockSession.id,
-      );
+      expect(await authService.createSession(userId)).toEqual(mockSession.id);
     });
   });
 
