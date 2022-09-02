@@ -13,4 +13,11 @@ export class TourCategoryDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  /**
+   * @example 'hiking.svg'
+   */
+  @IsString()
+  @IsNotEmpty()
+  iconName: string;
 }

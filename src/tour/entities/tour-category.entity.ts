@@ -9,6 +9,9 @@ export class TourCategory {
   @Column()
   name: string;
 
+  @Column()
+  iconName: string;
+
   @ManyToMany(() => Tour, (tour) => tour.categories)
   tours: Tour[];
 }
