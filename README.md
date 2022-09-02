@@ -15,6 +15,9 @@ this: [Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
 
 ## Installation
 
+> **_NOTE:_** If you copy the .env.example file to create a new .env file please be aware that comments on the same
+> line as variables (e.g. `SOME_VAR= #this is the comment`) must be removed, otherwise there will be build errors.
+
 After setting up the database please do the following steps:
 
 - Clone the repository
