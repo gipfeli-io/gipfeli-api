@@ -76,7 +76,7 @@ export class MediaService {
      This does only apply for the tour conditions; media without a user is
      immediately deleted.
     */
-    const bufferDate = dayjs().toDate();
+    const bufferDate = dayjs().subtract(1, 'day').toDate();
     const dateCondition = LessThan(bufferDate);
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
