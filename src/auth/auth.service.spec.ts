@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
-import { NotFoundException } from '@nestjs/common';
 import { UserToken } from '../user/entities/user-token.entity';
 import repositoryMockFactory, {
   RepositoryMockType,
