@@ -231,7 +231,6 @@ describe('UserService', () => {
 
       await userService.create(createUserDto);
 
-      // todo: check why test calls this with user object?
       expect(tokenRepositoryMock.create).toHaveBeenCalledWith(
         expect.objectContaining({
           token: expect.any(String),
