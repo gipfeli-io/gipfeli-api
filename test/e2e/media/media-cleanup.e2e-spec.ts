@@ -95,6 +95,29 @@ describe('Media cleanup ', () => {
     await app.init();
   });
 
+  it('Does not delete media files which are older than 1 day and assigned to a tour', async () => {
+    const date = dayjs().subtract(2, 'days').toDate();
+    const gpxFile = await gpxFileRepository.save(
+      EntityCreator.createGpxFile(userToCheckAgainst, date),
+    );
+    const tour = await tourRepository.save(
+      EntityCreator.createTour(userToCheckAgainst, null, gpxFile),
+    );
+    const image = await imageRepository.save(
+      EntityCreator.createImage(userToCheckAgainst, tour, date),
+    );
+
+    await request(app.getHttpServer())
+      .get(`${RoutePrefix.MEDIA}/clean-up-media`)
+      .set('Authorization', 'Bearer ' + cleanUpToken);
+
+    const imageExists = await imageRepository.count({ id: image.id });
+    const gpxFileExists = await gpxFileRepository.count({ id: gpxFile.id });
+
+    expect(imageExists).toEqual(1);
+    expect(gpxFileExists).toEqual(1);
+  });
+
   it('Does not delete media files which are less than 1 day old', async () => {
     const image = await imageRepository.save(
       EntityCreator.createImage(userToCheckAgainst, null, new Date()),
