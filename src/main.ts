@@ -54,7 +54,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new SentryInterceptor());
   }
 
-  // Setup swagger. Todo: do we want this in production and staging?
+  // Setup swagger.
   swaggerSetup(app);
 
   await app.listen(port);

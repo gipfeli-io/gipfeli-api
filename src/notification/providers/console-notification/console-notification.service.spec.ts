@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { CleanUpResultDto } from '../../../media/dto/clean-up-result.dto';
 import { TokenizedMessage } from '../../enums/tokenized-message';
 import { UserRole } from '../../../user/entities/user.entity';
-import { UserDto } from '../../../user/dto/user.dto';
 
 const defaultBaseUrl = 'https://test.gipfeli.io';
 const token = 'xyz';

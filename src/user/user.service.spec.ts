@@ -107,7 +107,7 @@ describe('UserService', () => {
         };
       });
 
-      const result = async () => await userService.findOne(mockUser.email);
+      const result = async () => userService.findOne(mockUser.email);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -133,7 +133,7 @@ describe('UserService', () => {
         };
       });
 
-      const result = async () => await userService.findOne(mockUser.email);
+      const result = async () => userService.findOne(mockUser.email);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -147,7 +147,7 @@ describe('UserService', () => {
       });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () => await userService.findOne(email);
+      const result = async () => userService.findOne(email);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -185,7 +185,7 @@ describe('UserService', () => {
       });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () => await userService.findOneForAuth(email);
+      const result = async () => userService.findOneForAuth(email);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -262,7 +262,7 @@ describe('UserService', () => {
         throw new Error();
       });
 
-      const result = async () => await userService.create(createUserDto);
+      const result = async () => userService.create(createUserDto);
 
       await expect(result).rejects.toThrow(Error);
     });
@@ -291,7 +291,7 @@ describe('UserService', () => {
       const { id } = defaultUser;
       userRepositoryMock.delete.mockReturnValue({ affected: 0 });
 
-      const result = async () => await userService.remove(id);
+      const result = async () => userService.remove(id);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
