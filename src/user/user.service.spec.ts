@@ -231,7 +231,6 @@ describe('UserService', () => {
 
       await userService.create(createUserDto);
 
-      // todo: check why test calls this with user object?
       expect(tokenRepositoryMock.create).toHaveBeenCalledWith(
         expect.objectContaining({
           token: expect.any(String),
@@ -252,7 +251,7 @@ describe('UserService', () => {
         });
       });
 
-      const result = async () => await userService.create(createUserDto);
+      const result = async () => userService.create(createUserDto);
 
       await expect(result).rejects.toThrow(UserAlreadyExistsException);
     });

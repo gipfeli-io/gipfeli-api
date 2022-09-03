@@ -4,6 +4,10 @@ import { Image } from '../../../src/media/entities/image.entity';
 
 import { faker } from '@faker-js/faker';
 import { GpxFile } from '../../../src/media/entities/gpx-file.entity';
+import {
+  UserToken,
+  UserTokenType,
+} from '../../../src/user/entities/user-token.entity';
 
 export class EntityCreator {
   public static createTour(
@@ -75,6 +79,21 @@ export class EntityCreator {
       sessions: [],
       tokens: [],
       gpxFiles: [],
+    };
+  }
+
+  public static createUserToken(
+    user: User,
+    type: UserTokenType,
+    overrideToken: string = null,
+    overrideDate: Date = null,
+  ): UserToken {
+    return {
+      user: user,
+      token: overrideToken ?? faker.datatype.uuid(),
+      userId: user.id,
+      createdAt: overrideDate ?? faker.date.past(),
+      tokenType: type,
     };
   }
 }
