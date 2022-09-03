@@ -108,7 +108,6 @@ export class MediaService {
   private async cleanUpGpxFiles(
     dateCondition: FindOperator<Date>,
   ): Promise<CleanUpResultDto> {
-    // todo: add integration test for this
     const unusedGpxFilesCondition = new Brackets((qb) => {
       qb.where('tour.gpxFileId IS NULL').andWhere({
         createdAt: dateCondition,

@@ -130,19 +130,6 @@ describe('AuthService', () => {
 
       expect(result).toEqual(null);
     });
-
-    it('throws NotFoundException if user and password do not match or do not exist and the user service throws the exception', async () => {
-      // todo: is this test needed? the exception thrown is tested in userservice, and just rethrown here without catch?
-      const email = 'peter@gipfeli.io';
-      const password = '5678';
-      jest.spyOn(userService, 'findOneForAuth').mockImplementation(() => {
-        throw new NotFoundException();
-      });
-
-      const call = async () => authService.validateUser(email, password);
-
-      await expect(call).rejects.toThrow(NotFoundException);
-    });
   });
 
   describe('createSession', () => {

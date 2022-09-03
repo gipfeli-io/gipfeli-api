@@ -252,7 +252,7 @@ describe('UserService', () => {
         });
       });
 
-      const result = async () => await userService.create(createUserDto);
+      const result = async () => userService.create(createUserDto);
 
       await expect(result).rejects.toThrow(UserAlreadyExistsException);
     });
