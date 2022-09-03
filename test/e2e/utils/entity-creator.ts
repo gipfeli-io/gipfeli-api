@@ -27,12 +27,16 @@ export class EntityCreator {
     };
   }
 
-  public static createImage(user: User = null, tour: Tour = null): Image {
+  public static createImage(
+    user: User = null,
+    tour: Tour = null,
+    overrideDate: Date = null,
+  ): Image {
     return {
       id: faker.datatype.uuid(),
       identifier: faker.lorem.sentence(1),
-      createdAt: faker.date.past(),
-      updatedAt: faker.date.past(),
+      createdAt: overrideDate ?? faker.date.past(),
+      updatedAt: overrideDate ?? faker.date.past(),
       user: user,
       location: null,
       userId: user?.id,
@@ -41,13 +45,16 @@ export class EntityCreator {
     };
   }
 
-  public static createGpxFile(user: User = null): GpxFile {
+  public static createGpxFile(
+    user: User = null,
+    overrideDate: Date = null,
+  ): GpxFile {
     return {
       id: faker.datatype.uuid(),
       identifier: faker.lorem.sentence(1),
       name: faker.system.commonFileName('gpx'),
-      createdAt: faker.date.past(),
-      updatedAt: faker.date.past(),
+      createdAt: overrideDate ?? faker.date.past(),
+      updatedAt: overrideDate ?? faker.date.past(),
       user: user,
     };
   }
