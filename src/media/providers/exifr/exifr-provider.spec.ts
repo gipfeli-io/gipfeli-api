@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import exifr, { gps } from 'exifr';
+import exifr from 'exifr';
 import { ExifrProvider } from './exifr-provider';
 import { UploadFileDto } from '../../dto/file.dto';
 import { Readable } from 'stream';

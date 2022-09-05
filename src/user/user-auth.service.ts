@@ -31,7 +31,8 @@ export class UserAuthService {
    * might have (in theory) several activation tokens (e.g. by requesting new
    * tokens), they all need to be checked for validity.
    *
-   * Todo: Add token validity period with createdAt
+   * Currently, the activation token is valid forever - this could be changed in
+   * the future (as with the reset password token).
    *
    * @param activateUserDto
    */
@@ -50,8 +51,7 @@ export class UserAuthService {
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
       });
 
-      user.isActive = true;
-      await this.userRepository.save(user);
+      await this.userRepository.update({ id: user.id }, { isActive: true });
 
       return Promise.resolve();
     }
@@ -106,8 +106,11 @@ export class UserAuthService {
         tokenType: UserTokenType.PASSWORD_RESET,
       });
 
-      user.password = await this.cryptoService.hash(password);
-      await this.userRepository.save(user);
+      const hashedPassword = await this.cryptoService.hash(password);
+      await this.userRepository.update(
+        { id: user.id },
+        { password: hashedPassword },
+      );
 
       return Promise.resolve();
     }
@@ -139,13 +142,11 @@ export class UserAuthService {
       user = await this.userRepository
         .createQueryBuilder('user')
         .innerJoinAndSelect(
-          // todo: add integration test for this
           'user.tokens',
           'tokens',
-          '"tokenType" = :tokenType AND tokens."createdAt" >= :validFrom',
+          '"tokenType" = :tokenType',
           {
             tokenType: tokenType,
-            validFrom: validFrom.toISOString(),
           },
         )
         .where({ id: userId, isActive })
@@ -158,7 +159,12 @@ export class UserAuthService {
       // At this point, something bad happened, so we raise the actual error
       throw e;
     }
-    const hasValidToken = await this.checkForValidToken(user.tokens, token);
+
+    // We filter the validity here (and not in the SQL above) because TypeORM
+    // handles createdAt columns without timestamps, so executing a raw query
+    // with a date comparison will not handle the timezones properly.
+    const tokens = user.tokens.filter((token) => token.createdAt > validFrom);
+    const hasValidToken = await this.checkForValidToken(tokens, token);
 
     return { hasValidToken, user };
   }

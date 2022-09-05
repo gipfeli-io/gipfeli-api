@@ -11,10 +11,9 @@ import {
 } from '@nestjs/common';
 import { TourService } from './tour.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateTourDto, TourDto } from './dto/tour.dto';
+import { CreateTourDto, TourDto, UpdateTourDto } from './dto/tour.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { User } from '../utils/decorators/user.decorator';
-import { UpdateTourDto } from './dto/tour.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,

@@ -39,7 +39,8 @@ describe('AppController', () => {
     it('dispatches a debug message to Mister Debug', async () => {
       const recipient = { name: 'Mister Debug', email: 'debug@gipfeli.io' };
       const message = 'This is a test message.';
-      const result = await appController.debugMsg();
+
+      await appController.debugMsg();
 
       expect(notificationServiceMock.sendDebugMessage).toHaveBeenCalledTimes(1);
       expect(notificationServiceMock.sendDebugMessage).toHaveBeenCalledWith(

@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { CryptoService } from '../utils/crypto.service';
 import * as bcrypt from 'bcrypt';
-import { NotFoundException } from '@nestjs/common';
 import { UserToken } from '../user/entities/user-token.entity';
 import repositoryMockFactory, {
   RepositoryMockType,
@@ -130,19 +129,6 @@ describe('AuthService', () => {
 
       expect(result).toEqual(null);
     });
-
-    it('throws NotFoundException if user and password do not match or do not exist and the user service throws the exception', async () => {
-      // todo: is this test needed? the exception thrown is tested in userservice, and just rethrown here without catch?
-      const email = 'peter@gipfeli.io';
-      const password = '5678';
-      jest.spyOn(userService, 'findOneForAuth').mockImplementation(() => {
-        throw new NotFoundException();
-      });
-
-      const call = async () => await authService.validateUser(email, password);
-
-      await expect(call).rejects.toThrow(NotFoundException);
-    });
   });
 
   describe('createSession', () => {
@@ -152,9 +138,7 @@ describe('AuthService', () => {
       sessionRepositoryMock.create.mockReturnValue(mockSession);
       sessionRepositoryMock.save.mockReturnValue(mockSession);
 
-      await expect(await authService.createSession(userId)).toEqual(
-        mockSession.id,
-      );
+      expect(await authService.createSession(userId)).toEqual(mockSession.id);
     });
   });
 

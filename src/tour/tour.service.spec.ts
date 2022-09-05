@@ -144,7 +144,7 @@ describe('TourService', () => {
     it('raises NotFoundException if the query does not return a result', async () => {
       tourRepositoryMock.findOne.mockReturnValue(undefined);
 
-      const result = async () => await tourService.findOne(mockId, mockUser);
+      const result = async () => tourService.findOne(mockId, mockUser);
       await expect(result).rejects.toThrow(NotFoundException);
     });
   });
@@ -316,7 +316,7 @@ describe('TourService', () => {
       tourRepositoryMock.findOne.mockReturnValue(undefined);
 
       const result = async () =>
-        await tourService.update(mockId, mockExistingTour, mockUser);
+        tourService.update(mockId, mockExistingTour, mockUser);
 
       await expect(result).rejects.toThrow(NotFoundException);
       expect(tourRepositoryMock.findOne).toHaveBeenCalledTimes(1);
@@ -439,7 +439,7 @@ describe('TourService', () => {
     it('raises NotFoundException if trying to delete tour that does not match selection', async () => {
       tourRepositoryMock.delete.mockReturnValue({ affected: 0 });
 
-      const result = async () => await tourService.remove(mockId, mockUser);
+      const result = async () => tourService.remove(mockId, mockUser);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });

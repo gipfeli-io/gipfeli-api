@@ -4,6 +4,10 @@ import { Image } from '../../../src/media/entities/image.entity';
 
 import { faker } from '@faker-js/faker';
 import { GpxFile } from '../../../src/media/entities/gpx-file.entity';
+import {
+  UserToken,
+  UserTokenType,
+} from '../../../src/user/entities/user-token.entity';
 
 export class EntityCreator {
   public static createTour(
@@ -27,12 +31,16 @@ export class EntityCreator {
     };
   }
 
-  public static createImage(user: User = null, tour: Tour = null): Image {
+  public static createImage(
+    user: User = null,
+    tour: Tour = null,
+    overrideDate: Date = null,
+  ): Image {
     return {
       id: faker.datatype.uuid(),
       identifier: faker.lorem.sentence(1),
-      createdAt: faker.date.past(),
-      updatedAt: faker.date.past(),
+      createdAt: overrideDate ?? faker.date.past(),
+      updatedAt: overrideDate ?? faker.date.past(),
       user: user,
       location: null,
       userId: user?.id,
@@ -41,13 +49,16 @@ export class EntityCreator {
     };
   }
 
-  public static createGpxFile(user: User = null): GpxFile {
+  public static createGpxFile(
+    user: User = null,
+    overrideDate: Date = null,
+  ): GpxFile {
     return {
       id: faker.datatype.uuid(),
       identifier: faker.lorem.sentence(1),
       name: faker.system.commonFileName('gpx'),
-      createdAt: faker.date.past(),
-      updatedAt: faker.date.past(),
+      createdAt: overrideDate ?? faker.date.past(),
+      updatedAt: overrideDate ?? faker.date.past(),
       user: user,
     };
   }
@@ -68,6 +79,21 @@ export class EntityCreator {
       sessions: [],
       tokens: [],
       gpxFiles: [],
+    };
+  }
+
+  public static createUserToken(
+    user: User,
+    type: UserTokenType,
+    overrideToken: string = null,
+    overrideDate: Date = null,
+  ): UserToken {
+    return {
+      user: user,
+      token: overrideToken ?? faker.datatype.uuid(),
+      userId: user.id,
+      createdAt: overrideDate ?? faker.date.past(),
+      tokenType: type,
     };
   }
 }

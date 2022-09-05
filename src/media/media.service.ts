@@ -76,7 +76,7 @@ export class MediaService {
      This does only apply for the tour conditions; media without a user is
      immediately deleted.
     */
-    const bufferDate = dayjs().toDate();
+    const bufferDate = dayjs().subtract(1, 'day').toDate();
     const dateCondition = LessThan(bufferDate);
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
@@ -108,7 +108,6 @@ export class MediaService {
   private async cleanUpGpxFiles(
     dateCondition: FindOperator<Date>,
   ): Promise<CleanUpResultDto> {
-    // todo: add integration test for this
     const unusedGpxFilesCondition = new Brackets((qb) => {
       qb.where('tour.gpxFileId IS NULL').andWhere({
         createdAt: dateCondition,

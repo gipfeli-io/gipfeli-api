@@ -81,11 +81,13 @@ describe('UserAuthService', () => {
 
   describe('activateUser', () => {
     it('activates a user and deletes the tokens', async () => {
-      const token = {
+      const token: UserToken = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
         user: mockUser,
-      } as UserToken;
+        userId: mockUser.id,
+        createdAt: new Date(),
+      };
 
       mockUser.isActive = false;
       mockUser.tokens = [token];
@@ -109,10 +111,11 @@ describe('UserAuthService', () => {
         tokenType: UserTokenType.ACCOUNT_ACTIVATION,
         userId: mockUser.id,
       });
-      expect(userRepositoryMock.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isActive: true,
-        }),
+      expect(userRepositoryMock.update).toHaveBeenCalledWith(
+        {
+          id: mockUser.id,
+        },
+        { isActive: true },
       );
     });
 
@@ -139,8 +142,7 @@ describe('UserAuthService', () => {
         };
       });
 
-      const result = async () =>
-        await userAuthService.activateUser(activateUserDto);
+      const result = async () => userAuthService.activateUser(activateUserDto);
 
       await expect(result).rejects.toThrow(BadRequestException);
     });
@@ -152,7 +154,7 @@ describe('UserAuthService', () => {
       userRepositoryMock.findOne.mockReturnValue(null);
 
       const result = async () =>
-        await userAuthService.createPasswordResetTokenForUser(user);
+        userAuthService.createPasswordResetTokenForUser(user);
 
       await expect(result).rejects.toThrow(NotFoundException);
     });
@@ -194,11 +196,13 @@ describe('UserAuthService', () => {
 
   describe('resetPassword', () => {
     it('sets a user password and deletes the tokens', async () => {
-      const token = {
+      const token: UserToken = {
         token: await cryptoService.hash(tokenValue),
         tokenType: UserTokenType.PASSWORD_RESET,
         user: mockUser,
-      } as UserToken;
+        userId: mockUser.id,
+        createdAt: new Date(),
+      };
       mockUser.tokens = [token];
       userRepositoryMock.createQueryBuilder.mockImplementation(() => {
         return {
@@ -227,9 +231,10 @@ describe('UserAuthService', () => {
         tokenType: UserTokenType.PASSWORD_RESET,
         userId: mockUser.id,
       });
-      expect(userRepositoryMock.save).toHaveBeenCalled();
+      expect(userRepositoryMock.update).toHaveBeenCalled();
       expect(cryptoSpy).toHaveBeenCalledWith(newPassword);
-      expect(userRepositoryMock.save.mock.calls[0][0]).toEqual(
+      expect(userRepositoryMock.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: mockUser.id }),
         expect.objectContaining({ password: mockHash }),
       );
     });
@@ -258,7 +263,7 @@ describe('UserAuthService', () => {
       };
 
       const result = async () =>
-        await userAuthService.resetPassword(setNewPasswordDto);
+        userAuthService.resetPassword(setNewPasswordDto);
 
       await expect(result).rejects.toThrow(BadRequestException);
     });

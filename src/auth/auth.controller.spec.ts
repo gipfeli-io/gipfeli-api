@@ -23,7 +23,7 @@ import { JwtModule } from '@nestjs/jwt';
 import * as httpMocks from 'node-mocks-http';
 import { NotificationServiceInterface } from '../notification/types/notification-service';
 import { UserSession } from './entities/user-session.entity';
-import { UserIdentifier } from './types/auth';
+import { RefreshedToken, UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common';
 import { UserAuthService } from '../user/user-auth.service';
@@ -59,7 +59,7 @@ describe('AuthController', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key: string) => {
+            get: jest.fn((_key: string) => {
               // We only need dummy values, and all of the called config values are numbers
               return 10;
             }),
@@ -216,7 +216,37 @@ describe('AuthController', () => {
     });
   });
 
-  // todo: add tests for refreshToken()
+  describe('refreshToken', () => {
+    it('calls authService.createTokenResponse() with the correct data from the request', async () => {
+      const mockReturn = Promise.resolve<TokenDto>({
+        refreshToken: 'xxx',
+        accessToken: 'yyy',
+      });
+      const mockRefresh: RefreshedToken = {
+        sub: 'test',
+        email: 'test@gipfeli.io',
+        sessionId: 'xxx',
+        role: UserRole.USER,
+      };
+      const mockRequest = httpMocks.createRequest({
+        user: mockRefresh,
+      });
+
+      const spy = jest
+        .spyOn(authService, 'createTokenResponse')
+        .mockReturnValue(mockReturn);
+
+      await authController.refreshToken(mockRequest);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        mockRefresh.sub,
+        mockRefresh.email,
+        mockRefresh.sessionId,
+        mockRefresh.role,
+      );
+    });
+  });
 
   describe('passwordResetRequest', () => {
     it('calls userService to create a token and sends a message containing the token to the user', async () => {
@@ -248,10 +278,9 @@ describe('AuthController', () => {
         });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () =>
-        await authController.passwordResetRequest({ email });
+      const result = async () => authController.passwordResetRequest({ email });
 
-      await expect(result).not.toThrow();
+      expect(result).not.toThrow();
     });
 
     it('throws exceptions other than NotFoundError', async () => {
@@ -262,8 +291,7 @@ describe('AuthController', () => {
         });
       const email = 'does-not-exist@gipfeli.io';
 
-      const result = async () =>
-        await authController.passwordResetRequest({ email });
+      const result = async () => authController.passwordResetRequest({ email });
 
       await expect(result).rejects.toThrow(Error);
     });
