@@ -101,7 +101,6 @@ export class UserService {
     });
 
     try {
-      // Todo: Wrap this in transaction?
       const savedUser = await this.userRepository.save(newUser);
       newUserToken.user = savedUser;
       await this.tokenRepository.save(newUserToken);
