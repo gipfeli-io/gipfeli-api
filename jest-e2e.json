@@ -1,0 +1,22 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "./src",
+  "roots": ["../test"],
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "testTimeout": 20000,
+  "setupFiles": [
+    "../test/e2e/dotenv-config.js"
+  ],
+  "setupFilesAfterEnv": [
+    "../test/e2e/set-up-db.ts"
+  ],
+  "collectCoverageFrom": [
+    "**/*.(t|j)s"
+  ],
+  "coverageDirectory": "../coverage/e2e",
+  "silent": true
+}

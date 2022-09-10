@@ -1,35 +1,38 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Gipfeli.io API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![CI](https://github.com/gipfeli-io/gipfeli-api/actions/workflows/deployment.yml/badge.svg?branch=stage)
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This repository contains the backend for gipfeli.io and is implemented using [Nest](https://github.com/nestjs/nest). See
+below description on how to install and run the gipfeli.io backend.
+
+## Prerequisites
+
+Before you can run the TypeORM migrations you will need to setup a postgres database and install the PostGIS extension.
+Please check out the documentation for more details on how to do
+this: [Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
 
 ## Installation
 
+> **_NOTE:_** If you copy the .env.example file to create a new .env file please be aware that comments on the same
+> line as variables (e.g. `SOME_VAR= #this is the comment`) must be removed, otherwise there will be build errors.
+
+After setting up the database please do the following steps:
+
+- Clone the repository
+- Create an `.env` file based on the `.env.example` and adjust the values
+- Run the commands below:
+
 ```bash
-$ npm install
+# install dependencies
+$ npm i 
+
+# execute typeorm migrations to initialize database
+$ npm run typeorm-migration
+
+# create a user interactively
+$ npm run create-user
 ```
 
 ## Running the app
@@ -47,27 +50,60 @@ $ npm run start:prod
 
 ## Test
 
+### Unit tests
+
+Unit tests should not rely on any third party services and are mocked accordingly. No database connection is required.
+
 ```bash
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
+# with coverage
 $ npm run test:cov
 ```
 
-## Support
+### e2e tests
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+These tests require an existing database. You can create a `.env.testing` file and specify configuration values that you
+want to override from your normal `.env` file, most notably the database name. Notice that both env files are loaded,
+which allows you to not define configuration values multiple times - you just override those that differ from your
+development environment.
 
-## Stay in touch
+```bash
+# e2e tests
+$ npm run test:e2e
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# with coverage
+$npm run test:e2e:cov
+```
 
-## License
+#### Merging coverage
 
-Nest is [MIT licensed](LICENSE).
+Both test types create their own directory in the `./coverage` folder. If you need the combined JSON output as if it was
+one test run, move both JSON outputs from their directory to the `./coverage` folder and run the following commands:
+
+```bash
+# merge the files
+$ npm run coverage:merge
+
+# generate the merged .lcov file
+$npm run coverage:generate
+```
+
+This is also used in our pipeline so SonarCloud gets the full coverage report from both test runs. See the CI file for
+how it's done there.
+
+## Working with Swagger documentation
+
+We are using the official [nest integration](https://docs.nestjs.com/openapi/introduction) for our documentation. The
+documentation can be found by accessing `/api`. It is generated on the fly and we're also
+using [the nest CLI option](https://docs.nestjs.com/openapi/cli-plugin) to avoid a lot of boilerplate. For this to work,
+some things have to be kept in mind when developing:
+
+* DTOs must **always** be in a file ending in `.dto.ts`. If this is done, they will be automatically inspected and added
+  to the docs.
+* Sometimes, the docs are not updated. If that happens, run `rimraf dist` and force nest to build the whole directory
+  from scratch.
+* Parameter inspection does not work - use `@ApiParam()` for that.
+* Add comments to add more information. They are inspected automatically and add more depth to the documentation. You
+  can also use things link `@example` which are then used in the API documentation as well.
