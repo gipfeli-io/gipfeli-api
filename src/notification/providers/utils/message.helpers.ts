@@ -14,5 +14,5 @@ export const getTokenizedLinkForUser = (
   userId: string,
   messageType: TokenizedMessage,
 ): string => {
-  return `${baseUrl}${messageType}${userId}/${token}"`;
+  return `${baseUrl}${messageType}${userId}/${token}`;
 };
