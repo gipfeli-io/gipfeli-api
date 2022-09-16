@@ -29,8 +29,8 @@ class IsPointConstraint implements ValidatorConstraintInterface {
 
     // GeoJSON coordinates are in the format of Lon/Lat
     return (
-      isLongitude(point.coordinates[1].toString()) &&
-      isLatitude(point.coordinates[0].toString())
+      isLongitude(point.coordinates[0].toString()) &&
+      isLatitude(point.coordinates[1].toString())
     );
   }
 }

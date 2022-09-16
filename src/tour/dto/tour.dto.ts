@@ -18,7 +18,7 @@ import { Type } from 'class-transformer';
 import {
   IsPointApiProperty,
   IsUUIDApiProperty,
-} from '../../utils/decorators/custom-api-propertes.decorator';
+} from '../../utils/decorators/custom-api-properties.decorator';
 
 export class TourDto {
   @IsUUIDApiProperty()

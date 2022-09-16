@@ -14,7 +14,33 @@ const API_LICENSE = {
   url: 'https://github.com/gipfeli-io/gipfeli-api/blob/stage/LICENSE',
 };
 
-const swaggerSetup = (app: INestApplication) => {
+const DisableTryItOutPlugin = () => {
+  return {
+    statePlugins: {
+      spec: {
+        wrapSelectors: {
+          allowTryItOutFor: () => () => false,
+        },
+      },
+    },
+  };
+};
+
+const DisableAuthorizePlugin = function () {
+  return {
+    wrapComponents: {
+      authorizeBtn: () => () => null,
+    },
+  };
+};
+
+const swaggerSetup = (app: INestApplication, environment: string) => {
+  // Disable tryout buttons and authorize on staging/production only
+  const plugins =
+    environment === 'production' || environment === 'staging'
+      ? [DisableTryItOutPlugin, DisableAuthorizePlugin]
+      : [];
+
   const config = new DocumentBuilder()
     .setTitle(API_TITLE)
     .setDescription(API_DESCRIPTION)
@@ -48,6 +74,7 @@ const swaggerSetup = (app: INestApplication) => {
     swaggerOptions: {
       operationsSorter: 'alpha',
       tagsSorter: 'alpha',
+      plugins,
     },
   });
 };

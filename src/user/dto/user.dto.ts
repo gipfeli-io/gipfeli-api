@@ -10,7 +10,7 @@ import {
 import { UserRole } from '../entities/user.entity';
 import { MatchesOtherProperty } from './validators/matches-other-property.decorator';
 import { IsStrongPassword } from './validators/is-strong-password.decorator';
-import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-propertes.decorator';
+import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-properties.decorator';
 
 export class UserDto {
   @IsUUIDApiProperty()

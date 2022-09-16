@@ -54,24 +54,83 @@ describe('IsPoint Decorator', () => {
   });
 
   /**
-   * For the next two tests, we only check for one boundary value, since we're only interested in whether the
-   * IsLatitude() or IsLongitude() check is invoked. The actual handling of boundary values should be tested
-   * in these provided functions.
+   * For the next tests, we check for the boundary lat/lon values to ensure our
+   * decorator uses the right coordinates in its check.
    */
-  it('marks a GeoJSON point with invalid latitude as invalid', async () => {
+  it('marks point at extreme postive lat as valid', async () => {
     testObject.testProperty = {
       type: 'Point',
-      coordinates: [90.001, 7.0],
+      coordinates: [0.0, 90.0],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(0);
+  });
+
+  it('marks point at extreme negative lat as valid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [0.0, -90.0],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(0);
+  });
+
+  it('marks point at extreme postive lon as valid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [180.0, 0.0],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(0);
+  });
+
+  it('marks point at extreme negative lon as valid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [-180.0, 0.0],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(0);
+  });
+
+  it('marks a GeoJSON point with minimum positive invalid latitude as invalid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [0.0, 90.001],
     };
 
     const errors = await validate(testObject);
     expect(errors.length).toBe(1);
   });
 
-  it('marks a GeoJSON point with invalid longitude as invalid', async () => {
+  it('marks a GeoJSON point with minimum negative invalid latitude as invalid', async () => {
     testObject.testProperty = {
       type: 'Point',
-      coordinates: [20.0, 180.001],
+      coordinates: [0.0, -90.001],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(1);
+  });
+
+  it('marks a GeoJSON point with minimum positive invalid longitude as invalid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [180.001, 0.0],
+    };
+
+    const errors = await validate(testObject);
+    expect(errors.length).toBe(1);
+  });
+
+  it('marks a GeoJSON point with minimum negative invalid longitude as invalid', async () => {
+    testObject.testProperty = {
+      type: 'Point',
+      coordinates: [-180.001, 0.0],
     };
 
     const errors = await validate(testObject);

@@ -2,8 +2,10 @@ import { Readable } from 'stream';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
- * This DTO is only used for properly typing our API. We cannot use the actual
- * UploadFileDto there, as this already unwraps our uploaded file.
+ * Defines how a file upload is sent in the body to our API. Note that due to
+ * using @UploadedFile decorator on this body, the actual DTO that we're using
+ * in our further code is the UploadFileDto, which unwraps the 'file' property
+ * here into a full multer file.
  *
  * See https://docs.nestjs.com/openapi/operations#file-upload
  */

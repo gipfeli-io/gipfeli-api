@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
-import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-propertes.decorator';
+import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-properties.decorator';
 
 export class SavedGpxFileDto {
   @IsUUIDApiProperty()

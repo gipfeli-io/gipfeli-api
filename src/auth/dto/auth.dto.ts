@@ -3,7 +3,7 @@ import { UserDto, UserWithPasswordDto } from '../../user/dto/user.dto';
 import { MatchesOtherProperty } from '../../user/dto/validators/matches-other-property.decorator';
 import { IsStrongPassword } from '../../user/dto/validators/is-strong-password.decorator';
 import { PickType } from '@nestjs/swagger';
-import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-propertes.decorator';
+import { IsUUIDApiProperty } from '../../utils/decorators/custom-api-properties.decorator';
 
 /**
  * Contains both a user's access as well as refresh token.
