@@ -13,6 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('environment.port');
+  const environment = configService.get<string>('environment.environment')
 
   // enable helmet protection for adding various security-related headers
   app.use(helmet());
@@ -36,7 +37,6 @@ async function bootstrap() {
   // Initialize sentry if DSN is set
   const sentryDsn = configService.get<string>('integrations.sentry.dsn');
   if (sentryDsn !== '') {
-    const environment = configService.get<string>('environment.environment');
     Sentry.init({
       integrations: [
         // Setup tracing integration to measure performance
@@ -55,7 +55,7 @@ async function bootstrap() {
   }
 
   // Setup swagger.
-  swaggerSetup(app);
+  swaggerSetup(app, environment);
 
   await app.listen(port);
 }

@@ -4,7 +4,7 @@ import { Point } from 'geojson';
 import {
   IsUUIDApiProperty,
   IsPointApiProperty,
-} from '../../utils/decorators/custom-api-propertes.decorator';
+} from '../../utils/decorators/custom-api-properties.decorator';
 
 export class SavedImageDto {
   @IsUUIDApiProperty()
