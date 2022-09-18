@@ -7,11 +7,11 @@ import { BadRequestException } from '@nestjs/common';
  * @param callback
  */
 const gpxFileFilter = (_req, file, callback) => {
-  return file.mimetype.match(/application\/octet-stream$/)
+  return file.mimetype.match(/application\/(octet-stream|gpx\+xml)$/)
     ? callback(null, true)
     : callback(
         new BadRequestException(
-          `Only gpx files are allowed. Mime type was: ${file.mimetype}`,
+          `Only gpx files are allowed. The mime type of your file was: ${file.mimetype}`,
         ),
         false,
       );
