@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { forwardRef, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -36,6 +36,7 @@ describe('Admin Routes can be accessed by an admin user', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
+        forwardRef(() => AuthModule),
         TypeOrmModule.forRootAsync({
           imports: [
             ConfigModule.forRoot({
