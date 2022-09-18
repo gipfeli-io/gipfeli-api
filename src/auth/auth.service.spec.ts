@@ -17,6 +17,7 @@ import { RefreshedToken, UserIdentifier } from './types/auth';
 import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
+import { UserAuthService } from '../user/user-auth.service';
 
 const defaultRefreshTokenValidity = 1000;
 const defaultToken = 'insecure-jwt-token-used-for-testing-only';
@@ -52,6 +53,7 @@ describe('AuthService', () => {
   let authService: AuthService;
   let userService: UserService;
   let sessionRepositoryMock: RepositoryMockType<Repository<UserSession>>;
+  let userAuthService: UserAuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -65,6 +67,7 @@ describe('AuthService', () => {
         AuthService,
         UserService,
         CryptoService,
+        UserAuthService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -93,6 +96,7 @@ describe('AuthService', () => {
 
     authService = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
+    userAuthService = module.get<UserAuthService>(UserAuthService);
     sessionRepositoryMock = module.get(getRepositoryToken(UserSession));
   });
 
@@ -207,6 +211,18 @@ describe('AuthService', () => {
       expect(sessionRepositoryMock.delete).toHaveBeenCalledTimes(1);
       expect(sessionRepositoryMock.delete).toHaveBeenCalledWith(mockSession);
       expect(result).toEqual(undefined);
+    });
+  });
+  describe('isUserAdministrator', () => {
+    it('calls userAuthService with the correct parameter', async () => {
+      const mockEmail = 'test@gipfeli.io';
+      const serviceSpy = jest
+        .spyOn(userAuthService, 'isUserAdministrator')
+        .mockResolvedValue(true);
+
+      await authService.isUserAdministrator(mockEmail);
+
+      expect(serviceSpy).toHaveBeenCalledWith(mockEmail);
     });
   });
 });

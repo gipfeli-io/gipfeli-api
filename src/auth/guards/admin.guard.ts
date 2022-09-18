@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { UserRole } from '../../user/entities/user.entity';
-import { UserAuthService } from '../../user/user-auth.service';
+import { AuthService } from '../auth.service';
 
 /**
  * This guard ensures only users with role === UserRole.ADMINISTRATOR may access
@@ -10,7 +10,7 @@ import { UserAuthService } from '../../user/user-auth.service';
  */
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private readonly userAuthService: UserAuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -24,6 +24,6 @@ export class AdminGuard implements CanActivate {
       return false;
     }
 
-    return this.userAuthService.isUserAdministrator(user.email);
+    return this.authService.isUserAdministrator(user.email);
   }
 }

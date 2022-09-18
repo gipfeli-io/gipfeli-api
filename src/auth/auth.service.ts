@@ -10,6 +10,7 @@ import * as dayjs from 'dayjs';
 import { RefreshedToken, UserIdentifier } from './types/auth';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '../user/entities/user.entity';
+import { UserAuthService } from '../user/user-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly userAuthService: UserAuthService,
     private readonly jwtService: JwtService,
     private readonly hashService: CryptoService,
     @InjectRepository(UserSession)
@@ -117,6 +119,10 @@ export class AuthService {
     // Since we do not care if invalid session ids are sent, we just fire and
     // forget the delete request.
     await this.sessionRepository.delete(sessionId);
+  }
+
+  async isUserAdministrator(email: string): Promise<boolean> {
+    return this.userAuthService.isUserAdministrator(email);
   }
 
   /**
