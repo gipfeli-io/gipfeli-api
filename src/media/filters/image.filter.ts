@@ -11,7 +11,7 @@ const imageFilter = (_req, file, callback) => {
     ? callback(null, true)
     : callback(
         new BadRequestException(
-          `Only image files are allowed. Mime type was: ${file.mimetype}`,
+          `Only image files are allowed. The mime type of your image was: ${file.mimetype}`,
         ),
         false,
       );
