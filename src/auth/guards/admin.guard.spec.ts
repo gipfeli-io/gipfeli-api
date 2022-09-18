@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import repositoryMockFactory, {
-  RepositoryMockType,
-} from '../../utils/mock-utils/repository-mock.factory';
 import { User, UserRole } from '../../user/entities/user.entity';
-import { Repository } from 'typeorm';
 import { AdminGuard } from './admin.guard';
 import { ExecutionContext } from '@nestjs/common';
 import { AuthenticatedUserDto } from '../../user/dto/user.dto';
+import { UserAuthService } from '../../user/user-auth.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import repositoryMockFactory from '../../utils/mock-utils/repository-mock.factory';
+import { UserToken } from '../../user/entities/user-token.entity';
+import { CryptoService } from '../../utils/crypto.service';
+import { ConfigService } from '@nestjs/config';
 
 const getContextMock = (user?: AuthenticatedUserDto) => {
   return {
@@ -23,7 +24,7 @@ const getContextMock = (user?: AuthenticatedUserDto) => {
  * As this is a custom guard (without Passport.js), this guard is unit-tested.
  */
 describe('AdminGuard', () => {
-  let userRepositoryMock: RepositoryMockType<Repository<User>>;
+  let userAuthService: UserAuthService;
   let adminGuard: AdminGuard;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,64 +33,51 @@ describe('AdminGuard', () => {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(UserToken),
+          useFactory: repositoryMockFactory,
+        },
+        CryptoService,
+        ConfigService,
+        UserAuthService,
         AdminGuard,
       ],
     }).compile();
 
-    userRepositoryMock = module.get(getRepositoryToken(User));
+    userAuthService = module.get<UserAuthService>(UserAuthService);
     adminGuard = module.get<AdminGuard>(AdminGuard);
   });
 
-  it('returns true if the user is a valid admin', async () => {
+  it('calls user auth service if role is ADMINISTRATOR and returns the service response', async () => {
     const userMock: AuthenticatedUserDto = {
       email: 'text@gipfeli.io',
       id: 'x',
       role: UserRole.ADMINISTRATOR,
     };
     const contextMock = getContextMock(userMock);
-    const repositorySpy = jest
-      .spyOn(userRepositoryMock, 'findOneOrFail')
-      .mockReturnValue({ role: UserRole.ADMINISTRATOR });
+    const serviceSpy = jest
+      .spyOn(userAuthService, 'isUserAdministrator')
+      .mockResolvedValue(true);
 
     const result = await adminGuard.canActivate(contextMock);
 
     expect(result).toEqual(true);
-    expect(repositorySpy).toHaveBeenCalledWith({
-      where: [{ email: userMock.email, role: userMock.role }],
-    });
+    expect(serviceSpy).toHaveBeenCalledWith(userMock.email);
   });
 
-  it('returns false if the user is a normal user', async () => {
+  it('returns false if the user is a normal user and does not call user auth service', async () => {
     const userMock: AuthenticatedUserDto = {
       email: 'text@gipfeli.io',
       id: 'x',
       role: UserRole.USER,
     };
     const contextMock = getContextMock(userMock);
+    const serviceSpy = jest.spyOn(userAuthService, 'isUserAdministrator');
 
     const result = await adminGuard.canActivate(contextMock);
 
     expect(result).toEqual(false);
-    expect(userRepositoryMock.findOneOrFail).not.toHaveBeenCalled();
-  });
-
-  it('returns false if the user is an invalid admin', async () => {
-    const userMock: AuthenticatedUserDto = {
-      email: 'text@gipfeli.io',
-      id: 'x',
-      role: UserRole.ADMINISTRATOR,
-    };
-    const contextMock = getContextMock(userMock);
-    jest.spyOn(userRepositoryMock, 'findOneOrFail').mockImplementation(() => {
-      throw new Error(); // mock an error in the db query as failure
-    });
-
-    const result = await adminGuard.canActivate(contextMock);
-
-    expect(result).toEqual(false);
-    expect(userRepositoryMock.findOneOrFail).toHaveBeenCalledWith({
-      where: [{ email: userMock.email, role: userMock.role }],
-    });
+    expect(serviceSpy).not.toHaveBeenCalled();
   });
 
   it('returns false if the role property is missing', async () => {
@@ -98,16 +86,18 @@ describe('AdminGuard', () => {
       id: 'x',
     } as AuthenticatedUserDto);
     const result = await adminGuard.canActivate(contextMock);
+    const serviceSpy = jest.spyOn(userAuthService, 'isUserAdministrator');
 
     expect(result).toEqual(false);
-    expect(userRepositoryMock.findOneOrFail).not.toHaveBeenCalled();
+    expect(serviceSpy).not.toHaveBeenCalled();
   });
 
   it('returns false if the user object is missing', async () => {
     const contextMock = getContextMock();
     const result = await adminGuard.canActivate(contextMock);
+    const serviceSpy = jest.spyOn(userAuthService, 'isUserAdministrator');
 
     expect(result).toEqual(false);
-    expect(userRepositoryMock.findOneOrFail).not.toHaveBeenCalled();
+    expect(serviceSpy).not.toHaveBeenCalled();
   });
 });

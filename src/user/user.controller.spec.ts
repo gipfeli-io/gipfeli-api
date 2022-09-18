@@ -8,6 +8,7 @@ import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { UserToken } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
 import { ConfigService } from '@nestjs/config';
+import { UserAuthService } from './user-auth.service';
 
 const results: UserDto[] = [
   {
@@ -37,6 +38,7 @@ describe('UserController', () => {
         UserService,
         CryptoService,
         ConfigService,
+        UserAuthService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
