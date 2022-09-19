@@ -8,6 +8,10 @@ import repositoryMockFactory from '../utils/mock-utils/repository-mock.factory';
 import { UserToken } from './entities/user-token.entity';
 import { CryptoService } from '../utils/crypto.service';
 import { ConfigService } from '@nestjs/config';
+import { UserAuthService } from './user-auth.service';
+import { AuthService } from '../auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { UserSession } from '../auth/entities/user-session.entity';
 
 const results: UserDto[] = [
   {
@@ -32,17 +36,29 @@ describe('UserController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        JwtModule.register({
+          secret: 'x-x-x',
+          signOptions: { expiresIn: '3600s' },
+        }),
+      ],
       controllers: [UserController],
       providers: [
         UserService,
         CryptoService,
         ConfigService,
+        AuthService,
+        UserAuthService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(UserToken),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(UserSession),
           useFactory: repositoryMockFactory,
         },
       ],

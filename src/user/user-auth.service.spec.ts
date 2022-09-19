@@ -268,4 +268,31 @@ describe('UserAuthService', () => {
       await expect(result).rejects.toThrow(BadRequestException);
     });
   });
+  describe('isUserAdministrator', () => {
+    it('returns true if the user is an administrator', async () => {
+      const mockEmail = 'test@gipfeli.io';
+      userRepositoryMock.findOneOrFail.mockReturnValue(true);
+
+      const result = await userAuthService.isUserAdministrator(mockEmail);
+
+      expect(result).toEqual(true);
+      expect(userRepositoryMock.findOneOrFail).toHaveBeenCalledWith({
+        where: [{ email: mockEmail, role: UserRole.ADMINISTRATOR }],
+      });
+    });
+
+    it('returns false if the user is not an administrator or does not exist', async () => {
+      const mockEmail = 'test@gipfeli.io';
+      jest.spyOn(userRepositoryMock, 'findOneOrFail').mockImplementation(() => {
+        throw new Error(); // mock an error in the db query as failure
+      });
+
+      const result = await userAuthService.isUserAdministrator(mockEmail);
+
+      expect(result).toEqual(false);
+      expect(userRepositoryMock.findOneOrFail).toHaveBeenCalledWith({
+        where: [{ email: mockEmail, role: UserRole.ADMINISTRATOR }],
+      });
+    });
+  });
 });

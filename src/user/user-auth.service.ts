@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { ActivateUserDto } from './dto/user.dto';
 import { CryptoService } from '../utils/crypto.service';
@@ -116,6 +116,26 @@ export class UserAuthService {
     }
     // The tokens do not match
     throw new BadRequestException();
+  }
+
+  /**
+   * Checks whether a supplied email address matches a user that is an
+   * administrator. This can be used to ensure that the supplied token's role is
+   * still mirrored in the DB. If an access token signals that a user is an
+   * administrator, it might be that in the meantime, their admin rights have
+   * been revoked. In this case, this method will return false.
+   *
+   * @param email
+   */
+  async isUserAdministrator(email: string): Promise<boolean> {
+    try {
+      await this.userRepository.findOneOrFail({
+        where: [{ email, role: UserRole.ADMINISTRATOR }],
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**

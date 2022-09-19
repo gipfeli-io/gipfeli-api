@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
@@ -21,7 +21,7 @@ import { TokenBearerAuthGuard } from './guards/token-bearer-auth.guard';
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserSession]),
-    UserModule,
+    forwardRef(() => UserModule),
     UtilsModule,
     PassportModule,
     NotificationModule,
