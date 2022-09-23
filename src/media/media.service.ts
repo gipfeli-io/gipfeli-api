@@ -1,8 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  StorageProvider,
-  StorageProviderInterface,
-} from './providers/types/storage-provider';
+import { StorageProvider, StorageProviderInterface, } from './providers/types/storage-provider';
 import { UploadFileDto } from './dto/file.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { FilePath } from './enums/file-path';
@@ -10,10 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, FindOperator, LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image.dto';
-import {
-  GeoReferenceProvider,
-  GeoReferenceProviderInterface,
-} from './providers/types/geo-reference-provider';
+import { GeoReferenceProvider, GeoReferenceProviderInterface, } from './providers/types/geo-reference-provider';
 import { CleanUpResultDto } from './dto/clean-up-result.dto';
 import * as dayjs from 'dayjs';
 import { SavedGpxFileDto } from './dto/gpx-file.dto';
@@ -30,7 +24,8 @@ export class MediaService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(GpxFile)
     private readonly gpxFileRepository: Repository<GpxFile>,
-  ) {}
+  ) {
+  }
 
   public async uploadImage(
     user: AuthenticatedUserDto,
@@ -81,26 +76,41 @@ export class MediaService {
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
 
+    return this.getOverallStatistics(
+      imageCleanUpResultDto,
+      gpxCleanUpResultDto,
+    );
+  }
+
+  private getOverallStatistics(...results: CleanUpResultDto[]) {
     return {
       database: {
-        affected:
-          imageCleanUpResultDto.database.affected +
-          gpxCleanUpResultDto.database.affected,
+        affected: results
+          .map((result) => result.database.affected)
+          .reduce(this.sum, 0),
         raw: null,
       },
       storage: {
-        errors: [
-          ...imageCleanUpResultDto.storage.errors,
-          ...gpxCleanUpResultDto.storage.errors,
-        ],
-        successfulOperations:
-          imageCleanUpResultDto.storage.successfulOperations +
-          gpxCleanUpResultDto.storage.successfulOperations,
-        totalOperations:
-          imageCleanUpResultDto.storage.totalOperations +
-          gpxCleanUpResultDto.storage.totalOperations,
+        errors: results.map((result) => result.storage.errors).flat(),
+        successfulOperations: results
+          .map((result) => result.storage.successfulOperations)
+          .reduce(this.sum, 0),
+        totalOperations: results
+          .map((result) => result.storage.totalOperations)
+          .reduce(this.sum, 0),
       },
     };
+  }
+
+  /**
+   * Used for statistics reducer. If we need this in another place, this should
+   * be extracted to a helper method.
+   * @param a
+   * @param b
+   * @private
+   */
+  private sum(a: number, b: number): number {
+    return a + b;
   }
 
   private async cleanUpImages(
