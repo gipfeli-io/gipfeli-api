@@ -59,8 +59,7 @@ describe('AuthController', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((_key: string) => {
-              // We only need dummy values, and all of the called config values are numbers
+            get: jest.fn(() => {
               return 10;
             }),
           },

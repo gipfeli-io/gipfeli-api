@@ -24,7 +24,9 @@ import { SavedGpxFileDto } from './dto/gpx-file.dto';
 import gpxFileFilter from './filters/gpx-file.filter';
 import { SkipThrottle } from '@nestjs/throttler';
 import {
-  ApiBearerAuth, ApiBody, ApiConsumes,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiPayloadTooLargeResponse,
   ApiTags,
 } from '@nestjs/swagger';

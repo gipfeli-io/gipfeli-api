@@ -24,7 +24,6 @@ import {
   StorageProviderInterface,
   UploadedFileHandle,
 } from '../../../src/media/providers/types/storage-provider';
-import * as fs from 'fs';
 import { AuthService } from '../../../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../../src/utils/crypto.service';
@@ -128,7 +127,6 @@ describe('Authenticated user routes can be accessed by a logged-in user', () => 
 
       it('/upload-gpx-file (POST)', () => {
         const mockFile = path.join(__dirname, '../../mocks/fells_loop.gpx');
-        const buffer = fs.readFileSync(mockFile);
 
         return request(app.getHttpServer())
           .post(`${RoutePrefix.MEDIA}/upload-gpx-file`)

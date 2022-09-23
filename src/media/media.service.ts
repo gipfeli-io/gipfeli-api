@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { StorageProvider, StorageProviderInterface, } from './providers/types/storage-provider';
+import {
+  StorageProvider,
+  StorageProviderInterface,
+} from './providers/types/storage-provider';
 import { UploadFileDto } from './dto/file.dto';
 import { AuthenticatedUserDto } from '../user/dto/user.dto';
 import { FilePath } from './enums/file-path';
@@ -7,7 +10,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, FindOperator, LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { SavedImageDto } from './dto/image.dto';
-import { GeoReferenceProvider, GeoReferenceProviderInterface, } from './providers/types/geo-reference-provider';
+import {
+  GeoReferenceProvider,
+  GeoReferenceProviderInterface,
+} from './providers/types/geo-reference-provider';
 import { CleanUpResultDto } from './dto/clean-up-result.dto';
 import * as dayjs from 'dayjs';
 import { SavedGpxFileDto } from './dto/gpx-file.dto';
@@ -24,8 +30,7 @@ export class MediaService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(GpxFile)
     private readonly gpxFileRepository: Repository<GpxFile>,
-  ) {
-  }
+  ) {}
 
   public async uploadImage(
     user: AuthenticatedUserDto,
