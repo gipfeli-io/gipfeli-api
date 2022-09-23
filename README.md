@@ -21,7 +21,13 @@ this: [Gipfeli.io Documentation](https://docs.gipfeli.io/docs/setup#backend).
 After setting up the database please do the following steps:
 
 - Clone the repository
-- Create an `.env` file based on the `.env.example` and adjust the values
+- Create an `.env` file based on the `.env.example` and adjust the values. You are free in configuring the variables but there are
+  some things you have to be aware of:
+  - If you set `ENVIRONMENT` to either production or staging you need to set the SENDGRID_ variables because these environments
+    use email notifications. Ask the gipfeli.io team for help.
+  - If you set the `SENTRY_` variables make sure you have a valid Sentry project. Ask the gipfeli.io team for help.
+  - `GCS_BUCKET and` `GCS_SERVICE_ACCOUNT`: You can either provide a bucket of your own (has to have public access rights) or ask
+    the gipfeli.io team for access to the dev bucket.
 - Run the commands below:
 
 ```bash
