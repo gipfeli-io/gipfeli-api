@@ -81,7 +81,26 @@ export class MediaService {
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
 
-    return { ...imageCleanUpResultDto, ...gpxCleanUpResultDto };
+    return {
+      database: {
+        affected:
+          imageCleanUpResultDto.database.affected +
+          gpxCleanUpResultDto.database.affected,
+        raw: null,
+      },
+      storage: {
+        errors: [
+          ...imageCleanUpResultDto.storage.errors,
+          ...gpxCleanUpResultDto.storage.errors,
+        ],
+        successfulOperations:
+          imageCleanUpResultDto.storage.successfulOperations +
+          gpxCleanUpResultDto.storage.successfulOperations,
+        totalOperations:
+          imageCleanUpResultDto.storage.totalOperations +
+          gpxCleanUpResultDto.storage.totalOperations,
+      },
+    };
   }
 
   private async cleanUpImages(

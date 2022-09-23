@@ -219,7 +219,8 @@ describe('MediaService', () => {
         .mockReturnValue(deleteResponseDb);
     };
 
-    it('retrieves media to delete and deletes it from storage and db and returns the statistics', async () => {
+    it('retrieves media to delete and deletes it from storage and db and returns the properly summed statistics', async () => {
+      const totalOperations = imageMocks.length + gpxFileMocks.length;
       const imageIdentifiers = imageMocks.map((image) => image.identifier);
       const imageIds = imageMocks.map((image) => image.id);
 
@@ -228,28 +229,45 @@ describe('MediaService', () => {
       );
       const gpxFileIds = gpxFileMocks.map((gpxFile) => gpxFile.id);
 
-      const deleteResponseDb: DeleteResult = {
-        affected: imageMocks.length + gpxFileMocks.length,
+      const deleteResponseDbImage: DeleteResult = {
+        affected: imageMocks.length,
         raw: null,
       };
-      const deleteResponseStorage: BatchStorageOperationStatistics = {
-        totalOperations: imageMocks.length + gpxFileMocks.length,
-        successfulOperations: imageMocks.length + gpxFileMocks.length,
+      const deleteResponseDbGpx: DeleteResult = {
+        affected: gpxFileMocks.length,
+        raw: null,
+      };
+      const deleteResponseStorageImage: BatchStorageOperationStatistics = {
+        totalOperations: imageMocks.length,
+        successfulOperations: imageMocks.length,
+        errors: [],
+      };
+      const deleteResponseStorageGpx: BatchStorageOperationStatistics = {
+        totalOperations: gpxFileMocks.length,
+        successfulOperations: gpxFileMocks.length,
         errors: [],
       };
 
-      spyOnImageRepositoryMock(deleteResponseDb);
-      spyOnGxpFileRepositoryMock(deleteResponseDb);
+      spyOnImageRepositoryMock(deleteResponseDbImage);
+      spyOnGxpFileRepositoryMock(deleteResponseDbGpx);
 
       jest
         .spyOn(storageProviderMock, 'deleteMany')
-        .mockReturnValue(Promise.resolve(deleteResponseStorage));
+        .mockReturnValueOnce(Promise.resolve(deleteResponseStorageGpx))
+        .mockReturnValueOnce(Promise.resolve(deleteResponseStorageImage));
 
       const result = await mediaService.cleanUpMedia();
 
       const expectedResult = new CleanUpResultDto(
-        deleteResponseDb,
-        deleteResponseStorage,
+        {
+          raw: null,
+          affected: totalOperations,
+        },
+        {
+          totalOperations: totalOperations,
+          successfulOperations: totalOperations,
+          errors: [],
+        },
       );
 
       expect(result).toEqual(expectedResult);
