@@ -12,7 +12,7 @@ const PASSWORD_STRENGTH =
 @ValidatorConstraint({ async: true })
 class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return `${validationArguments.property} must contain at lest 1 upper and 1 lower case letter, must be at least 8 characters long and contain at least 1 special character.`;
+    return `${validationArguments.property} must contain at least 1 upper and 1 lower case letter, must be at least 8 characters long and contain at least 1 special character.`;
   }
 
   validate(password: string, _args: ValidationArguments) {
