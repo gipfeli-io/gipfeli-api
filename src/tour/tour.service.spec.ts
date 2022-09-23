@@ -38,6 +38,13 @@ const mockGpxFile: SavedGpxFileDto = {
   name: 'gpx-name',
 };
 
+const mockGpxFileEntity: GpxFile = {
+  ...mockGpxFile,
+  tour: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 const mockCategories: TourCategoryDto[] = [
   {
     id: 'cat-1',
@@ -246,14 +253,12 @@ describe('TourService', () => {
     });
 
     it('sets the gpx file property on the tour and merges the entity with the DTO', async () => {
-      // @ts-ignore => Mock an empty gpx file which can be assigned
-      mockGpxFile.tour = null;
       const mockTourWithoutGxpFile = Object.assign({}, mockExistingTour);
       mockTourWithoutGxpFile.gpxFile = null;
       tourRepositoryMock.findOne.mockReturnValue(
         Object.assign({}, mockTourWithoutGxpFile),
       );
-      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFileEntity);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
       categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
@@ -265,7 +270,7 @@ describe('TourService', () => {
 
       const expectedEntity = {
         ...mockTourWithoutGxpFile,
-        gpxFile: mockGpxFile,
+        gpxFile: mockGpxFileEntity,
       };
       const expectedDto = {
         description: mockTourWithoutGxpFile.description,
@@ -277,7 +282,7 @@ describe('TourService', () => {
         expectedEntity,
         expectedDto,
       );
-      expect(result.gpxFile).toEqual(mockGpxFile);
+      expect(result.gpxFile).toEqual(mockGpxFileEntity);
     });
 
     it('sets the gpx file property to null on the tour if property is sent as null and merges the entity with the DTO', async () => {
@@ -332,6 +337,7 @@ describe('TourService', () => {
       gpxRepositoryMock.findOne.mockReturnValue(null);
       categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { images, gpxFile, categories, ...tourData } = mockNewTour;
 
       const result = await tourService.create(mockNewTour, mockUser);
@@ -353,14 +359,13 @@ describe('TourService', () => {
     });
 
     it('creates a tour with assigned gpx file and returns it', async () => {
-      // @ts-ignore => Mock an empty gpx file which can be assigned
-      mockGpxFile.tour = null;
       tourRepositoryMock.create.mockReturnValue(mockNewTour);
       tourRepositoryMock.save.mockReturnValue(mockNewTour);
       imageRepositoryMock.findByIds.mockReturnValue(mockImages);
-      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
+      gpxRepositoryMock.findOne.mockReturnValue(mockGpxFileEntity);
       categoryRepositoryMock.findByIds.mockReturnValue(mockCategories);
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { images, gpxFile, categories, ...tourData } = mockNewTour;
 
       const result = await tourService.create(mockNewTour, mockUser);
@@ -368,7 +373,7 @@ describe('TourService', () => {
       const expectedConditions = {
         user: mockUser,
         images: mockImages,
-        gpxFile: mockGpxFile,
+        gpxFile: mockGpxFileEntity,
         categories: mockCategories,
         ...tourData,
       };
@@ -399,8 +404,6 @@ describe('TourService', () => {
     });
 
     it('calls the gpx file repository with the correct id and user scope', async () => {
-      // @ts-ignore => Mock an empty gpx file which can be assigned
-      mockGpxFile.tour = null;
       gpxRepositoryMock.findOne.mockReturnValue(mockGpxFile);
 
       await tourService.create(mockNewTour, mockUser);

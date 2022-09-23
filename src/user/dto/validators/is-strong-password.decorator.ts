@@ -15,7 +15,7 @@ class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
     return `${validationArguments.property} must contain at least 1 upper and 1 lower case letter, must be at least 8 characters long and contain at least 1 special character.`;
   }
 
-  validate(password: string, _args: ValidationArguments) {
+  validate(password: string) {
     return PASSWORD_STRENGTH.test(password);
   }
 }
