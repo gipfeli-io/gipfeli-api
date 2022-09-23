@@ -98,9 +98,11 @@ export class TourService {
     const mergedTour = this.tourRepository.merge(existingTour, tour);
     await this.tourRepository.save(mergedTour);
 
-    return this.tourRepository.findOne(id, {
+    const a = this.tourRepository.findOne(id, {
       relations: ['images', 'gpxFile', 'categories'],
     });
+
+    return a;
   }
 
   async remove(id: string, user: AuthenticatedUserDto): Promise<void> {

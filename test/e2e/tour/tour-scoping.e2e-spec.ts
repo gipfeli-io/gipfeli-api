@@ -15,7 +15,6 @@ import { LookupModule } from '../../../src/lookup/lookup.module';
 import { MediaModule } from '../../../src/media/media.module';
 import { Repository } from 'typeorm';
 import { Tour } from '../../../src/tour/entities/tour.entity';
-import { StorageProviderInterface } from '../../../src/media/providers/types/storage-provider';
 import { AuthService } from '../../../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../../src/utils/crypto.service';

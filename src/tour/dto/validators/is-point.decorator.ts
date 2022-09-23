@@ -15,7 +15,7 @@ class IsPointConstraint implements ValidatorConstraintInterface {
     return `${validationArguments.property} must be a valid GeoJSON object of type "Point".`;
   }
 
-  validate(point: Point, args: ValidationArguments) {
+  validate(point: Point) {
     if (
       point == undefined ||
       point.type === undefined ||

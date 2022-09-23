@@ -13,7 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('environment.port');
-  const environment = configService.get<string>('environment.environment')
+  const environment = configService.get<string>('environment.environment');
 
   // enable helmet protection for adding various security-related headers
   app.use(helmet());

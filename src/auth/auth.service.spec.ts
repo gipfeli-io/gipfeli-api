@@ -103,6 +103,7 @@ describe('AuthService', () => {
   describe('validateUser', () => {
     it('should return a UserIdentifier matching the parameters email and password', async () => {
       const { unhashedPassword, email } = userConfig;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, user] = getUserDtoAndUserObject(true);
       jest
         .spyOn(userService, 'findOneForAuth')
@@ -124,6 +125,7 @@ describe('AuthService', () => {
     it('should return null when password does not match', async () => {
       const { email } = userConfig;
       const password = 'this-is-a-wrong-password';
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, user] = getUserDtoAndUserObject(true);
       jest
         .spyOn(userService, 'findOneForAuth')

@@ -81,7 +81,41 @@ export class MediaService {
     const imageCleanUpResultDto = await this.cleanUpImages(dateCondition);
     const gpxCleanUpResultDto = await this.cleanUpGpxFiles(dateCondition);
 
-    return { ...imageCleanUpResultDto, ...gpxCleanUpResultDto };
+    return this.getOverallStatistics(
+      imageCleanUpResultDto,
+      gpxCleanUpResultDto,
+    );
+  }
+
+  private getOverallStatistics(...results: CleanUpResultDto[]) {
+    return {
+      database: {
+        affected: results
+          .map((result) => result.database.affected)
+          .reduce(this.sum, 0),
+        raw: null,
+      },
+      storage: {
+        errors: results.map((result) => result.storage.errors).flat(),
+        successfulOperations: results
+          .map((result) => result.storage.successfulOperations)
+          .reduce(this.sum, 0),
+        totalOperations: results
+          .map((result) => result.storage.totalOperations)
+          .reduce(this.sum, 0),
+      },
+    };
+  }
+
+  /**
+   * Used for statistics reducer. If we need this in another place, this should
+   * be extracted to a helper method.
+   * @param a
+   * @param b
+   * @private
+   */
+  private sum(a: number, b: number): number {
+    return a + b;
   }
 
   private async cleanUpImages(
